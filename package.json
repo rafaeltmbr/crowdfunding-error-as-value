@@ -5,16 +5,18 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node-dev --respawn --transpile-only src/app/index.ts",
-    "build": "tsc"
+    "dev": "tsx watch src/app/index.ts",
+    "start": "node dist/app/index.js",
+    "build": "tsc && tsc-alias --resolve-full-paths"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "devDependencies": {
     "@types/node": "^25.9.1",
-    "ts-node-dev": "^2.0.0",
+    "tsc-alias": "^1.8.17",
+    "tsx": "^4.22.3",
     "typescript": "^6.0.3"
   }
 }

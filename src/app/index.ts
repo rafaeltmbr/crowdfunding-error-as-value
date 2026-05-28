@@ -1,4 +1,4 @@
-import { Campaign } from "../domain/entities/Campaign"
+import { Campaign } from "@entities/Campaign"
 
 const campaign = Campaign.make("My Campaign")
 

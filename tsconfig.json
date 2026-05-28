@@ -1,19 +1,24 @@
 {
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
+    "paths": {
+      "@app/*": ["./src/app/*"],
+      "@entities/*": ["./src/domain/entities/*"],
+      "@utils/*": ["./src/domain/utils/*"]
+    },
     // File Layout
     "rootDir": "./src",
     "outDir": "./dist",
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module": "nodenext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "target": "esnext",
-    "types": [],
+    // "rewriteRelativeImportExtensions": true,
+    "types": ["node"],
     // For nodejs:
     "lib": ["esnext"],
-    // "types": ["node"],
-    // and npm install -D @types/node
 
     // Other Outputs
     "sourceMap": true,
@@ -35,7 +40,6 @@
     // Recommended Options
     "strict": true,
     "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",

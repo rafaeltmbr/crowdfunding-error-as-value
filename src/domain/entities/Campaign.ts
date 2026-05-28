@@ -1,5 +1,5 @@
-import { Result, fail, succeed } from "../utils/Result"
-import { Tier } from "../entities/Tier"
+import { Result, fail, succeed } from "@utils/Result"
+import { Tier } from "@entities/Tier"
 
 export class Campaign {
 	private constructor(

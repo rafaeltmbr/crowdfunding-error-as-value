@@ -1,4 +1,4 @@
-import { fail, Result, succeed } from "../utils/Result";
+import { fail, Result, succeed } from "@utils/Result";
 
 export class Tier {
 	constructor(private name: Name, value: Value) { }
