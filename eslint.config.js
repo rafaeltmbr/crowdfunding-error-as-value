@@ -25,6 +25,20 @@ export default tseslint.config(
 			
 			// Additional safety: ensure that if something is thrown, it's an Error object
 			'@typescript-eslint/only-throw-error': 'error',
+
+			// Forbid 'undefined'
+			'no-undefined': 'error',
+			'no-restricted-syntax': [
+				'error',
+				{
+					selector: 'Identifier[name="undefined"]',
+					message: 'Use "null" or a "Result/Option" type instead of "undefined".',
+				},
+				{
+					selector: 'TSUndefinedKeyword',
+					message: 'Use "null" or a "Result/Option" type instead of "undefined".',
+				},
+			],
 		},
 	},
 	{
