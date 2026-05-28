@@ -7,16 +7,22 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/app/index.ts",
     "start": "node dist/app/index.js",
-    "build": "tsc && tsc-alias --resolve-full-paths"
+    "lint": "eslint src",
+    "build": "eslint src && tsc && tsc-alias --resolve-full-paths"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^25.9.1",
+    "eslint": "^10.4.0",
+    "eslint-plugin-functional": "^9.0.5",
+    "globals": "^17.6.0",
     "tsc-alias": "^1.8.17",
     "tsx": "^4.22.3",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.60.0"
   }
 }

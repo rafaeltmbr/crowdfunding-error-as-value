@@ -1,7 +1,7 @@
 import { Result } from "@utils/Result";
 
 export class Tier {
-	constructor(private name: Name, value: Value) { }
+	constructor(private name: Name, private value: Value) { }
 
 	static make(name: string, value: number): Result<Tier> {
 		const nameResult = Name.make(name)
