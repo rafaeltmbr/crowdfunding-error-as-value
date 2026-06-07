@@ -1,5 +1,5 @@
-import { Campaign } from "@entities/Campaign"
+import { Campaign } from "@entities/Campaign";
 
-const campaign = Campaign.make("My Campaign")
+const campaign = Campaign.make("My Campaign");
 
-console.log("Campaign:", campaign)
+console.log("Campaign:", campaign);
