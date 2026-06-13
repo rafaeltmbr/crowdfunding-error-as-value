@@ -1,10 +1,18 @@
 import { Result } from "@values/Result";
 
 export class Money {
-  protected constructor(private value: number) {}
+  protected constructor(protected value: number) {}
 
   export(): unknown {
     return this.value;
+  }
+
+  isLessThan(money: Money): boolean {
+    return this.value < money.value;
+  }
+
+  isEqual(money: Money): boolean {
+    return this.value === money.value;
   }
 
   static make(value: number): Result<Money> {

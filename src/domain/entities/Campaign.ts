@@ -3,9 +3,9 @@ import { Result } from "@values/Result";
 import { Tier } from "@entities/Tier";
 
 export class Campaign {
-  private constructor(
-    private name: CampaignName,
-    private tiers: Tiers,
+  protected constructor(
+    protected name: CampaignName,
+    protected tiers: Tiers,
   ) {}
 
   export(): unknown {
@@ -15,11 +15,11 @@ export class Campaign {
     };
   }
 
-  static make(name: string): Result<Campaign> {
+  static make(name: string, tiers: Tier[] = []): Result<Campaign> {
     const nameResult = CampaignName.make(name);
     if (nameResult.error) return nameResult;
 
-    const tiersResult = Tiers.make();
+    const tiersResult = Tiers.make(tiers);
     if (tiersResult.error) return tiersResult;
 
     return Result.succeed(new Campaign(nameResult.value, tiersResult.value));
@@ -27,7 +27,7 @@ export class Campaign {
 }
 
 class CampaignName extends Name {
-  private constructor(value: string) {
+  protected constructor(value: string) {
     super(value);
   }
 
@@ -53,13 +53,30 @@ class CampaignName extends Name {
 }
 
 class Tiers {
-  private constructor(private tiers: Tier[]) {}
+  protected constructor(protected tiers: Tier[]) {}
 
   export(): unknown {
     return this.tiers.map((t) => t.export());
   }
 
-  static make(tiers: Tier[] = []): Result<Tiers> {
-    return Result.succeed(new Tiers(tiers));
+  static make(tiers: Tier[]): Result<Tiers> {
+    const validation = this.validate(tiers);
+    if (validation.error) return validation;
+
+    return Result.succeed(new Tiers(validation.value));
+  }
+
+  protected static validate(tiers: Tier[]): Result<Tier[]> {
+    const sortedTiers = tiers.toSorted((a, b) =>
+      a.isValueLessThan(b) ? -1 : 1,
+    );
+
+    for (let i = 0; i < sortedTiers.length - 1; i += 1) {
+      if (sortedTiers[i]!.isValueEqual(sortedTiers[i + 1]!)) {
+        return Result.fail(new Error("Tiers values should be unique."));
+      }
+    }
+
+    return Result.succeed(sortedTiers);
   }
 }

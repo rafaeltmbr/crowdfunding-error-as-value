@@ -3,9 +3,9 @@ import { Name } from "@values/Name";
 import { Result } from "@values/Result";
 
 export class Tier {
-  constructor(
-    private name: TierName,
-    private value: TierMoney,
+  protected constructor(
+    protected name: TierName,
+    protected value: TierMoney,
   ) {}
 
   export(): unknown {
@@ -13,6 +13,14 @@ export class Tier {
       name: this.name.export(),
       value: this.value.export(),
     };
+  }
+
+  isValueLessThan(tier: Tier): boolean {
+    return this.value.isLessThan(tier.value);
+  }
+
+  isValueEqual(tier: Tier): boolean {
+    return this.value.isEqual(tier.value);
   }
 
   static make(name: string, value: number): Result<Tier> {
