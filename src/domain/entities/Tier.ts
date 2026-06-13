@@ -1,48 +1,77 @@
-import { Result } from "@utils/Result";
+import { Money } from "@values/Money";
+import { Name } from "@values/Name";
+import { Result } from "@values/Result";
 
 export class Tier {
   constructor(
-    private name: Name,
-    private value: Value,
+    private name: TierName,
+    private value: TierMoney,
   ) {}
 
+  export(): unknown {
+    return {
+      name: this.name.export(),
+      value: this.value.export(),
+    };
+  }
+
   static make(name: string, value: number): Result<Tier> {
-    const nameResult = Name.make(name);
+    const nameResult = TierName.make(name);
     if (nameResult.error) return nameResult;
 
-    const valueResult = Value.make(value);
+    const valueResult = TierMoney.make(value);
     if (valueResult.error) return valueResult;
 
     return Result.succeed(new Tier(nameResult.value, valueResult.value));
   }
 }
 
-class Name {
-  private constructor(private value: string) {}
+class TierName extends Name {
+  protected constructor(value: string) {
+    super(value);
+  }
 
-  static make(value: string): Result<Name> {
-    if (value.length < 3) {
+  static override make(value: string): Result<TierName> {
+    const validation = this.validate(value);
+    if (validation.error) return validation;
+
+    return Result.succeed(new TierName(value));
+  }
+
+  protected static override validate(value: string): Result<string> {
+    const baseValidation = super.validate(value);
+    if (baseValidation.error) return baseValidation;
+
+    if (baseValidation.value.length < 3) {
       return Result.fail(
-        new Error("Tier name should be at least 3 characters long"),
+        new Error("Tier name should be at least 3 characters long."),
       );
     }
 
-    return Result.succeed(new Name(value));
+    return Result.succeed(baseValidation.value);
   }
 }
 
-class Value {
-  private constructor(private value: number) {}
+class TierMoney extends Money {
+  protected constructor(value: number) {
+    super(value);
+  }
 
-  static make(value: number): Result<Value> {
-    if (isNaN(value)) {
-      return Result.fail(new Error("Tier value should be a number."));
+  static override make(value: number): Result<TierMoney> {
+    const validation = this.validate(value);
+    if (validation.error) return validation;
+
+    return Result.succeed(new TierMoney(value));
+  }
+
+  protected static override validate(value: number): Result<number> {
+    const baseValidation = super.validate(value);
+    if (baseValidation.error) return baseValidation;
+
+    if (baseValidation.value <= 0) {
+      return Result.fail(new Error("Tier value should be positive."));
     }
 
-    if (value <= 0) {
-      return Result.fail(new Error("Tier value should be a positive number."));
-    }
-
-    return Result.succeed(new Value(value));
+    return Result.succeed(baseValidation.value);
   }
 }

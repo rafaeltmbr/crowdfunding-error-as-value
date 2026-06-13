@@ -4,7 +4,7 @@
     "paths": {
       "@app/*": ["./src/app/*"],
       "@entities/*": ["./src/domain/entities/*"],
-      "@utils/*": ["./src/domain/utils/*"]
+      "@values/*": ["./src/domain/values/*"]
     },
     // File Layout
     "rootDir": "./src",
