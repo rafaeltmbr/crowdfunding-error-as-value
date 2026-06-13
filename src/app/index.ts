@@ -9,10 +9,15 @@ function main() {
     Tier.make("Gold", 50).value!,
   ];
 
-  const result = Campaign.make(name, tiers);
-  if (result.error) return console.error(result.error);
+  const campaignResult = Campaign.make(name, tiers);
+  if (campaignResult.error) return console.error(campaignResult.error);
 
-  console.log("Campaign:", result.value.export());
+  const campaign = campaignResult.value;
+
+  const addTierResult = campaign.addTier(Tier.make("Platinum", 100).value!);
+  if (addTierResult.error) return console.error(addTierResult);
+
+  console.log("Campaign:", campaign.export());
 }
 
 main();

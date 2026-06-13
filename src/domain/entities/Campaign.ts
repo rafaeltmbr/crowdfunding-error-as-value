@@ -8,6 +8,10 @@ export class Campaign {
     protected tiers: Tiers,
   ) {}
 
+  addTier(tier: Tier): Result<number> {
+    return this.tiers.add(tier);
+  }
+
   export(): unknown {
     return {
       name: this.name.export(),
@@ -27,10 +31,6 @@ export class Campaign {
 }
 
 class CampaignName extends Name {
-  protected constructor(value: string) {
-    super(value);
-  }
-
   static override make(value: string): Result<CampaignName> {
     const validation = this.validate(value);
     if (validation.error) return validation;
@@ -54,6 +54,14 @@ class CampaignName extends Name {
 
 class Tiers {
   protected constructor(protected tiers: Tier[]) {}
+
+  add(tier: Tier): Result<number> {
+    const validation = Tiers.validate([...this.tiers, tier]);
+    if (validation.error) return validation;
+
+    this.tiers = validation.value;
+    return Result.succeed(this.tiers.length);
+  }
 
   export(): unknown {
     return this.tiers.map((t) => t.export());
