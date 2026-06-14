@@ -2,6 +2,7 @@ import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import functional from 'eslint-plugin-functional';
 import globals from 'globals';
+import localLinter from './linter/index.js';
 
 export default tseslint.config(
 	eslint.configs.recommended,
@@ -10,6 +11,7 @@ export default tseslint.config(
 		files: ['src/**/*.ts'],
 		plugins: {
 			functional,
+			local: localLinter,
 		},
 		languageOptions: {
 			parserOptions: {
@@ -25,6 +27,9 @@ export default tseslint.config(
 			
 			// Additional safety: ensure that if something is thrown, it's an Error object
 			'@typescript-eslint/only-throw-error': 'error',
+
+			// Custom rule: Enforce handling of Result types
+			'local/no-floating-result': 'error',
 
 			// Forbid 'undefined'
 			'no-undefined': 'error',
