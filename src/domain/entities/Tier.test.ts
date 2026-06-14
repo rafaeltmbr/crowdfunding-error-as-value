@@ -16,6 +16,11 @@ describe('Tier', () => {
     expect(result).toBeFailureWithMessage('Tier name should be at least 3 characters long.');
   });
 
+  it('should fail if name is empty', () => {
+    const result = Tier.make('', 100);
+    expect(result).toBeFailureWithMessage('Name should not be empty.');
+  });
+
   it('should fail if value is not positive', () => {
     const result = Tier.make('Valid Name', 0);
     expect(result).toBeFailureWithMessage('Tier value should be positive.');

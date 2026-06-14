@@ -30,6 +30,11 @@ describe('Campaign', () => {
     expect(result).toBeFailureWithMessage('Campaign name should be at least 3 characters long.');
   });
 
+  it('should fail if campaign name is empty', () => {
+    const result = Campaign.make('');
+    expect(result).toBeFailureWithMessage('Name should not be empty.');
+  });
+
   it('should fail if tiers have duplicate values', () => {
     const duplicateTier = Tier.make('Another Tier 1', 10).value!;
     const result = Campaign.make('My Campaign', [validTier1, duplicateTier]);
