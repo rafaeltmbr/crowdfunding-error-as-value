@@ -12,6 +12,14 @@ describe('Result', () => {
     expect(result.error).toBeNull()
   })
 
+  it('should create a success result with void', () => {
+    const result: Result<void> = Result.succeed()
+
+    expect(result).toBeSuccess()
+    expect(result.value).toBeUndefined()
+    expect(result.error).toBeNull()
+  })
+
   it('should create a failure result', () => {
     const error = new Error('Something went wrong')
     const result = Result.fail(error)

@@ -8,7 +8,7 @@ export class Campaign {
     protected tiers: Tiers
   ) {}
 
-  addTier(tier: Tier): Result<number> {
+  addTier(tier: Tier): Result<void> {
     return this.tiers.add(tier)
   }
 
@@ -53,12 +53,12 @@ class CampaignName extends Name {
 class Tiers {
   protected constructor(protected tiers: Tier[]) {}
 
-  add(tier: Tier): Result<number> {
+  add(tier: Tier): Result<void> {
     const validation = Tiers.validate([...this.tiers, tier])
     if (validation.error) return validation
 
     this.tiers = validation.value
-    return Result.succeed(this.tiers.length)
+    return Result.succeed()
   }
 
   export(): unknown {

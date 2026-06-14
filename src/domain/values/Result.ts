@@ -1,6 +1,8 @@
 class ResultBase {
-  static succeed<T>(value: T): Success<T> {
-    return new Success(value)
+  static succeed(): Success<void>
+  static succeed<T>(value: T): Success<T>
+  static succeed<T>(value?: T): Success<T> {
+    return new Success(value as T)
   }
 
   static fail<E extends Error = Error>(error: E): Failure<E> {

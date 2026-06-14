@@ -40,7 +40,6 @@ describe('Campaign', () => {
     const result = campaign.addTier(validTier1)
 
     expect(result).toBeSuccess()
-    expect(result.value).toBe(1) // Length of tiers
   })
 
   it('should fail to add a duplicate tier value', () => {
