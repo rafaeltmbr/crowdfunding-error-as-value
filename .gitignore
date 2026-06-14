@@ -5,3 +5,8 @@ dist/
 
 # files
 .env
+*.js.map
+*.ts.map
+*.d.ts
+vitest.config.js
+

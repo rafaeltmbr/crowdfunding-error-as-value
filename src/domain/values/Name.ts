@@ -11,7 +11,7 @@ export class Name {
     const validation = this.validate(value);
     if (validation.error) return validation;
 
-    return Result.succeed(new Name(value));
+    return Result.succeed(new Name(validation.value));
   }
 
   protected static validate(value: string): Result<string> {

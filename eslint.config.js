@@ -15,7 +15,7 @@ export default tseslint.config(
 		},
 		languageOptions: {
 			parserOptions: {
-				project: './tsconfig.json',
+				project: './tsconfig.eslint.json',
 			},
 			globals: {
 				...globals.node,
@@ -44,6 +44,16 @@ export default tseslint.config(
 					message: 'Use "null" or a "Result/Option" type instead of "undefined".',
 				},
 			],
+		},
+	},
+	{
+		files: ['**/*.test.ts', 'src/tests/**/*.ts'],
+		rules: {
+			'local/no-floating-result': 'off',
+			'functional/no-throw-statements': 'off',
+			'@typescript-eslint/no-explicit-any': 'off',
+			'@typescript-eslint/no-empty-object-type': 'off',
+			'@typescript-eslint/no-unused-vars': 'off',
 		},
 	},
 	{

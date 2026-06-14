@@ -39,7 +39,7 @@ class TierName extends Name {
     const validation = this.validate(value);
     if (validation.error) return validation;
 
-    return Result.succeed(new TierName(value));
+    return Result.succeed(new TierName(validation.value));
   }
 
   protected static override validate(value: string): Result<string> {
@@ -61,7 +61,7 @@ class TierMoney extends Money {
     const validation = this.validate(value);
     if (validation.error) return validation;
 
-    return Result.succeed(new TierMoney(value));
+    return Result.succeed(new TierMoney(validation.value));
   }
 
   protected static override validate(value: number): Result<number> {
