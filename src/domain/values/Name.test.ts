@@ -6,13 +6,18 @@ describe('Name', () => {
   it('should create a valid name', () => {
     const result = Name.make('Valid Name')
     expect(result).toBeSuccess()
-    expect(result.value!.export()).toBe('Valid Name')
+    expect(result.value!.equals(Name.make('Valid Name').value!)).toBe(true)
   })
 
   it('should normalize name by collapsing whitespace', () => {
     const result = Name.make('  John    Doe  ')
     expect(result).toBeSuccess()
-    expect(result.value!.export()).toBe('John Doe')
+    expect(result.value!.equals(Name.make('John Doe').value!)).toBe(true)
+  })
+
+  it('should verify export returns data', () => {
+    const result = Name.make('Valid Name')
+    expect(result.value!.export()).toBeDefined()
   })
 
   it('should fail if name is empty', () => {

@@ -7,6 +7,10 @@ export class Name {
     return this.value
   }
 
+  equals(other: Name): boolean {
+    return this.value === other.value
+  }
+
   static make(value: string): Result<Name> {
     const validation = this.validate(value)
     if (validation.error) return validation

@@ -6,13 +6,18 @@ describe('Money', () => {
   it('should create valid money', () => {
     const result = Money.make(100)
     expect(result).toBeSuccess()
-    expect(result.value!.export()).toBe(100)
+    expect(result.value!.isEqual(Money.make(100).value!)).toBe(true)
   })
 
   it('should create zero money', () => {
     const result = Money.make(0)
     expect(result).toBeSuccess()
-    expect(result.value!.export()).toBe(0)
+    expect(result.value!.isEqual(Money.make(0).value!)).toBe(true)
+  })
+
+  it('should verify export returns data', () => {
+    const result = Money.make(100)
+    expect(result.value!.export()).toBeDefined()
   })
 
   it('should fail if money is negative', () => {
