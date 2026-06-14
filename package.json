@@ -10,7 +10,7 @@
     "lint": "eslint src",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "build": "npm run format:check && npm run lint && npm run test:run && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json --resolve-full-paths",
+    "build": "npm audit && npm run format:check && npm run lint && npm run test:run && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json --resolve-full-paths",
     "test:run": "vitest run --coverage"
   },
   "keywords": [],
