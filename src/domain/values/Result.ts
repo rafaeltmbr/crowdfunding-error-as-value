@@ -1,30 +1,30 @@
 class ResultBase {
   static succeed<T>(value: T): Success<T> {
-    return new Success(value);
+    return new Success(value)
   }
 
   static fail<E extends Error = Error>(error: E): Failure<E> {
-    return new Failure(error);
+    return new Failure(error)
   }
 }
 
 export class Success<T> extends ResultBase {
-  readonly error = null;
+  readonly error = null
 
   constructor(public readonly value: T) {
-    super();
+    super()
   }
 }
 
 export class Failure<E extends Error = Error> extends ResultBase {
-  readonly value = null;
+  readonly value = null
 
   constructor(public readonly error: E) {
-    super();
+    super()
   }
 }
 
-export type Result<T, E extends Error = Error> = Success<T> | Failure<E>;
+export type Result<T, E extends Error = Error> = Success<T> | Failure<E>
 
 /**
  * **Result Pattern**
@@ -70,4 +70,4 @@ export type Result<T, E extends Error = Error> = Success<T> | Failure<E>;
  * }
  * ```
  */
-export const Result = ResultBase;
+export const Result = ResultBase

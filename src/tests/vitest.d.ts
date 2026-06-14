@@ -1,4 +1,5 @@
 import 'vitest';
+
 import { Result } from '../domain/values/Result';
 
 interface CustomMatchers<R = unknown> {

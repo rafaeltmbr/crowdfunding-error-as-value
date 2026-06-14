@@ -13,57 +13,62 @@ export default {
     schema: [],
   },
   create(context) {
-    const services = context.sourceCode.parserServices;
-    const checker = services?.program?.getTypeChecker();
+    const services = context.sourceCode.parserServices
+    const checker = services?.program?.getTypeChecker()
 
     if (!services || !checker || !services.esTreeNodeToTSNodeMap) {
-      return {};
+      return {}
     }
 
     function isResultType(type) {
-      const typeName = checker.typeToString(type);
-      
+      const typeName = checker.typeToString(type)
+
       // Heuristic check for Result, Success, or Failure types
       if (typeName.match(/(^|\.)(Result|Success|Failure)(<.*>|$)/)) {
-        return true;
+        return true
       }
 
       // Handle Promises
       if (typeName.startsWith('Promise<')) {
         // This is a bit simplified, but for a custom rule in a controlled project it's often enough.
         // A more robust way would be to get the type argument of the Promise.
-        const innerTypeMatch = typeName.match(/^Promise<(.*)>$/);
-        if (innerTypeMatch && (innerTypeMatch[1].includes('Result') || innerTypeMatch[1].includes('Success') || innerTypeMatch[1].includes('Failure'))) {
-          return true;
+        const innerTypeMatch = typeName.match(/^Promise<(.*)>$/)
+        if (
+          innerTypeMatch &&
+          (innerTypeMatch[1].includes('Result') ||
+            innerTypeMatch[1].includes('Success') ||
+            innerTypeMatch[1].includes('Failure'))
+        ) {
+          return true
         }
       }
 
       // If it's a union type, check its parts
       if (type.isUnion()) {
-        return type.types.some(t => isResultType(t));
+        return type.types.some((t) => isResultType(t))
       }
 
-      return false;
+      return false
     }
 
     return {
       ExpressionStatement(node) {
-        const expression = node.expression;
+        const expression = node.expression
 
         if (expression.type !== 'CallExpression' && expression.type !== 'AwaitExpression') {
-          return;
+          return
         }
 
-        const tsNode = services.esTreeNodeToTSNodeMap.get(expression);
-        const type = checker.getTypeAtLocation(tsNode);
+        const tsNode = services.esTreeNodeToTSNodeMap.get(expression)
+        const type = checker.getTypeAtLocation(tsNode)
 
         if (isResultType(type)) {
           context.report({
             node: expression,
             messageId: 'floatingResult',
-          });
+          })
         }
       },
-    };
+    }
   },
-};
+}
