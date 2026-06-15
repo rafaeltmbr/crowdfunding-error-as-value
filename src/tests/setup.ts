@@ -24,6 +24,7 @@ expect.extend({
         if (!hasError) {
           return `expected result ${isNot ? 'not ' : ''}to be a Failure, but it succeeded with value: ${JSON.stringify(received.value)}`
         }
+
         return `expected failure message ${isNot ? 'not ' : ''}to be "${expectedMessage}", but got "${received.error?.message}"`
       },
     }

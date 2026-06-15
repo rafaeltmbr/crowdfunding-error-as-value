@@ -49,4 +49,62 @@ describe('Campaign', () => {
 
     expect(result).toBeFailureWithMessage('Tiers values should be unique.')
   })
+
+  it('should compare campaigns for equality', () => {
+    const c1 = Campaign.make('Campaign 1', [validTier1]).value!
+    const c1b = Campaign.make('Campaign 1', [validTier1]).value!
+    const c2 = Campaign.make('Campaign 2', [validTier1]).value!
+    const c3 = Campaign.make('Campaign 1', [validTier2]).value!
+    const c4 = Campaign.make('Campaign 1', [validTier1, validTier2]).value!
+
+    expect(c1.isEqual(c1b)).toBe(true)
+    expect(c1.isEqual(c2)).toBe(false)
+    expect(c1.isEqual(c3)).toBe(false)
+    expect(c1.isEqual(c4)).toBe(false)
+  })
+
+  it('should export a predictable structure', () => {
+    const campaign = Campaign.make('My Campaign', [validTier1]).value!
+    expect(campaign.export()).toEqual({
+      name: 'My Campaign',
+      tiers: [{ name: 'Tier 1', value: 10 }],
+    })
+  })
+
+  it('should import an exported data and produce an equivalent object', () => {
+    const original = Campaign.make('My Campaign', [validTier1, validTier2]).value!
+    const exported = original.export()
+
+    const result = Campaign.import(exported)
+    expect(result).toBeSuccess()
+    expect(result.value!.isEqual(original)).toBe(true)
+  })
+
+  it('should fail to import corrupted data', () => {
+    const result = Campaign.import(null)
+    expect(result).toBeFailureWithMessage('Cannot import Campaign from invalid data format.')
+  })
+
+  it('should fail to import invalid name', () => {
+    const result = Campaign.import({ name: 123, tiers: [] })
+    expect(result).toBeFailureWithMessage('Cannot import CampaignName from invalid data format.')
+  })
+
+  it('should fail to import invalid tiers format', () => {
+    const result = Campaign.import({ name: 'Valid Name', tiers: {} })
+    expect(result).toBeFailureWithMessage('Cannot import Tiers from invalid data format.')
+  })
+
+  it('should fail to import invalid tier data', () => {
+    const result = Campaign.import({
+      name: 'Valid Name',
+      tiers: [{ name: 'Tier 1', value: 'invalid' }],
+    })
+    expect(result).toBeFailureWithMessage('Cannot import TierMoney from invalid data format.')
+  })
+
+  it('should fail to import if campaign name is too short', () => {
+    const result = Campaign.import({ name: 'Ca', tiers: [] })
+    expect(result).toBeFailureWithMessage('Campaign name should be at least 3 characters long.')
+  })
 })

@@ -28,6 +28,13 @@ export default tseslint.config(
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
 
+      // Enforce a blank line after 'if' and loop statements
+      'padding-line-between-statements': [
+        'error',
+        { blankLine: 'always', prev: ['if', 'switch'], next: '*' },
+        { blankLine: 'always', prev: ['for', 'while', 'do'], next: '*' },
+      ],
+
       // Enforce 'Error as Value' by banning throw statements
       'functional/no-throw-statements': 'error',
 
@@ -39,7 +46,6 @@ export default tseslint.config(
 
       // Forbid 'undefined'
       'no-undefined': 'error',
-      curly: ['error', 'multi-line'],
       'no-restricted-syntax': [
         'error',
         {
@@ -67,5 +73,11 @@ export default tseslint.config(
     // Ignore build artifacts
     ignores: ['dist/**', 'node_modules/**'],
   },
-  eslintConfigPrettier
+  eslintConfigPrettier,
+  {
+    files: ['src/**/*.ts', '**/*.test.ts'],
+    rules: {
+      curly: ['error', 'multi-line'],
+    },
+  }
 )

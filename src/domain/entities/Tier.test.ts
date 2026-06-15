@@ -11,7 +11,7 @@ describe('Tier', () => {
 
   it('should fail if name is less than 3 characters', () => {
     const result = Tier.make('Ab', 100)
-    expect(result).toBeFailureWithMessage('Tier name should be at least 3 characters long.')
+    expect(result).toBeFailureWithMessage('TierName should be at least 3 characters long.')
   })
 
   it('should fail if name is empty', () => {
@@ -19,12 +19,19 @@ describe('Tier', () => {
     expect(result).toBeFailureWithMessage('Name should not be empty.')
   })
 
-  it('should fail if value is not positive', () => {
-    const result = Tier.make('Valid Name', 0)
-    expect(result).toBeFailureWithMessage('Tier value should be positive.')
+  it('should fail if value is NaN', () => {
+    const result = Tier.make('Valid Name', NaN)
+    expect(result).toBeFailureWithMessage('Money value should be an number.')
+  })
 
-    const resultNegative = Tier.make('Valid Name', -10)
-    expect(resultNegative).toBeFailureWithMessage('Money value should not be negative.')
+  it('should fail if value is zero', () => {
+    const result = Tier.make('Valid Name', 0)
+    expect(result).toBeFailureWithMessage('TierMoney should be positive.')
+  })
+
+  it('should fail if value is negative', () => {
+    const result = Tier.make('Valid Name', -10)
+    expect(result).toBeFailureWithMessage('TierMoney should be positive.')
   })
 
   it('should compare tier values', () => {
@@ -36,5 +43,33 @@ describe('Tier', () => {
 
     const t1b = Tier.make('Tier 1 Alt', 10).value!
     expect(t1.isValueEqual(t1b)).toBe(true)
+  })
+
+  it('should export a predictable structure', () => {
+    const data = Tier.make('Tier 1', 10).value!.export()
+    expect(data).toEqual({ name: 'Tier 1', value: 10 })
+  })
+
+  it('should import an exported data and produce an equivalent object', () => {
+    const original = Tier.make('Tier 1', 10).value!
+
+    const result = Tier.import(original.export())
+    expect(result).toBeSuccess()
+    expect(result.value!.isEqual(result.value!)).toBe(true)
+  })
+
+  it('should fail to import corrupted data', () => {
+    const result = Tier.import(null)
+    expect(result).toBeFailureWithMessage('Cannot import Tier from invalid data format.')
+  })
+
+  it('should fail to import invalid name', () => {
+    const result = Tier.import({ name: 1, value: 10 })
+    expect(result).toBeFailureWithMessage('Cannot import TierName from invalid data format.')
+  })
+
+  it('should fail to import invalid value', () => {
+    const result = Tier.import({ name: 'Tier 1', value: '1' })
+    expect(result).toBeFailureWithMessage('Cannot import TierMoney from invalid data format.')
   })
 })

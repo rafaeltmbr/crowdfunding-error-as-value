@@ -6,13 +6,13 @@ describe('Name', () => {
   it('should create a valid name', () => {
     const result = Name.make('Valid Name')
     expect(result).toBeSuccess()
-    expect(result.value!.equals(Name.make('Valid Name').value!)).toBe(true)
+    expect(result.value!.isEqual(Name.make('Valid Name').value!)).toBe(true)
   })
 
   it('should normalize name by collapsing whitespace', () => {
     const result = Name.make('  John    Doe  ')
     expect(result).toBeSuccess()
-    expect(result.value!.equals(Name.make('John Doe').value!)).toBe(true)
+    expect(result.value!.isEqual(Name.make('John Doe').value!)).toBe(true)
   })
 
   it('should verify export returns data', () => {
@@ -28,5 +28,18 @@ describe('Name', () => {
   it('should fail if name only contains whitespace', () => {
     const result = Name.make('   ')
     expect(result).toBeFailureWithMessage('Name should not be empty.')
+  })
+
+  it('should import an exported data and produce an equivalent object', () => {
+    const original = Name.make('Abc123').value!
+
+    const result = Name.import(original.export())
+    expect(result).toBeSuccess()
+    expect(result.value!.isEqual(original)).toBe(true)
+  })
+
+  it('should not be able to import corrupted data', () => {
+    const result = Name.import(1)
+    expect(result).toBeFailureWithMessage('Cannot import Name from invalid data format.')
   })
 })

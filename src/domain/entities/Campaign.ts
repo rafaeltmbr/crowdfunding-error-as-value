@@ -12,11 +12,29 @@ export class Campaign {
     return this.tiers.add(tier)
   }
 
+  isEqual(other: Campaign): boolean {
+    return this.name.isEqual(other.name) && this.tiers.isEqual(other.tiers)
+  }
+
   export(): unknown {
     return {
       name: this.name.export(),
       tiers: this.tiers.export(),
     }
+  }
+
+  static import(data: unknown): Result<Campaign> {
+    if (typeof data !== 'object' || data === null) {
+      return Result.fail(new Error('Cannot import Campaign from invalid data format.'))
+    }
+
+    const nameResult = CampaignName.import((data as Record<string, unknown>)['name'])
+    if (nameResult.error) return nameResult
+
+    const tiersResult = Tiers.import((data as Record<string, unknown>)['tiers'])
+    if (tiersResult.error) return tiersResult
+
+    return Result.succeed(new Campaign(nameResult.value, tiersResult.value))
   }
 
   static make(name: string, tiers: Tier[] = []): Result<Campaign> {
@@ -31,6 +49,14 @@ export class Campaign {
 }
 
 class CampaignName extends Name {
+  static override import(data: unknown): Result<CampaignName> {
+    if (typeof data !== 'string') {
+      return Result.fail(new Error('Cannot import CampaignName from invalid data format.'))
+    }
+
+    return this.make(data)
+  }
+
   static override make(value: string): Result<CampaignName> {
     const validation = this.validate(value)
     if (validation.error) return validation
@@ -61,8 +87,32 @@ class Tiers {
     return Result.succeed()
   }
 
+  isEqual(other: Tiers): boolean {
+    if (this.tiers.length !== other.tiers.length) return false
+
+    return this.tiers.every((tier, index) => tier.isEqual(other.tiers[index]!))
+  }
+
   export(): unknown {
     return this.tiers.map((t) => t.export())
+  }
+
+  static import(data: unknown): Result<Tiers> {
+    if (!Array.isArray(data)) {
+      return Result.fail(new Error('Cannot import Tiers from invalid data format.'))
+    }
+
+    const tiers: Tier[] = []
+    for (const tierData of data) {
+      const tierResult = Tier.import(tierData)
+      if (tierResult.error) {
+        return Result.fail(tierResult.error)
+      }
+
+      tiers.push(tierResult.value!)
+    }
+
+    return this.make(tiers)
   }
 
   static make(tiers: Tier[]): Result<Tiers> {

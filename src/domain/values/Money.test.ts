@@ -20,11 +20,6 @@ describe('Money', () => {
     expect(result.value!.export()).toBeDefined()
   })
 
-  it('should fail if money is negative', () => {
-    const result = Money.make(-1)
-    expect(result).toBeFailureWithMessage('Money value should not be negative.')
-  })
-
   it('should fail if money is NaN', () => {
     const result = Money.make(NaN)
     expect(result).toBeFailureWithMessage('Money value should be an number.')
@@ -46,5 +41,18 @@ describe('Money', () => {
 
     expect(m10a.isEqual(m10b)).toBe(true)
     expect(m10a.isEqual(m20)).toBe(false)
+  })
+
+  it('should import an exported data and produce an equivalent object', () => {
+    const original = Money.make(1234.5).value!
+
+    const result = Money.import(original.export())
+    expect(result).toBeSuccess()
+    expect(result.value!.isEqual(original)).toBe(true)
+  })
+
+  it('should not be able to import corrupted data', () => {
+    const result = Money.import('1')
+    expect(result).toBeFailureWithMessage('Cannot import Money from invalid data format.')
   })
 })

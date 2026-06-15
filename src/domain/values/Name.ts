@@ -3,12 +3,20 @@ import { Result } from '@values/Result'
 export class Name {
   protected constructor(protected value: string) {}
 
+  isEqual(other: Name): boolean {
+    return this.value === other.value
+  }
+
   export(): unknown {
     return this.value
   }
 
-  equals(other: Name): boolean {
-    return this.value === other.value
+  static import(data: unknown): Result<Name> {
+    if (typeof data !== 'string') {
+      return Result.fail(new Error('Cannot import Name from invalid data format.'))
+    }
+
+    return this.make(data)
   }
 
   static make(value: string): Result<Name> {
@@ -24,9 +32,7 @@ export class Name {
       .filter((c) => c !== '')
       .join(' ')
 
-    if (normalized === '') {
-      return Result.fail(new Error('Name should not be empty.'))
-    }
+    if (normalized === '') return Result.fail(new Error('Name should not be empty.'))
 
     return Result.succeed(normalized)
   }
