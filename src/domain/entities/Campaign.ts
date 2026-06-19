@@ -72,7 +72,7 @@ class CampaignName extends Name {
       return Result.fail(new Error('Campaign name should be at least 3 characters long.'))
     }
 
-    return Result.succeed(baseValidation.value)
+    return baseValidation
   }
 }
 
