@@ -35,8 +35,23 @@ export class Email {
 
     if (normalized.length === 0) return Result.fail(new Error('Email should not be empty.'))
 
+    if (normalized.length > 254) return Result.fail(new Error('Email format should be valid.'))
+
+    const parts = normalized.split('@')
+    if (parts.length > 1) {
+      if (parts[0]!.length > 64) {
+        return Result.fail(new Error('Email format should be valid.'))
+      }
+
+      const domainParts = parts[1]!.split('.')
+
+      if (domainParts.some((part) => part.length > 63)) {
+        return Result.fail(new Error('Email format should be valid.'))
+      }
+    }
+
     const pattern =
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
     if (!normalized.match(pattern)) return Result.fail(new Error('Email format should be valid.'))
 
