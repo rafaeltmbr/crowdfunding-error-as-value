@@ -107,4 +107,15 @@ describe('Campaign', () => {
     const result = Campaign.import({ name: 'Ca', tiers: [] })
     expect(result).toBeFailureWithMessage('Campaign name should be at least 3 characters long.')
   })
+
+  it('should fail to import if tiers have duplicate values', () => {
+    const result = Campaign.import({
+      name: 'My Campaign',
+      tiers: [
+        { name: 'Tier 1', value: 10 },
+        { name: 'Another Tier 1', value: 10 },
+      ],
+    })
+    expect(result).toBeFailureWithMessage('Tiers values should be unique.')
+  })
 })

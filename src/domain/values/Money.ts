@@ -31,7 +31,7 @@ export class Money {
   }
 
   protected static validate(value: number): Result<number> {
-    if (Number.isNaN(value)) {
+    if (Number.isNaN(value) || !Number.isFinite(value)) {
       return Result.fail(new Error('Money value should be an number.'))
     }
 

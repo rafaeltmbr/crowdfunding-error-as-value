@@ -72,4 +72,24 @@ describe('Tier', () => {
     const result = Tier.import({ name: 'Tier 1', value: '1' })
     expect(result).toBeFailureWithMessage('Cannot import TierMoney from invalid data format.')
   })
+
+  it('should fail to import if name is too short', () => {
+    const result = Tier.import({ name: 'Ab', value: 10 })
+    expect(result).toBeFailureWithMessage('TierName should be at least 3 characters long.')
+  })
+
+  it('should fail to import if value is negative', () => {
+    const result = Tier.import({ name: 'Tier 1', value: -10 })
+    expect(result).toBeFailureWithMessage('TierMoney should be positive.')
+  })
+
+  it('should fail to import if value is zero', () => {
+    const result = Tier.import({ name: 'Tier 1', value: 0 })
+    expect(result).toBeFailureWithMessage('TierMoney should be positive.')
+  })
+
+  it('should fail to import if value is NaN', () => {
+    const result = Tier.import({ name: 'Tier 1', value: NaN })
+    expect(result).toBeFailureWithMessage('Money value should be an number.')
+  })
 })

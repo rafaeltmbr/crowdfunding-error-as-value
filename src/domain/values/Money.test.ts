@@ -25,6 +25,16 @@ describe('Money', () => {
     expect(result).toBeFailureWithMessage('Money value should be an number.')
   })
 
+  it('should fail if money is Infinity', () => {
+    const result = Money.make(Infinity)
+    expect(result).toBeFailureWithMessage('Money value should be an number.')
+  })
+
+  it('should fail if money is -Infinity', () => {
+    const result = Money.make(-Infinity)
+    expect(result).toBeFailureWithMessage('Money value should be an number.')
+  })
+
   it('should compare if one money is less than another', () => {
     const m10 = Money.make(10).value!
     const m20 = Money.make(20).value!
