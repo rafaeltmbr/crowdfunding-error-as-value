@@ -102,15 +102,14 @@ class Tiers {
       return Result.fail(new Error('Cannot import Tiers from invalid data format.'))
     }
 
-    const tiers: Tier[] = []
-    for (const tierData of data) {
-      const tierResult = Tier.import(tierData)
-      if (tierResult.error) {
-        return Result.fail(tierResult.error)
-      }
-
-      tiers.push(tierResult.value!)
+    const results = data.map((tierData) => Tier.import(tierData))
+    const errorResult = results.find((r) => r.error)
+    
+    if (errorResult) {
+      return Result.fail(errorResult.error)
     }
+
+    const tiers = results.map((r) => r.value!)
 
     return this.make(tiers)
   }
@@ -125,10 +124,10 @@ class Tiers {
   protected static validate(tiers: Tier[]): Result<Tier[]> {
     const sortedTiers = tiers.toSorted((a, b) => (a.isValueLessThan(b) ? -1 : 1))
 
-    for (let i = 0; i < sortedTiers.length - 1; i += 1) {
-      if (sortedTiers[i]!.isValueEqual(sortedTiers[i + 1]!)) {
-        return Result.fail(new Error('Tiers values should be unique.'))
-      }
+    const hasDuplicates = sortedTiers.some((tier, i) => i < sortedTiers.length - 1 && tier.isValueEqual(sortedTiers[i + 1]!))
+
+    if (hasDuplicates) {
+      return Result.fail(new Error('Tiers values should be unique.'))
     }
 
     return Result.succeed(sortedTiers)

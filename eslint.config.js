@@ -2,6 +2,7 @@ import eslint from '@eslint/js'
 import tseslint from 'typescript-eslint'
 import functional from 'eslint-plugin-functional'
 import globals from 'globals'
+import importX from 'eslint-plugin-import-x'
 import localLinter from './linter/index.js'
 import eslintConfigPrettier from 'eslint-config-prettier'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
@@ -13,6 +14,7 @@ export default tseslint.config(
     files: ['src/**/*.ts'],
     plugins: {
       functional,
+      'import-x': importX,
       local: localLinter,
       'simple-import-sort': simpleImportSort,
     },
@@ -27,6 +29,32 @@ export default tseslint.config(
     rules: {
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
+
+      // Cyclomatic complexity
+      complexity: ['error', 10],
+
+      // Module sizes
+      'max-lines': ['error', { max: 300, skipBlankLines: true, skipComments: true }],
+      'max-lines-per-function': ['error', { max: 30, skipBlankLines: true, skipComments: true }],
+      'max-statements': ['error', { max: 10 }],
+      'max-depth': ['error', { max: 1 }],
+      'max-params': ['error', { max: 2 }],
+
+      // Dependency structure & Clean Architecture
+      'import-x/no-cycle': 'error',
+      'import-x/no-restricted-paths': [
+        'error',
+        {
+          zones: [
+            {
+              target: './src/domain',
+              from: ['./src/app', './src/infra'],
+              message:
+                'Domain layer cannot depend on Application or Infrastructure layers (Clean Architecture).',
+            },
+          ],
+        },
+      ],
 
       // Enforce a blank line after 'if' and loop statements
       'padding-line-between-statements': [
@@ -67,6 +95,8 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
+      'max-lines-per-function': 'off',
+      'max-statements': 'off',
     },
   },
   {
