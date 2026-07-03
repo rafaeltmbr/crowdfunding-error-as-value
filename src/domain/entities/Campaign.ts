@@ -19,6 +19,7 @@ export class Campaign {
   makeDonation(value: Money, supporter: Supporter): Result<Tier | null> {
     const tier = this.tiers.findEligibleForValue(value)
     const donationResult = Donation.make(value, supporter, tier)
+
     if (donationResult.error) return donationResult
 
     this.donations.add(donationResult.value)
@@ -104,7 +105,7 @@ class Tiers {
   }
 
   findEligibleForValue(value: Money): Tier | null {
-    return this.tiers.toReversed().find((t) => t.isValueLessThanOrEqual(value)) ?? null
+    return this.tiers.toReversed().find((t) => t.isValueEligible(value)) ?? null
   }
 
   isEqual(other: Tiers): boolean {

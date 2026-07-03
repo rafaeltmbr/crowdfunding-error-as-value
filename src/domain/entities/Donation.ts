@@ -15,10 +15,13 @@ export class Donation {
       (this.tier === null && other.tier === null) ||
       (this.tier !== null && other.tier !== null && this.tier.isEqual(other.tier))
 
-    const amountsEqual =
-      this.amount.isEqual(other.amount) && this.supporter.isEqual(other.supporter)
+    return (
+      this.amount.isEqual(other.amount) && this.supporter.isEqual(other.supporter) && tiersEqual
+    )
+  }
 
-    return tiersEqual && amountsEqual
+  isEligibleForTier(tier: Tier): boolean {
+    return tier.isValueEligible(this.amount)
   }
 
   export(): unknown {

@@ -56,6 +56,17 @@ describe('Donation', () => {
     expect(d1.isEqual(d3)).toBe(false)
   })
 
+  it('should check if donation is eligible for tier', () => {
+    const tier = Tier.make('Tier 1', 50).value!
+    const dSmall = Donation.make(Money.make(40).value!, validSupporter).value!
+    const dExact = Donation.make(Money.make(50).value!, validSupporter).value!
+    const dLarge = Donation.make(Money.make(60).value!, validSupporter).value!
+
+    expect(dSmall.isEligibleForTier(tier)).toBe(false)
+    expect(dExact.isEligibleForTier(tier)).toBe(true)
+    expect(dLarge.isEligibleForTier(tier)).toBe(true)
+  })
+
   it('should export a predictable structure', () => {
     const donation = Donation.make(validAmount, validSupporter).value!
     expect(donation.export()).toEqual({

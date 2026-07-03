@@ -16,7 +16,7 @@ export class Tier {
     return this.value.isEqual(tier.value)
   }
 
-  isValueLessThanOrEqual(money: Money): boolean {
+  isValueEligible(money: Money): boolean {
     return this.value.isLessThan(money) || this.value.isEqual(money)
   }
 

@@ -1,3 +1,4 @@
+import { Money } from '@values/Money'
 import { describe, expect, it } from 'vitest'
 
 import { Tier } from './Tier'
@@ -43,6 +44,24 @@ describe('Tier', () => {
 
     const t1b = Tier.make('Tier 1 Alt', 10).value!
     expect(t1.isValueEqual(t1b)).toBe(true)
+  })
+
+  it('should compare tiers for equality', () => {
+    const t1 = Tier.make('Tier 1', 10).value!
+    const t1b = Tier.make('Tier 1', 10).value!
+    const t2 = Tier.make('Tier 2', 10).value!
+    const t3 = Tier.make('Tier 1', 20).value!
+
+    expect(t1.isEqual(t1b)).toBe(true)
+    expect(t1.isEqual(t2)).toBe(false)
+    expect(t1.isEqual(t3)).toBe(false)
+  })
+
+  it('should verify if money is eligible for tier', () => {
+    const tier = Tier.make('Tier 1', 10).value!
+    expect(tier.isValueEligible(Money.make(9).value!)).toBe(false)
+    expect(tier.isValueEligible(Money.make(10).value!)).toBe(true)
+    expect(tier.isValueEligible(Money.make(11).value!)).toBe(true)
   })
 
   it('should export a predictable structure', () => {

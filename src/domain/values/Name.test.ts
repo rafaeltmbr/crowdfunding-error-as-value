@@ -9,6 +9,11 @@ describe('Name', () => {
     expect(result.value!.isEqual(Name.make('Valid Name').value!)).toBe(true)
   })
 
+  it('should verify inequality', () => {
+    const name1 = Name.make('John').value!
+    const name2 = Name.make('Jane').value!
+    expect(name1.isEqual(name2)).toBe(false)
+  })
   it('should normalize name by collapsing whitespace', () => {
     const result = Name.make('  John    Doe  ')
     expect(result).toBeSuccess()
