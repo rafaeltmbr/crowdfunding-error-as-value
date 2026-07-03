@@ -38,7 +38,7 @@ export default tseslint.config(
       'max-lines-per-function': ['error', { max: 30, skipBlankLines: true, skipComments: true }],
       'max-statements': ['error', { max: 10 }],
       'max-depth': ['error', { max: 1 }],
-      'max-params': ['error', { max: 2 }],
+      'max-params': ['error', { max: 3 }],
 
       // Dependency structure & Clean Architecture
       'import-x/no-cycle': 'error',

@@ -1,15 +1,29 @@
+import { Donation } from '@entities/Donation'
+import { Supporter } from '@entities/Supporter'
 import { Tier } from '@entities/Tier'
+import { Money } from '@values/Money'
 import { Name } from '@values/Name'
 import { Result } from '@values/Result'
 
 export class Campaign {
   protected constructor(
     protected name: CampaignName,
-    protected tiers: Tiers
+    protected tiers: Tiers,
+    protected donations: Donations = Donations.make()
   ) {}
 
   addTier(tier: Tier): Result<void> {
     return this.tiers.add(tier)
+  }
+
+  makeDonation(value: Money, supporter: Supporter): Result<Tier | null> {
+    const tier = this.tiers.findEligibleForValue(value)
+    const donationResult = Donation.make(value, supporter, tier)
+    if (donationResult.error) return donationResult
+
+    this.donations.add(donationResult.value)
+
+    return Result.succeed(tier)
   }
 
   isEqual(other: Campaign): boolean {
@@ -28,10 +42,12 @@ export class Campaign {
       return Result.fail(new Error('Cannot import Campaign from invalid data format.'))
     }
 
-    const nameResult = CampaignName.import((data as Record<string, unknown>)['name'])
+    const rec = data as Record<string, unknown>
+
+    const nameResult = CampaignName.import(rec['name'])
     if (nameResult.error) return nameResult
 
-    const tiersResult = Tiers.import((data as Record<string, unknown>)['tiers'])
+    const tiersResult = Tiers.import(rec['tiers'])
     if (tiersResult.error) return tiersResult
 
     return Result.succeed(new Campaign(nameResult.value, tiersResult.value))
@@ -87,6 +103,10 @@ class Tiers {
     return Result.succeed()
   }
 
+  findEligibleForValue(value: Money): Tier | null {
+    return this.tiers.toReversed().find((t) => t.isValueLessThanOrEqual(value)) ?? null
+  }
+
   isEqual(other: Tiers): boolean {
     if (this.tiers.length !== other.tiers.length) return false
 
@@ -104,8 +124,8 @@ class Tiers {
 
     const results = data.map((tierData) => Tier.import(tierData))
     const errorResult = results.find((r) => r.error)
-    
-    if (errorResult) {
+
+    if (errorResult && errorResult.error) {
       return Result.fail(errorResult.error)
     }
 
@@ -124,12 +144,26 @@ class Tiers {
   protected static validate(tiers: Tier[]): Result<Tier[]> {
     const sortedTiers = tiers.toSorted((a, b) => (a.isValueLessThan(b) ? -1 : 1))
 
-    const hasDuplicates = sortedTiers.some((tier, i) => i < sortedTiers.length - 1 && tier.isValueEqual(sortedTiers[i + 1]!))
+    const hasDuplicates = sortedTiers.some(
+      (tier, i) => i < sortedTiers.length - 1 && tier.isValueEqual(sortedTiers[i + 1]!)
+    )
 
     if (hasDuplicates) {
       return Result.fail(new Error('Tiers values should be unique.'))
     }
 
     return Result.succeed(sortedTiers)
+  }
+}
+
+class Donations {
+  protected constructor(protected list: Donation[] = []) {}
+
+  add(donation: Donation): void {
+    this.list.push(donation)
+  }
+
+  static make(list: Donation[] = []): Donations {
+    return new Donations(list)
   }
 }

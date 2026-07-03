@@ -1,11 +1,16 @@
+import { Money } from '@values/Money'
 import { describe, expect, it } from 'vitest'
 
 import { Campaign } from './Campaign'
+import { Donation } from './Donation'
+import { Supporter } from './Supporter'
 import { Tier } from './Tier'
 
 describe('Campaign', () => {
-  const validTier1 = Tier.make('Tier 1', 10).value!
-  const validTier2 = Tier.make('Tier 2', 20).value!
+  const tier10 = Tier.make('Tier 10', 10).value!
+  const tier20 = Tier.make('Tier 20', 20).value!
+  const supporter1 = Supporter.make('Supporter 1', 'supporter1@example.com').value!
+  const supporter2 = Supporter.make('Supporter 2', 'supporter2@example.com').value!
 
   it('should create a valid campaign with no tiers', () => {
     const result = Campaign.make('My Campaign')
@@ -14,7 +19,7 @@ describe('Campaign', () => {
   })
 
   it('should create a valid campaign with tiers', () => {
-    const result = Campaign.make('My Campaign', [validTier2, validTier1])
+    const result = Campaign.make('My Campaign', [tier20, tier10])
     expect(result).toBeSuccess()
     expect(result.value!.export()).toBeDefined()
   })
@@ -30,32 +35,32 @@ describe('Campaign', () => {
   })
 
   it('should fail if tiers have duplicate values', () => {
-    const duplicateTier = Tier.make('Another Tier 1', 10).value!
-    const result = Campaign.make('My Campaign', [validTier1, duplicateTier])
+    const duplicateTier = Tier.make('Another Tier 10', 10).value!
+    const result = Campaign.make('My Campaign', [tier10, duplicateTier])
     expect(result).toBeFailureWithMessage('Tiers values should be unique.')
   })
 
   it('should add a tier successfully', () => {
     const campaign = Campaign.make('My Campaign').value!
-    const result = campaign.addTier(validTier1)
+    const result = campaign.addTier(tier10)
 
     expect(result).toBeSuccess()
   })
 
   it('should fail to add a duplicate tier value', () => {
-    const campaign = Campaign.make('My Campaign', [validTier1]).value!
-    const duplicateTier = Tier.make('Duplicate', 10).value!
+    const campaign = Campaign.make('My Campaign', [tier10]).value!
+    const duplicateTier = Tier.make('Another Tier 10', 10).value!
     const result = campaign.addTier(duplicateTier)
 
     expect(result).toBeFailureWithMessage('Tiers values should be unique.')
   })
 
   it('should compare campaigns for equality', () => {
-    const c1 = Campaign.make('Campaign 1', [validTier1]).value!
-    const c1b = Campaign.make('Campaign 1', [validTier1]).value!
-    const c2 = Campaign.make('Campaign 2', [validTier1]).value!
-    const c3 = Campaign.make('Campaign 1', [validTier2]).value!
-    const c4 = Campaign.make('Campaign 1', [validTier1, validTier2]).value!
+    const c1 = Campaign.make('Campaign 1', [tier10]).value!
+    const c1b = Campaign.make('Campaign 1', [tier10]).value!
+    const c2 = Campaign.make('Campaign 2', [tier10]).value!
+    const c3 = Campaign.make('Campaign 1', [tier20]).value!
+    const c4 = Campaign.make('Campaign 1', [tier10, tier20]).value!
 
     expect(c1.isEqual(c1b)).toBe(true)
     expect(c1.isEqual(c2)).toBe(false)
@@ -64,15 +69,15 @@ describe('Campaign', () => {
   })
 
   it('should export a predictable structure', () => {
-    const campaign = Campaign.make('My Campaign', [validTier1]).value!
+    const campaign = Campaign.make('My Campaign', [tier10]).value!
     expect(campaign.export()).toEqual({
       name: 'My Campaign',
-      tiers: [{ name: 'Tier 1', value: 10 }],
+      tiers: [{ name: 'Tier 10', value: 10 }],
     })
   })
 
   it('should import an exported data and produce an equivalent object', () => {
-    const original = Campaign.make('My Campaign', [validTier1, validTier2]).value!
+    const original = Campaign.make('My Campaign', [tier10, tier20]).value!
     const exported = original.export()
 
     const result = Campaign.import(exported)
@@ -111,11 +116,64 @@ describe('Campaign', () => {
   it('should fail to import if tiers have duplicate values', () => {
     const result = Campaign.import({
       name: 'My Campaign',
-      tiers: [
-        { name: 'Tier 1', value: 10 },
-        { name: 'Another Tier 1', value: 10 },
-      ],
+      tiers: [tier10.export(), { name: 'Another Tier 10', value: 10 }],
     })
     expect(result).toBeFailureWithMessage('Tiers values should be unique.')
+  })
+
+  it('should fail to accept a donation with invalid (negative) amount', () => {
+    const campaign = Campaign.make('My Campaign', [tier10, tier20]).value!
+    const result = campaign.makeDonation(Money.make(-5).value!, supporter1)
+    expect(result).toBeFailureWithMessage('DonationMoney should be positive.')
+  })
+
+  it('should accept a donation with unsufficient amount and return no tier', () => {
+    const campaign = Campaign.make('My Campaign', [tier10, tier20]).value!
+    const result = campaign.makeDonation(Money.make(9).value!, supporter1)
+    expect(result).toBeSuccess()
+    expect(result.value).toBeNull()
+  })
+
+  it('should accept a donation with sufficient amount and return the matching tier', () => {
+    const campaign = Campaign.make('My Campaign', [tier10, tier20]).value!
+    const result = campaign.makeDonation(Money.make(10).value!, supporter1)
+    expect(result).toBeSuccess()
+    expect(result.value?.isEqual(tier10)).toBe(true)
+  })
+
+  it('should accept a donation and return the largest matching tier', () => {
+    const campaign = Campaign.make('My Campaign', [tier10, tier20]).value!
+
+    const result1 = campaign.makeDonation(Money.make(20).value!, supporter1)
+    expect(result1).toBeSuccess()
+    expect(result1.value?.isEqual(tier20)).toBe(true)
+
+    const result2 = campaign.makeDonation(Money.make(25).value!, supporter1)
+    expect(result2).toBeSuccess()
+    expect(result2.value?.isEqual(tier20)).toBe(true)
+  })
+
+  it('should accept multiple donations of the same amount', () => {
+    const campaign = Campaign.make('My Campaign', [tier10, tier20]).value!
+
+    const result1 = campaign.makeDonation(Money.make(10).value!, supporter1)
+    expect(result1).toBeSuccess()
+    expect(result1.value?.isEqual(tier10)).toBe(true)
+
+    const result2 = campaign.makeDonation(Money.make(10).value!, supporter1)
+    expect(result2).toBeSuccess()
+    expect(result2.value?.isEqual(tier10)).toBe(true)
+  })
+
+  it('should accept multiple donations of different amounts', () => {
+    const campaign = Campaign.make('My Campaign', [tier10, tier20]).value!
+
+    const result1 = campaign.makeDonation(Money.make(10).value!, supporter1)
+    expect(result1).toBeSuccess()
+    expect(result1.value?.isEqual(tier10)).toBe(true)
+
+    const result2 = campaign.makeDonation(Money.make(20).value!, supporter1)
+    expect(result2).toBeSuccess()
+    expect(result2.value?.isEqual(tier20)).toBe(true)
   })
 })
