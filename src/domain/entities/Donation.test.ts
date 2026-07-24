@@ -67,6 +67,35 @@ describe('Donation', () => {
     expect(dLarge.isEligibleForTier(tier)).toBe(true)
   })
 
+  it('should verify if donation belongs to supporter', () => {
+    const donation = Donation.make(validAmount, validSupporter).value!
+    const anotherSupporter = Supporter.make('Jane Doe', 'jane.doe@example.com').value!
+
+    expect(donation.belongsToSupporter(validSupporter)).toBe(true)
+    expect(donation.belongsToSupporter(anotherSupporter)).toBe(false)
+  })
+
+  it('should add tier to bucket if tier exists', () => {
+    const tier = Tier.make('Silver', 10).value!
+    const donationWithTier = Donation.make(validAmount, validSupporter, tier).value!
+    const donationWithoutTier = Donation.make(validAmount, validSupporter, null).value!
+
+    const bucket1 = donationWithTier.addTierToBucket(new Set<Tier>())
+    expect(bucket1.size).toBe(1)
+    expect(bucket1.has(tier)).toBe(true)
+
+    const bucket2 = donationWithoutTier.addTierToBucket(new Set<Tier>())
+    expect(bucket2.size).toBe(0)
+  })
+
+  it('should add amount to total money', () => {
+    const donation = Donation.make(validAmount, validSupporter).value!
+    const initialTotal = Money.make(10).value!
+    
+    const newTotal = donation.addToTotal(initialTotal)
+    expect(newTotal.isEqual(Money.make(60).value!)).toBe(true)
+  })
+
   it('should export a predictable structure', () => {
     const donation = Donation.make(validAmount, validSupporter).value!
     expect(donation.export()).toEqual({

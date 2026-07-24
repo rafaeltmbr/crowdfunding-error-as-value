@@ -53,6 +53,14 @@ describe('Money', () => {
     expect(m10a.isEqual(m20)).toBe(false)
   })
 
+  it('should add two money values together', () => {
+    const m10 = Money.make(10).value!
+    const m20 = Money.make(20).value!
+    const sum = m10.plus(m20)
+
+    expect(sum.isEqual(Money.make(30).value!)).toBe(true)
+  })
+
   it('should import an exported data and produce an equivalent object', () => {
     const original = Money.make(1234.5).value!
 
