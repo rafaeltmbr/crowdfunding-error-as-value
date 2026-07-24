@@ -28,10 +28,8 @@ export class Donation {
     return this.supporter.isEqual(supporter)
   }
 
-  addTierToBucket(bucket: Set<Tier>): void {
-    if (this.tier) {
-      bucket.add(this.tier)
-    }
+  addTierToBucket(bucket: Set<Tier>): Set<Tier> {
+    return this.tier ? new Set<Tier>([...bucket.values(), this.tier]) : bucket
   }
 
   addToTotal(total: Money): Money {

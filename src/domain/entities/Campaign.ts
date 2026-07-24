@@ -189,9 +189,9 @@ class SupporterDonationStats {
   }
 
   get tiers(): Set<Tier> {
-    return this.donations.reduce((bucket, donation) => {
-      donation.addTierToBucket(bucket)
-      return bucket
-    }, new Set<Tier>())
+    return this.donations.reduce(
+      (bucket, donation) => donation.addTierToBucket(bucket),
+      new Set<Tier>()
+    )
   }
 }
