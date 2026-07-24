@@ -16,7 +16,7 @@ export class Campaign {
     return this.tiers.add(tier)
   }
 
-  makeDonation(value: Money, supporter: Supporter): Result<Tier | null> {
+  makeDonation(value: Money, supporter: Supporter): Result<void> {
     const tier = this.tiers.findEligibleForValue(value)
     const donationResult = Donation.make(value, supporter, tier)
 
@@ -24,7 +24,11 @@ export class Campaign {
 
     this.donations.add(donationResult.value)
 
-    return Result.succeed(tier)
+    return Result.succeed()
+  }
+
+  supporterDonationStats(supporter: Supporter): SupporterDonationStats {
+    return this.donations.supporterStats(supporter)
   }
 
   isEqual(other: Campaign): boolean {
@@ -164,7 +168,30 @@ class Donations {
     this.list.push(donation)
   }
 
+  supporterStats(supporter: Supporter): SupporterDonationStats {
+    const donations = this.list.filter((donation) => donation.belongsToSupporter(supporter))
+    return new SupporterDonationStats(donations)
+  }
+
   static make(list: Donation[] = []): Donations {
     return new Donations(list)
+  }
+}
+
+class SupporterDonationStats {
+  constructor(protected donations: Donation[]) {}
+
+  get total(): Money {
+    return this.donations.reduce(
+      (total, donation) => donation.addToTotal(total),
+      Money.make(0).value!
+    )
+  }
+
+  get tiers(): Set<Tier> {
+    return this.donations.reduce((bucket, donation) => {
+      donation.addTierToBucket(bucket)
+      return bucket
+    }, new Set<Tier>())
   }
 }

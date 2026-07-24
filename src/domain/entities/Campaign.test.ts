@@ -131,14 +131,16 @@ describe('Campaign', () => {
     const campaign = Campaign.make('My Campaign', [tier10, tier20]).value!
     const result = campaign.makeDonation(Money.make(9).value!, supporter1)
     expect(result).toBeSuccess()
-    expect(result.value).toBeNull()
+    const stats = campaign.supporterDonationStats(supporter1)
+    expect(stats.tiers.size).toBe(0)
   })
 
   it('should accept a donation with sufficient amount and return the matching tier', () => {
     const campaign = Campaign.make('My Campaign', [tier10, tier20]).value!
     const result = campaign.makeDonation(Money.make(10).value!, supporter1)
     expect(result).toBeSuccess()
-    expect(result.value?.isEqual(tier10)).toBe(true)
+    const stats = campaign.supporterDonationStats(supporter1)
+    expect(stats.tiers.has(tier10)).toBe(true)
   })
 
   it('should accept a donation and return the largest matching tier', () => {
@@ -146,11 +148,13 @@ describe('Campaign', () => {
 
     const result1 = campaign.makeDonation(Money.make(20).value!, supporter1)
     expect(result1).toBeSuccess()
-    expect(result1.value?.isEqual(tier20)).toBe(true)
+    let stats = campaign.supporterDonationStats(supporter1)
+    expect(stats.tiers.has(tier20)).toBe(true)
 
     const result2 = campaign.makeDonation(Money.make(25).value!, supporter1)
     expect(result2).toBeSuccess()
-    expect(result2.value?.isEqual(tier20)).toBe(true)
+    stats = campaign.supporterDonationStats(supporter1)
+    expect(stats.tiers.has(tier20)).toBe(true)
   })
 
   it('should accept multiple donations of the same amount', () => {
@@ -158,11 +162,14 @@ describe('Campaign', () => {
 
     const result1 = campaign.makeDonation(Money.make(10).value!, supporter1)
     expect(result1).toBeSuccess()
-    expect(result1.value?.isEqual(tier10)).toBe(true)
+    let stats = campaign.supporterDonationStats(supporter1)
+    expect(stats.tiers.has(tier10)).toBe(true)
 
     const result2 = campaign.makeDonation(Money.make(10).value!, supporter1)
     expect(result2).toBeSuccess()
-    expect(result2.value?.isEqual(tier10)).toBe(true)
+    stats = campaign.supporterDonationStats(supporter1)
+    expect(stats.tiers.has(tier10)).toBe(true)
+    expect(stats.total.export()).toBe(20)
   })
 
   it('should accept multiple donations of different amounts', () => {
@@ -170,10 +177,13 @@ describe('Campaign', () => {
 
     const result1 = campaign.makeDonation(Money.make(10).value!, supporter1)
     expect(result1).toBeSuccess()
-    expect(result1.value?.isEqual(tier10)).toBe(true)
+    let stats = campaign.supporterDonationStats(supporter1)
+    expect(stats.tiers.has(tier10)).toBe(true)
 
     const result2 = campaign.makeDonation(Money.make(20).value!, supporter1)
     expect(result2).toBeSuccess()
-    expect(result2.value?.isEqual(tier20)).toBe(true)
+    stats = campaign.supporterDonationStats(supporter1)
+    expect(stats.tiers.has(tier20)).toBe(true)
+    expect(stats.total.export()).toBe(30)
   })
 })

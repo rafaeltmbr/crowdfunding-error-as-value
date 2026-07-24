@@ -11,6 +11,10 @@ export class Money {
     return this.value === other.value
   }
 
+  plus(other: Money): Money {
+    return new Money(this.value + other.value)
+  }
+
   export(): unknown {
     return this.value
   }

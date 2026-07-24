@@ -24,6 +24,20 @@ export class Donation {
     return tier.isValueEligible(this.amount)
   }
 
+  belongsToSupporter(supporter: Supporter): boolean {
+    return this.supporter.isEqual(supporter)
+  }
+
+  addTierToBucket(bucket: Set<Tier>): void {
+    if (this.tier) {
+      bucket.add(this.tier)
+    }
+  }
+
+  addToTotal(total: Money): Money {
+    return total.plus(this.amount)
+  }
+
   export(): unknown {
     return {
       amount: this.amount.export(),
