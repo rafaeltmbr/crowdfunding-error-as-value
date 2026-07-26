@@ -91,7 +91,7 @@ describe('Donation', () => {
   it('should add amount to total money', () => {
     const donation = Donation.make(validAmount, validSupporter).value!
     const initialTotal = Money.make(10).value!
-    
+
     const newTotal = donation.addToTotal(initialTotal)
     expect(newTotal.isEqual(Money.make(60).value!)).toBe(true)
   })
