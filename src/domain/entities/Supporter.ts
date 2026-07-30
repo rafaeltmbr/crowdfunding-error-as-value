@@ -1,26 +1,38 @@
 import { Email, type EmailExported } from '@values/Email'
+import { Id, IdExported } from '@values/Id'
 import { Name, type NameExported } from '@values/Name'
 import { Result } from '@values/Result'
 
 export class Supporter {
   protected constructor(
+    protected id: Id,
     protected name: SupporterName,
     protected email: Email
   ) {}
 
   isEqual(other: Supporter): boolean {
-    return this.name.isEqual(other.name) && this.email.isEqual(other.email)
+    return this.id.isEqual(other.id)
   }
 
   export(): SupporterExported {
     return {
+      id: this.id.export(),
       name: this.name.export(),
       email: this.email.export(),
     }
   }
 
   static import(exported: SupporterExported): Result<Supporter> {
-    return this.make(exported.name, exported.email)
+    const idResult = Id.import(exported.id)
+    if (idResult.error) return idResult
+
+    const nameResult = SupporterName.make(exported.name)
+    if (nameResult.error) return nameResult
+
+    const emailResult = Email.import(exported.email)
+    if (emailResult.error) return emailResult
+
+    return Result.succeed(new Supporter(idResult.value, nameResult.value, emailResult.value))
   }
 
   static make(name: string, email: string): Result<Supporter> {
@@ -30,7 +42,7 @@ export class Supporter {
     const emailResult = Email.make(email)
     if (emailResult.error) return emailResult
 
-    return Result.succeed(new Supporter(nameResult.value, emailResult.value))
+    return Result.succeed(new Supporter(Id.make(), nameResult.value, emailResult.value))
   }
 }
 
@@ -55,6 +67,7 @@ class SupporterName extends Name {
 }
 
 export interface SupporterExported {
+  id: IdExported
   name: NameExported
   email: EmailExported
 }

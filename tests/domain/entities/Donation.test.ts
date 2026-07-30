@@ -95,6 +95,7 @@ describe('Donation', () => {
     expect(donation.export()).toEqual({
       amount: 50,
       supporter: {
+        id: validSupporter.export().id,
         name: 'John Doe',
         email: 'john.doe@example.com',
       },
@@ -108,6 +109,7 @@ describe('Donation', () => {
     expect(donation.export()).toEqual({
       amount: 50,
       supporter: {
+        id: validSupporter.export().id,
         name: 'John Doe',
         email: 'john.doe@example.com',
       },
@@ -140,7 +142,7 @@ describe('Donation', () => {
   it('should fail to import invalid supporter format', () => {
     const result = Donation.import({
       amount: 50,
-      supporter: { name: 'A', email: 'john.doe@example.com' },
+      supporter: { id: 'A2CDEFGHJK', name: 'A', email: 'john.doe@example.com' },
       tier: null,
     })
     expect(result).toBeFailureWithMessage('Supporter name should be at least 3 characters long.')
@@ -149,7 +151,7 @@ describe('Donation', () => {
   it('should fail to import invalid tier format', () => {
     const result = Donation.import({
       amount: 50,
-      supporter: { name: 'John Doe', email: 'john.doe@example.com' },
+      supporter: { id: 'A2CDEFGHJK', name: 'John Doe', email: 'john.doe@example.com' },
       tier: { name: 'A', value: 10 },
     })
     expect(result).toBeFailureWithMessage('TierName should be at least 3 characters long.')
@@ -159,6 +161,7 @@ describe('Donation', () => {
     const result = Donation.import({
       amount: NaN,
       supporter: {
+        id: 'A2CDEFGHJK',
         name: 'John Doe',
         email: 'john.doe@example.com',
       },
