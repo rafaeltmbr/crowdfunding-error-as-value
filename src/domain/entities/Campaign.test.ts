@@ -85,11 +85,6 @@ describe('Campaign', () => {
     expect(tiersArray[0]!.isEqual(tier10)).toBe(true)
   })
 
-  it('should fail to import corrupted data', () => {
-    const result = Campaign.import(null)
-    expect(result).toBeFailureWithMessage('Cannot import Campaign from invalid data format.')
-  })
-
   it('should fail to import invalid id format', () => {
     const result = Campaign.import({
       id: 'SHORT',
@@ -99,58 +94,34 @@ describe('Campaign', () => {
     expect(result).toBeFailureWithMessage('Id length should be 10 characters long.')
   })
 
-  it('should fail to import invalid name', () => {
+  it('should fail to import invalid name format', () => {
     const result = Campaign.import({
       id: 'A2CDEFGHJK',
-      name: 123,
+      name: 'Ab',
       funding: { tiers: [], donations: [] },
     })
-    expect(result).toBeFailureWithMessage('Cannot import CampaignName from invalid data format.')
+    expect(result).toBeFailureWithMessage('Campaign name should be at least 3 characters long.')
   })
 
-  it('should fail to import invalid funding format', () => {
+  it('should fail to import with invalid tier inside funding', () => {
     const result = Campaign.import({
       id: 'A2CDEFGHJK',
       name: 'Valid Name',
-      funding: null,
+      funding: { tiers: [{ name: 'A', value: 10 }], donations: [] },
     })
-    expect(result).toBeFailureWithMessage('Cannot import CampaignFunding from invalid data format.')
+    expect(result).toBeFailureWithMessage('TierName should be at least 3 characters long.')
   })
 
-  it('should fail to import invalid tiers format', () => {
+  it('should fail to import with invalid donation inside funding', () => {
     const result = Campaign.import({
       id: 'A2CDEFGHJK',
       name: 'Valid Name',
-      funding: { tiers: {}, donations: [] },
+      funding: {
+        tiers: [],
+        donations: [{ amount: -50, supporter: { name: 'John Doe', email: 'a@b.com' }, tier: null }],
+      },
     })
-    expect(result).toBeFailureWithMessage('Cannot import Tiers from invalid data format.')
-  })
-
-  it('should fail to import invalid donations format', () => {
-    const result = Campaign.import({
-      id: 'A2CDEFGHJK',
-      name: 'Valid Name',
-      funding: { tiers: [], donations: {} },
-    })
-    expect(result).toBeFailureWithMessage('Cannot import Donations from invalid data format.')
-  })
-
-  it('should fail to import invalid tier data', () => {
-    const result = Campaign.import({
-      id: 'A2CDEFGHJK',
-      name: 'Valid Name',
-      funding: { tiers: [{ name: 'Tier 1', value: 'invalid' }], donations: [] },
-    })
-    expect(result).toBeFailureWithMessage('Cannot import TierMoney from invalid data format.')
-  })
-
-  it('should fail to import invalid donation data', () => {
-    const result = Campaign.import({
-      id: 'A2CDEFGHJK',
-      name: 'Valid Name',
-      funding: { tiers: [], donations: [null] },
-    })
-    expect(result).toBeFailureWithMessage('Cannot import Donation from invalid data format.')
+    expect(result).toBeFailureWithMessage('DonationMoney should be positive.')
   })
 
   it('should fail to import if campaign name is too short', () => {

@@ -7,16 +7,12 @@ export class Email {
     return this.value === other.value
   }
 
-  export(): unknown {
+  export(): EmailExported {
     return this.value
   }
 
-  static import(data: unknown): Result<Email> {
-    if (typeof data !== 'string') {
-      return Result.fail(new Error('Cannot import Email from invalid data format.'))
-    }
-
-    return this.make(data)
+  static import(exported: EmailExported): Result<Email> {
+    return this.make(exported)
   }
 
   static make(value: string): Result<Email> {
@@ -83,3 +79,5 @@ export class Email {
     return Result.succeed()
   }
 }
+
+export type EmailExported = string

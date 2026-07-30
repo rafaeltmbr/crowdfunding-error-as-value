@@ -7,16 +7,12 @@ export class Name {
     return this.value === other.value
   }
 
-  export(): unknown {
+  export(): NameExported {
     return this.value
   }
 
-  static import(data: unknown): Result<Name> {
-    if (typeof data !== 'string') {
-      return Result.fail(new Error('Cannot import Name from invalid data format.'))
-    }
-
-    return this.make(data)
+  static import(exported: NameExported): Result<Name> {
+    return this.make(exported)
   }
 
   static make(value: string): Result<Name> {
@@ -37,3 +33,5 @@ export class Name {
     return Result.succeed(normalized)
   }
 }
+
+export type NameExported = string

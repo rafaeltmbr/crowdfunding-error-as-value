@@ -1,5 +1,5 @@
-import { Money } from '@values/Money'
-import { Name } from '@values/Name'
+import { Money, type MoneyExported } from '@values/Money'
+import { Name, type NameExported } from '@values/Name'
 import { Result } from '@values/Result'
 
 export class Tier {
@@ -24,25 +24,15 @@ export class Tier {
     return this.name.isEqual(tier.name) && this.value.isEqual(tier.value)
   }
 
-  export(): unknown {
+  export(): TierExported {
     return {
       name: this.name.export(),
       value: this.value.export(),
     }
   }
 
-  static import(data: unknown): Result<Tier> {
-    if (typeof data !== 'object' || data === null) {
-      return Result.fail(new Error('Cannot import Tier from invalid data format.'))
-    }
-
-    const nameResult = TierName.import((data as Record<string, unknown>)['name'])
-    if (nameResult.error) return nameResult
-
-    const valueResult = TierMoney.import((data as Record<string, unknown>)['value'])
-    if (valueResult.error) return valueResult
-
-    return Result.succeed(new Tier(nameResult.value, valueResult.value))
+  static import(exported: TierExported): Result<Tier> {
+    return this.make(exported.name, exported.value)
   }
 
   static make(name: string, value: number): Result<Tier> {
@@ -57,14 +47,6 @@ export class Tier {
 }
 
 class TierName extends Name {
-  static override import(data: unknown): Result<TierName> {
-    if (typeof data !== 'string') {
-      return Result.fail(new Error('Cannot import TierName from invalid data format.'))
-    }
-
-    return this.make(data)
-  }
-
   static override make(value: string): Result<TierName> {
     const validation = this.validate(value)
     if (validation.error) return validation
@@ -85,14 +67,6 @@ class TierName extends Name {
 }
 
 class TierMoney extends Money {
-  static override import(data: unknown): Result<Money> {
-    if (typeof data !== 'number') {
-      return Result.fail(new Error('Cannot import TierMoney from invalid data format.'))
-    }
-
-    return this.make(data)
-  }
-
   static override make(value: number): Result<TierMoney> {
     const validation = this.validate(value)
     if (validation.error) return validation
@@ -110,4 +84,9 @@ class TierMoney extends Money {
 
     return Result.succeed(baseValidation.value)
   }
+}
+
+export interface TierExported {
+  name: NameExported
+  value: MoneyExported
 }

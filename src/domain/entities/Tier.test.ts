@@ -77,21 +77,6 @@ describe('Tier', () => {
     expect(result.value!.isEqual(result.value!)).toBe(true)
   })
 
-  it('should fail to import corrupted data', () => {
-    const result = Tier.import(null)
-    expect(result).toBeFailureWithMessage('Cannot import Tier from invalid data format.')
-  })
-
-  it('should fail to import invalid name', () => {
-    const result = Tier.import({ name: 1, value: 10 })
-    expect(result).toBeFailureWithMessage('Cannot import TierName from invalid data format.')
-  })
-
-  it('should fail to import invalid value', () => {
-    const result = Tier.import({ name: 'Tier 1', value: '1' })
-    expect(result).toBeFailureWithMessage('Cannot import TierMoney from invalid data format.')
-  })
-
   it('should fail to import if name is too short', () => {
     const result = Tier.import({ name: 'Ab', value: 10 })
     expect(result).toBeFailureWithMessage('TierName should be at least 3 characters long.')

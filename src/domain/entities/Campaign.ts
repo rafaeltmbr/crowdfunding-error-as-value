@@ -1,9 +1,9 @@
-import { Donation } from '@entities/Donation'
+import { Donation, type DonationExported } from '@entities/Donation'
 import { Supporter } from '@entities/Supporter'
-import { Tier } from '@entities/Tier'
-import { Id } from '@values/Id'
+import { Tier, type TierExported } from '@entities/Tier'
+import { Id, type IdExported } from '@values/Id'
 import { Money } from '@values/Money'
-import { Name } from '@values/Name'
+import { Name, type NameExported } from '@values/Name'
 import { Result } from '@values/Result'
 
 export class Campaign {
@@ -29,7 +29,7 @@ export class Campaign {
     return this.id.isEqual(other.id)
   }
 
-  export(): unknown {
+  export(): CampaignExported {
     return {
       id: this.id.export(),
       name: this.name.export(),
@@ -37,20 +37,14 @@ export class Campaign {
     }
   }
 
-  static import(data: unknown): Result<Campaign> {
-    if (typeof data !== 'object' || data === null) {
-      return Result.fail(new Error('Cannot import Campaign from invalid data format.'))
-    }
-
-    const rec = data as Record<string, unknown>
-
-    const idResult = Id.import(rec['id'] as string)
+  static import(exported: CampaignExported): Result<Campaign> {
+    const idResult = Id.import(exported.id)
     if (idResult.error) return Result.fail(idResult.error)
 
-    const nameResult = CampaignName.import(rec['name'])
+    const nameResult = CampaignName.make(exported.name)
     if (nameResult.error) return nameResult
 
-    const fundingResult = CampaignFunding.import(rec['funding'])
+    const fundingResult = CampaignFunding.import(exported.funding)
     if (fundingResult.error) return fundingResult
 
     return Result.succeed(new Campaign(idResult.value, nameResult.value, fundingResult.value))
@@ -94,24 +88,18 @@ class CampaignFunding {
     return this.donations.supporterStats(supporter)
   }
 
-  export(): unknown {
+  export(): CampaignFundingExported {
     return {
       tiers: this.tiers.export(),
       donations: this.donations.export(),
     }
   }
 
-  static import(data: unknown): Result<CampaignFunding> {
-    if (typeof data !== 'object' || data === null) {
-      return Result.fail(new Error('Cannot import CampaignFunding from invalid data format.'))
-    }
-
-    const rec = data as Record<string, unknown>
-
-    const tiersResult = Tiers.import(rec['tiers'])
+  static import(exported: CampaignFundingExported): Result<CampaignFunding> {
+    const tiersResult = Tiers.import(exported.tiers)
     if (tiersResult.error) return tiersResult
 
-    const donationsResult = Donations.import(rec['donations'])
+    const donationsResult = Donations.import(exported.donations)
     if (donationsResult.error) return donationsResult
 
     return Result.succeed(new CampaignFunding(tiersResult.value, donationsResult.value))
@@ -123,14 +111,6 @@ class CampaignFunding {
 }
 
 class CampaignName extends Name {
-  static override import(data: unknown): Result<CampaignName> {
-    if (typeof data !== 'string') {
-      return Result.fail(new Error('Cannot import CampaignName from invalid data format.'))
-    }
-
-    return this.make(data)
-  }
-
   static override make(value: string): Result<CampaignName> {
     const validation = this.validate(value)
     if (validation.error) return validation
@@ -165,16 +145,12 @@ class Tiers {
     return this.tiers.toReversed().find((t) => t.isValueEligible(value)) ?? null
   }
 
-  export(): unknown {
+  export(): TierExported[] {
     return this.tiers.map((t) => t.export())
   }
 
-  static import(data: unknown): Result<Tiers> {
-    if (!Array.isArray(data)) {
-      return Result.fail(new Error('Cannot import Tiers from invalid data format.'))
-    }
-
-    const results = data.map((tierData) => Tier.import(tierData))
+  static import(exported: TierExported[]): Result<Tiers> {
+    const results = exported.map((tierData) => Tier.import(tierData))
     const errorResult = results.find((r) => r.error)
 
     if (errorResult && errorResult.error) {
@@ -220,16 +196,12 @@ class Donations {
     return new SupporterDonationStats(donations)
   }
 
-  export(): unknown {
+  export(): DonationExported[] {
     return this.list.map((d) => d.export())
   }
 
-  static import(data: unknown): Result<Donations> {
-    if (!Array.isArray(data)) {
-      return Result.fail(new Error('Cannot import Donations from invalid data format.'))
-    }
-
-    const results = data.map((donationData) => Donation.import(donationData))
+  static import(exported: DonationExported[]): Result<Donations> {
+    const results = exported.map((donationData) => Donation.import(donationData))
     const errorResult = results.find((r) => r.error)
 
     if (errorResult && errorResult.error) {
@@ -261,4 +233,15 @@ class SupporterDonationStats {
       new Set<Tier>()
     )
   }
+}
+
+export interface CampaignFundingExported {
+  tiers: TierExported[]
+  donations: DonationExported[]
+}
+
+export interface CampaignExported {
+  id: IdExported
+  name: NameExported
+  funding: CampaignFundingExported
 }

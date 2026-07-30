@@ -68,9 +68,4 @@ describe('Money', () => {
     expect(result).toBeSuccess()
     expect(result.value!.isEqual(original)).toBe(true)
   })
-
-  it('should not be able to import corrupted data', () => {
-    const result = Money.import('1')
-    expect(result).toBeFailureWithMessage('Cannot import Money from invalid data format.')
-  })
 })

@@ -25,12 +25,6 @@ describe('Donation', () => {
     expect(result).toBeFailureWithMessage('DonationMoney should be positive.')
   })
 
-  it('should fail if amount export is not a number', () => {
-    const mockMoney = { export: () => 'not a number' } as unknown as Money
-    const result = Donation.make(mockMoney, validSupporter)
-    expect(result).toBeFailureWithMessage('Cannot import DonationMoney from invalid data format.')
-  })
-
   it('should compare donations for equality', () => {
     const anotherSupporter = Supporter.make('Jane Doe', 'jane.doe@example.com').value!
     const d1 = Donation.make(validAmount, validSupporter).value!
@@ -143,40 +137,22 @@ describe('Donation', () => {
     expect(result.value!.isEqual(original)).toBe(true)
   })
 
-  it('should fail to import corrupted data', () => {
-    const result = Donation.import(null)
-    expect(result).toBeFailureWithMessage('Cannot import Donation from invalid data format.')
-  })
-
-  it('should fail to import invalid amount format', () => {
-    const result = Donation.import({
-      amount: 'fifty',
-      supporter: {
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-      },
-    })
-    expect(result).toBeFailureWithMessage('Cannot import DonationMoney from invalid data format.')
-  })
-
   it('should fail to import invalid supporter format', () => {
     const result = Donation.import({
       amount: 50,
-      supporter: null,
+      supporter: { name: 'A', email: 'john.doe@example.com' },
+      tier: null,
     })
-    expect(result).toBeFailureWithMessage('Cannot import Supporter from invalid data format.')
+    expect(result).toBeFailureWithMessage('Supporter name should be at least 3 characters long.')
   })
 
   it('should fail to import invalid tier format', () => {
     const result = Donation.import({
       amount: 50,
-      supporter: {
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-      },
-      tier: 'invalid',
+      supporter: { name: 'John Doe', email: 'john.doe@example.com' },
+      tier: { name: 'A', value: 10 },
     })
-    expect(result).toBeFailureWithMessage('Cannot import Tier from invalid data format.')
+    expect(result).toBeFailureWithMessage('TierName should be at least 3 characters long.')
   })
 
   it('should fail to import NaN amount format', () => {
@@ -186,6 +162,7 @@ describe('Donation', () => {
         name: 'John Doe',
         email: 'john.doe@example.com',
       },
+      tier: null,
     })
     expect(result).toBeFailureWithMessage('Money value should be an number.')
   })

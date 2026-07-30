@@ -158,9 +158,4 @@ describe('Email', () => {
     expect(result).toBeSuccess()
     expect(result.value!.isEqual(original)).toBe(true)
   })
-
-  it('should not be able to import corrupted data', () => {
-    const result = Email.import(1)
-    expect(result).toBeFailureWithMessage('Cannot import Email from invalid data format.')
-  })
 })

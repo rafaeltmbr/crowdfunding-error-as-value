@@ -15,16 +15,12 @@ export class Money {
     return new Money(this.value + other.value)
   }
 
-  export(): unknown {
+  export(): MoneyExported {
     return this.value
   }
 
-  static import(data: unknown): Result<Money> {
-    if (typeof data !== 'number') {
-      return Result.fail(new Error('Cannot import Money from invalid data format.'))
-    }
-
-    return this.make(data)
+  static import(exported: MoneyExported): Result<Money> {
+    return this.make(exported)
   }
 
   static make(value: number): Result<Money> {
@@ -42,3 +38,5 @@ export class Money {
     return Result.succeed(value)
   }
 }
+
+export type MoneyExported = number

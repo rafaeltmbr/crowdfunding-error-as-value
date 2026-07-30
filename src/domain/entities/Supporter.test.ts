@@ -58,18 +58,13 @@ describe('Supporter', () => {
     expect(result.value!.isEqual(original)).toBe(true)
   })
 
-  it('should fail to import corrupted data', () => {
-    const result = Supporter.import(null)
-    expect(result).toBeFailureWithMessage('Cannot import Supporter from invalid data format.')
-  })
-
   it('should fail to import invalid name format', () => {
-    const result = Supporter.import({ name: 123, email: 'john.doe@example.com' })
-    expect(result).toBeFailureWithMessage('Cannot import SupporterName from invalid data format.')
+    const result = Supporter.import({ name: 'A', email: 'john.doe@example.com' })
+    expect(result).toBeFailureWithMessage('Supporter name should be at least 3 characters long.')
   })
 
   it('should fail to import invalid email format', () => {
-    const result = Supporter.import({ name: 'John Doe', email: 123 })
-    expect(result).toBeFailureWithMessage('Cannot import Email from invalid data format.')
+    const result = Supporter.import({ name: 'John Doe', email: 'invalid-email' })
+    expect(result).toBeFailureWithMessage('Email format should be valid.')
   })
 })

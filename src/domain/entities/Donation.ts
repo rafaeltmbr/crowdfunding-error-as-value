@@ -1,6 +1,6 @@
-import { Supporter } from '@entities/Supporter'
-import { Tier } from '@entities/Tier'
-import { Money } from '@values/Money'
+import { Supporter, type SupporterExported } from '@entities/Supporter'
+import { Tier, type TierExported } from '@entities/Tier'
+import { Money, type MoneyExported } from '@values/Money'
 import { Result } from '@values/Result'
 
 export class Donation {
@@ -36,7 +36,7 @@ export class Donation {
     return total.plus(this.amount)
   }
 
-  export(): unknown {
+  export(): DonationExported {
     return {
       amount: this.amount.export(),
       supporter: this.supporter.export(),
@@ -44,22 +44,15 @@ export class Donation {
     }
   }
 
-  // eslint-disable-next-line max-statements
-  static import(data: unknown): Result<Donation> {
-    if (typeof data !== 'object' || data === null) {
-      return Result.fail(new Error('Cannot import Donation from invalid data format.'))
-    }
-
-    const rec = data as Record<string, unknown>
-
-    const amountResult = DonationMoney.import(rec['amount'])
+  static import(exported: DonationExported): Result<Donation> {
+    const amountResult = DonationMoney.make(exported.amount)
     if (amountResult.error) return amountResult
 
-    const supporterResult = Supporter.import(rec['supporter'])
+    const supporterResult = Supporter.import(exported.supporter)
     if (supporterResult.error) return supporterResult
 
-    const tierData = rec['tier'] ?? null
-    const tierResult = tierData !== null ? Tier.import(tierData) : Result.succeed<Tier | null>(null)
+    const tierResult =
+      exported.tier !== null ? Tier.import(exported.tier) : Result.succeed<Tier | null>(null)
     if (tierResult.error) return Result.fail(tierResult.error)
 
     return Result.succeed(new Donation(amountResult.value, supporterResult.value, tierResult.value))
@@ -67,10 +60,6 @@ export class Donation {
 
   static make(amount: Money, supporter: Supporter, tier: Tier | null = null): Result<Donation> {
     const amountExport = amount.export()
-
-    if (typeof amountExport !== 'number') {
-      return Result.fail(new Error('Cannot import DonationMoney from invalid data format.'))
-    }
 
     const donationMoneyResult = DonationMoney.make(amountExport)
 
@@ -81,14 +70,6 @@ export class Donation {
 }
 
 class DonationMoney extends Money {
-  static override import(data: unknown): Result<Money> {
-    if (typeof data !== 'number') {
-      return Result.fail(new Error('Cannot import DonationMoney from invalid data format.'))
-    }
-
-    return this.make(data)
-  }
-
   static override make(value: number): Result<DonationMoney> {
     const validation = this.validate(value)
 
@@ -108,4 +89,10 @@ class DonationMoney extends Money {
 
     return Result.succeed(baseValidation.value)
   }
+}
+
+export interface DonationExported {
+  amount: MoneyExported
+  supporter: SupporterExported
+  tier: TierExported | null
 }

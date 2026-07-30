@@ -42,9 +42,4 @@ describe('Name', () => {
     expect(result).toBeSuccess()
     expect(result.value!.isEqual(original)).toBe(true)
   })
-
-  it('should not be able to import corrupted data', () => {
-    const result = Name.import(1)
-    expect(result).toBeFailureWithMessage('Cannot import Name from invalid data format.')
-  })
 })
