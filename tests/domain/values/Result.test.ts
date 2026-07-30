@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { Result } from './Result'
+import { Result } from '@values/Result'
 
 describe('Result', () => {
   it('should create a success result', () => {

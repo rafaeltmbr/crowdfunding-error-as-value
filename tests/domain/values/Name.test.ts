@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { Name } from './Name'
+import { Name } from '@values/Name'
 
 describe('Name', () => {
   it('should create a valid name', () => {

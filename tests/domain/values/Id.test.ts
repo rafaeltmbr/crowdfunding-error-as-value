@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { Id } from './Id'
+import { Id } from '@values/Id'
 
 describe('Id', () => {
   describe('make', () => {

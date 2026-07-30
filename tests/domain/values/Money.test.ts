@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { Money } from './Money'
+import { Money } from '@values/Money'
 
 describe('Money', () => {
   it('should create valid money', () => {

@@ -1,7 +1,7 @@
 import { Money } from '@values/Money'
 import { describe, expect, it } from 'vitest'
 
-import { Tier } from './Tier'
+import { Tier } from '@entities/Tier'
 
 describe('Tier', () => {
   it('should create a valid tier', () => {

@@ -1,6 +1,6 @@
 import { expect } from 'vitest'
 
-import { Result } from '../domain/values/Result'
+import { Result } from '@values/Result'
 
 expect.extend({
   toBeSuccess(received: Result<unknown>) {
