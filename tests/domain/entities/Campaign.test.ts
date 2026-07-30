@@ -66,7 +66,9 @@ describe('Campaign', () => {
     const campaign = Campaign.make('My Campaign', [tier10]).value!
     const exported = campaign.export() as any
     expect(exported.name).toEqual('My Campaign')
-    expect(exported.funding.tiers).toEqual([{ name: 'Tier 10', value: 10 }])
+    expect(exported.funding.tiers).toEqual([
+      { id: campaign.export().funding.tiers[0]!.id, name: 'Tier 10', value: 10 },
+    ])
     expect(exported.funding.donations).toEqual([])
     expect(exported.id).toBeDefined()
   })
@@ -107,7 +109,7 @@ describe('Campaign', () => {
     const result = Campaign.import({
       id: 'A2CDEFGHJK',
       name: 'Valid Name',
-      funding: { tiers: [{ name: 'A', value: 10 }], donations: [] },
+      funding: { tiers: [{ id: 'A2CDEFGHJK', name: 'A', value: 10 }], donations: [] },
     })
     expect(result).toBeFailureWithMessage('TierName should be at least 3 characters long.')
   })
@@ -118,7 +120,7 @@ describe('Campaign', () => {
       name: 'Valid Name',
       funding: {
         tiers: [],
-        donations: [{ amount: -50, supporter: { name: 'John Doe', email: 'a@b.com' }, tier: null }],
+        donations: [{ id: 'A2CDEFGHJK', amount: -50, supporter: supporter1.export(), tier: null }],
       },
     })
     expect(result).toBeFailureWithMessage('DonationMoney should be positive.')
@@ -137,7 +139,10 @@ describe('Campaign', () => {
     const result = Campaign.import({
       id: 'A2CDEFGHJK',
       name: 'My Campaign',
-      funding: { tiers: [tier10.export(), { name: 'Another Tier 10', value: 10 }], donations: [] },
+      funding: {
+        tiers: [tier10.export(), { id: 'A2CDEFGHJK', name: 'Another Tier 10', value: 10 }],
+        donations: [],
+      },
     })
     expect(result).toBeFailureWithMessage('Tiers values should be unique.')
   })

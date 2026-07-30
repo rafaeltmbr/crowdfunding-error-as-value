@@ -52,7 +52,8 @@ describe('Tier', () => {
     const t2 = Tier.make('Tier 2', 10).value!
     const t3 = Tier.make('Tier 1', 20).value!
 
-    expect(t1.isEqual(t1b)).toBe(true)
+    expect(t1.isEqual(t1)).toBe(true)
+    expect(t1.isEqual(t1b)).toBe(false)
     expect(t1.isEqual(t2)).toBe(false)
     expect(t1.isEqual(t3)).toBe(false)
   })
@@ -65,8 +66,9 @@ describe('Tier', () => {
   })
 
   it('should export a predictable structure', () => {
-    const data = Tier.make('Tier 1', 10).value!.export()
-    expect(data).toEqual({ name: 'Tier 1', value: 10 })
+    const original = Tier.make('Tier 1', 10).value!
+    const data = original.export()
+    expect(data).toEqual({ id: original.export().id, name: 'Tier 1', value: 10 })
   })
 
   it('should import an exported data and produce an equivalent object', () => {
@@ -78,22 +80,27 @@ describe('Tier', () => {
   })
 
   it('should fail to import if name is too short', () => {
-    const result = Tier.import({ name: 'Ab', value: 10 })
+    const result = Tier.import({ id: 'A2CDEFGHJK', name: 'Ab', value: 10 })
     expect(result).toBeFailureWithMessage('TierName should be at least 3 characters long.')
   })
 
+  it('should fail to import invalid id format', () => {
+    const result = Tier.import({ id: 'SHORT', name: 'Tier 1', value: 10 })
+    expect(result).toBeFailureWithMessage('Id length should be 10 characters long.')
+  })
+
   it('should fail to import if value is negative', () => {
-    const result = Tier.import({ name: 'Tier 1', value: -10 })
+    const result = Tier.import({ id: 'A2CDEFGHJK', name: 'Tier 1', value: -10 })
     expect(result).toBeFailureWithMessage('TierMoney should be positive.')
   })
 
   it('should fail to import if value is zero', () => {
-    const result = Tier.import({ name: 'Tier 1', value: 0 })
+    const result = Tier.import({ id: 'A2CDEFGHJK', name: 'Tier 1', value: 0 })
     expect(result).toBeFailureWithMessage('TierMoney should be positive.')
   })
 
   it('should fail to import if value is NaN', () => {
-    const result = Tier.import({ name: 'Tier 1', value: NaN })
+    const result = Tier.import({ id: 'A2CDEFGHJK', name: 'Tier 1', value: NaN })
     expect(result).toBeFailureWithMessage('Money value should be an number.')
   })
 })

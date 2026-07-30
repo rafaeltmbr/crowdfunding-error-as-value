@@ -32,7 +32,8 @@ describe('Donation', () => {
     const d2 = Donation.make(Money.make(100).value!, validSupporter).value!
     const d3 = Donation.make(validAmount, anotherSupporter).value!
 
-    expect(d1.isEqual(d1b)).toBe(true)
+    expect(d1.isEqual(d1)).toBe(true)
+    expect(d1.isEqual(d1b)).toBe(false)
     expect(d1.isEqual(d2)).toBe(false)
     expect(d1.isEqual(d3)).toBe(false)
   })
@@ -45,7 +46,8 @@ describe('Donation', () => {
     const d2 = Donation.make(validAmount, validSupporter, tier2).value!
     const d3 = Donation.make(validAmount, validSupporter, null).value!
 
-    expect(d1.isEqual(d1b)).toBe(true)
+    expect(d1.isEqual(d1)).toBe(true)
+    expect(d1.isEqual(d1b)).toBe(false)
     expect(d1.isEqual(d2)).toBe(false)
     expect(d1.isEqual(d3)).toBe(false)
   })
@@ -93,12 +95,9 @@ describe('Donation', () => {
   it('should export a predictable structure', () => {
     const donation = Donation.make(validAmount, validSupporter).value!
     expect(donation.export()).toEqual({
+      id: donation.export().id,
       amount: 50,
-      supporter: {
-        id: validSupporter.export().id,
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-      },
+      supporter: validSupporter.export(),
       tier: null,
     })
   })
@@ -107,16 +106,10 @@ describe('Donation', () => {
     const tier = Tier.make('Silver', 10).value!
     const donation = Donation.make(validAmount, validSupporter, tier).value!
     expect(donation.export()).toEqual({
+      id: donation.export().id,
       amount: 50,
-      supporter: {
-        id: validSupporter.export().id,
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-      },
-      tier: {
-        name: 'Silver',
-        value: 10,
-      },
+      supporter: validSupporter.export(),
+      tier: tier.export(),
     })
   })
 
@@ -141,6 +134,7 @@ describe('Donation', () => {
 
   it('should fail to import invalid supporter format', () => {
     const result = Donation.import({
+      id: 'A2CDEFGHJK',
       amount: 50,
       supporter: { id: 'A2CDEFGHJK', name: 'A', email: 'john.doe@example.com' },
       tier: null,
@@ -148,23 +142,31 @@ describe('Donation', () => {
     expect(result).toBeFailureWithMessage('Supporter name should be at least 3 characters long.')
   })
 
+  it('should fail to import invalid id format', () => {
+    const result = Donation.import({
+      id: 'SHORT',
+      amount: 50,
+      supporter: validSupporter.export(),
+      tier: null,
+    })
+    expect(result).toBeFailureWithMessage('Id length should be 10 characters long.')
+  })
+
   it('should fail to import invalid tier format', () => {
     const result = Donation.import({
+      id: 'A2CDEFGHJK',
       amount: 50,
-      supporter: { id: 'A2CDEFGHJK', name: 'John Doe', email: 'john.doe@example.com' },
-      tier: { name: 'A', value: 10 },
+      supporter: validSupporter.export(),
+      tier: { id: 'A2CDEFGHJK', name: 'A', value: 10 },
     })
     expect(result).toBeFailureWithMessage('TierName should be at least 3 characters long.')
   })
 
   it('should fail to import NaN amount format', () => {
     const result = Donation.import({
+      id: 'A2CDEFGHJK',
       amount: NaN,
-      supporter: {
-        id: 'A2CDEFGHJK',
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-      },
+      supporter: validSupporter.export(),
       tier: null,
     })
     expect(result).toBeFailureWithMessage('Money value should be an number.')

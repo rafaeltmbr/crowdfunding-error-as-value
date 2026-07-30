@@ -1,9 +1,11 @@
+import { Id, type IdExported } from '@values/Id'
 import { Money, type MoneyExported } from '@values/Money'
 import { Name, type NameExported } from '@values/Name'
 import { Result } from '@values/Result'
 
 export class Tier {
   protected constructor(
+    protected id: Id,
     protected name: TierName,
     protected value: TierMoney
   ) {}
@@ -21,18 +23,28 @@ export class Tier {
   }
 
   isEqual(tier: Tier): boolean {
-    return this.name.isEqual(tier.name) && this.value.isEqual(tier.value)
+    return this.id.isEqual(tier.id)
   }
 
   export(): TierExported {
     return {
+      id: this.id.export(),
       name: this.name.export(),
       value: this.value.export(),
     }
   }
 
   static import(exported: TierExported): Result<Tier> {
-    return this.make(exported.name, exported.value)
+    const idResult = Id.import(exported.id)
+    if (idResult.error) return Result.fail(idResult.error)
+
+    const nameResult = TierName.make(exported.name)
+    if (nameResult.error) return nameResult
+
+    const valueResult = TierMoney.make(exported.value)
+    if (valueResult.error) return valueResult
+
+    return Result.succeed(new Tier(idResult.value, nameResult.value, valueResult.value))
   }
 
   static make(name: string, value: number): Result<Tier> {
@@ -42,7 +54,7 @@ export class Tier {
     const valueResult = TierMoney.make(value)
     if (valueResult.error) return valueResult
 
-    return Result.succeed(new Tier(nameResult.value, valueResult.value))
+    return Result.succeed(new Tier(Id.make(), nameResult.value, valueResult.value))
   }
 }
 
@@ -87,6 +99,7 @@ class TierMoney extends Money {
 }
 
 export interface TierExported {
+  id: IdExported
   name: NameExported
   value: MoneyExported
 }

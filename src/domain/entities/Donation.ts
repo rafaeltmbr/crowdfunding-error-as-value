@@ -1,31 +1,26 @@
 import { Supporter, type SupporterExported } from '@entities/Supporter'
 import { Tier, type TierExported } from '@entities/Tier'
+import { Id, type IdExported } from '@values/Id'
 import { Money, type MoneyExported } from '@values/Money'
 import { Result } from '@values/Result'
 
 export class Donation {
   protected constructor(
-    protected amount: DonationMoney,
-    protected supporter: Supporter,
+    protected id: Id,
+    protected contribution: Contribution,
     protected tier: Tier | null
   ) {}
 
   isEqual(other: Donation): boolean {
-    const tiersEqual =
-      (this.tier === null && other.tier === null) ||
-      (this.tier !== null && other.tier !== null && this.tier.isEqual(other.tier))
-
-    return (
-      this.amount.isEqual(other.amount) && this.supporter.isEqual(other.supporter) && tiersEqual
-    )
+    return this.id.isEqual(other.id)
   }
 
   isEligibleForTier(tier: Tier): boolean {
-    return tier.isValueEligible(this.amount)
+    return this.contribution.isEligibleForTier(tier)
   }
 
   belongsToSupporter(supporter: Supporter): boolean {
-    return this.supporter.isEqual(supporter)
+    return this.contribution.belongsTo(supporter)
   }
 
   addTierToBucket(bucket: Set<Tier>): Set<Tier> {
@@ -33,39 +28,88 @@ export class Donation {
   }
 
   addToTotal(total: Money): Money {
-    return total.plus(this.amount)
+    return this.contribution.addTo(total)
   }
 
   export(): DonationExported {
+    const contributionExported = this.contribution.export()
     return {
-      amount: this.amount.export(),
-      supporter: this.supporter.export(),
+      id: this.id.export(),
+      amount: contributionExported.amount,
+      supporter: contributionExported.supporter,
       tier: this.tier ? this.tier.export() : null,
     }
   }
 
   static import(exported: DonationExported): Result<Donation> {
+    const idResult = Id.import(exported.id)
+    if (idResult.error) return Result.fail(idResult.error)
+
+    const contributionResult = Contribution.import({
+      amount: exported.amount,
+      supporter: exported.supporter,
+    })
+    if (contributionResult.error) return Result.fail(contributionResult.error)
+
+    const tierResult =
+      exported.tier !== null ? Tier.import(exported.tier) : Result.succeed<Tier | null>(null)
+    if (tierResult.error) return Result.fail(tierResult.error)
+
+    return Result.succeed(new Donation(idResult.value, contributionResult.value, tierResult.value))
+  }
+
+  static make(amount: Money, supporter: Supporter, tier: Tier | null = null): Result<Donation> {
+    const contributionResult = Contribution.make(amount, supporter)
+    if (contributionResult.error) return Result.fail(contributionResult.error)
+
+    return Result.succeed(new Donation(Id.make(), contributionResult.value, tier))
+  }
+}
+
+class Contribution {
+  protected constructor(
+    protected amount: DonationMoney,
+    protected supporter: Supporter
+  ) {}
+
+  isEligibleForTier(tier: Tier): boolean {
+    return tier.isValueEligible(this.amount)
+  }
+
+  belongsTo(supporter: Supporter): boolean {
+    return this.supporter.isEqual(supporter)
+  }
+
+  addTo(total: Money): Money {
+    return total.plus(this.amount)
+  }
+
+  export(): ContributionExported {
+    return {
+      amount: this.amount.export(),
+      supporter: this.supporter.export(),
+    }
+  }
+
+  static import(exported: {
+    amount: MoneyExported
+    supporter: SupporterExported
+  }): Result<Contribution> {
     const amountResult = DonationMoney.make(exported.amount)
     if (amountResult.error) return amountResult
 
     const supporterResult = Supporter.import(exported.supporter)
     if (supporterResult.error) return supporterResult
 
-    const tierResult =
-      exported.tier !== null ? Tier.import(exported.tier) : Result.succeed<Tier | null>(null)
-    if (tierResult.error) return Result.fail(tierResult.error)
-
-    return Result.succeed(new Donation(amountResult.value, supporterResult.value, tierResult.value))
+    return Result.succeed(new Contribution(amountResult.value, supporterResult.value))
   }
 
-  static make(amount: Money, supporter: Supporter, tier: Tier | null = null): Result<Donation> {
+  static make(amount: Money, supporter: Supporter): Result<Contribution> {
     const amountExport = amount.export()
-
     const donationMoneyResult = DonationMoney.make(amountExport)
-
     if (donationMoneyResult.error) return Result.fail(donationMoneyResult.error)
 
-    return Result.succeed(new Donation(donationMoneyResult.value, supporter, tier))
+    return Result.succeed(new Contribution(donationMoneyResult.value, supporter))
   }
 }
 
@@ -91,7 +135,13 @@ class DonationMoney extends Money {
   }
 }
 
+interface ContributionExported {
+  amount: MoneyExported
+  supporter: SupporterExported
+}
+
 export interface DonationExported {
+  id: IdExported
   amount: MoneyExported
   supporter: SupporterExported
   tier: TierExported | null
