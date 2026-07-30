@@ -11,12 +11,12 @@ export class Id {
     return this.value === other.value
   }
 
-  export(): IdDto {
-    return { value: this.value }
+  export(): IdExported {
+    return this.value
   }
 
-  static import(dto: IdDto): Result<Id> {
-    const validation = this.validate(dto.value)
+  static import(exported: IdExported): Result<Id> {
+    const validation = this.validate(exported)
 
     if (validation.error) return validation
 
@@ -51,6 +51,4 @@ export class Id {
   }
 }
 
-export interface IdDto {
-  value: string
-}
+export type IdExported = string

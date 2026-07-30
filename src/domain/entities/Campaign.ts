@@ -44,7 +44,7 @@ export class Campaign {
 
     const rec = data as Record<string, unknown>
 
-    const idResult = Id.import(rec['id'] as { value: string })
+    const idResult = Id.import(rec['id'] as string)
     if (idResult.error) return Result.fail(idResult.error)
 
     const nameResult = CampaignName.import(rec['name'])

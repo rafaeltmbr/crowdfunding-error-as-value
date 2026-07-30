@@ -82,7 +82,7 @@ describe('Campaign', () => {
     const stats = result.value!.supporterDonationStats(supporter1)
     const tiersArray = Array.from(stats.tiers)
     expect(tiersArray.length).toBe(1)
-    expect(tiersArray[0].isEqual(tier10)).toBe(true)
+    expect(tiersArray[0]!.isEqual(tier10)).toBe(true)
   })
 
   it('should fail to import corrupted data', () => {
@@ -92,7 +92,7 @@ describe('Campaign', () => {
 
   it('should fail to import invalid id format', () => {
     const result = Campaign.import({
-      id: { value: 'SHORT' },
+      id: 'SHORT',
       name: 'Valid Name',
       funding: { tiers: [], donations: [] },
     })
@@ -101,7 +101,7 @@ describe('Campaign', () => {
 
   it('should fail to import invalid name', () => {
     const result = Campaign.import({
-      id: { value: 'A2CDEFGHJK' },
+      id: 'A2CDEFGHJK',
       name: 123,
       funding: { tiers: [], donations: [] },
     })
@@ -110,7 +110,7 @@ describe('Campaign', () => {
 
   it('should fail to import invalid funding format', () => {
     const result = Campaign.import({
-      id: { value: 'A2CDEFGHJK' },
+      id: 'A2CDEFGHJK',
       name: 'Valid Name',
       funding: null,
     })
@@ -119,7 +119,7 @@ describe('Campaign', () => {
 
   it('should fail to import invalid tiers format', () => {
     const result = Campaign.import({
-      id: { value: 'A2CDEFGHJK' },
+      id: 'A2CDEFGHJK',
       name: 'Valid Name',
       funding: { tiers: {}, donations: [] },
     })
@@ -128,7 +128,7 @@ describe('Campaign', () => {
 
   it('should fail to import invalid donations format', () => {
     const result = Campaign.import({
-      id: { value: 'A2CDEFGHJK' },
+      id: 'A2CDEFGHJK',
       name: 'Valid Name',
       funding: { tiers: [], donations: {} },
     })
@@ -137,7 +137,7 @@ describe('Campaign', () => {
 
   it('should fail to import invalid tier data', () => {
     const result = Campaign.import({
-      id: { value: 'A2CDEFGHJK' },
+      id: 'A2CDEFGHJK',
       name: 'Valid Name',
       funding: { tiers: [{ name: 'Tier 1', value: 'invalid' }], donations: [] },
     })
@@ -146,7 +146,7 @@ describe('Campaign', () => {
 
   it('should fail to import invalid donation data', () => {
     const result = Campaign.import({
-      id: { value: 'A2CDEFGHJK' },
+      id: 'A2CDEFGHJK',
       name: 'Valid Name',
       funding: { tiers: [], donations: [null] },
     })
@@ -155,7 +155,7 @@ describe('Campaign', () => {
 
   it('should fail to import if campaign name is too short', () => {
     const result = Campaign.import({
-      id: { value: 'A2CDEFGHJK' },
+      id: 'A2CDEFGHJK',
       name: 'Ca',
       funding: { tiers: [], donations: [] },
     })
@@ -164,7 +164,7 @@ describe('Campaign', () => {
 
   it('should fail to import if tiers have duplicate values', () => {
     const result = Campaign.import({
-      id: { value: 'A2CDEFGHJK' },
+      id: 'A2CDEFGHJK',
       name: 'My Campaign',
       funding: { tiers: [tier10.export(), { name: 'Another Tier 10', value: 10 }], donations: [] },
     })
