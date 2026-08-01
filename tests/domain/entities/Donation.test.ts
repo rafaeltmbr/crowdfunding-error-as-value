@@ -92,48 +92,48 @@ describe('Donation', () => {
     expect(newTotal.isEqual(Money.make(60).value!)).toBe(true)
   })
 
-  it('should export a predictable structure', () => {
+  it('should toSnapshot a predictable structure', () => {
     const donation = Donation.make(validAmount, validSupporter).value!
-    expect(donation.export()).toEqual({
-      id: donation.export().id,
+    expect(donation.toSnapshot()).toEqual({
+      id: donation.toSnapshot().id,
       amount: 50,
-      supporter: validSupporter.export(),
+      supporter: validSupporter.toSnapshot(),
       tier: null,
     })
   })
 
-  it('should export a predictable structure with a tier', () => {
+  it('should toSnapshot a predictable structure with a tier', () => {
     const tier = Tier.make('Silver', 10).value!
     const donation = Donation.make(validAmount, validSupporter, tier).value!
-    expect(donation.export()).toEqual({
-      id: donation.export().id,
+    expect(donation.toSnapshot()).toEqual({
+      id: donation.toSnapshot().id,
       amount: 50,
-      supporter: validSupporter.export(),
-      tier: tier.export(),
+      supporter: validSupporter.toSnapshot(),
+      tier: tier.toSnapshot(),
     })
   })
 
-  it('should import exported data and produce an equivalent object', () => {
+  it('should fromSnapshot snapshot data and produce an equivalent object', () => {
     const original = Donation.make(validAmount, validSupporter).value!
-    const exported = original.export()
+    const snapshot = original.toSnapshot()
 
-    const result = Donation.import(exported)
+    const result = Donation.fromSnapshot(snapshot)
     expect(result).toBeSuccess()
     expect(result.value!.isEqual(original)).toBe(true)
   })
 
-  it('should import exported data with tier and produce an equivalent object', () => {
+  it('should fromSnapshot snapshot data with tier and produce an equivalent object', () => {
     const tier = Tier.make('Silver', 10).value!
     const original = Donation.make(validAmount, validSupporter, tier).value!
-    const exported = original.export()
+    const snapshot = original.toSnapshot()
 
-    const result = Donation.import(exported)
+    const result = Donation.fromSnapshot(snapshot)
     expect(result).toBeSuccess()
     expect(result.value!.isEqual(original)).toBe(true)
   })
 
-  it('should fail to import invalid supporter format', () => {
-    const result = Donation.import({
+  it('should fail to fromSnapshot invalid supporter format', () => {
+    const result = Donation.fromSnapshot({
       id: 'A2CDEFGHJK',
       amount: 50,
       supporter: { id: 'A2CDEFGHJK', name: 'A', email: 'john.doe@example.com' },
@@ -142,31 +142,31 @@ describe('Donation', () => {
     expect(result).toBeFailureWithMessage('Supporter name should be at least 3 characters long.')
   })
 
-  it('should fail to import invalid id format', () => {
-    const result = Donation.import({
+  it('should fail to fromSnapshot invalid id format', () => {
+    const result = Donation.fromSnapshot({
       id: 'SHORT',
       amount: 50,
-      supporter: validSupporter.export(),
+      supporter: validSupporter.toSnapshot(),
       tier: null,
     })
     expect(result).toBeFailureWithMessage('Id length should be 10 characters long.')
   })
 
-  it('should fail to import invalid tier format', () => {
-    const result = Donation.import({
+  it('should fail to fromSnapshot invalid tier format', () => {
+    const result = Donation.fromSnapshot({
       id: 'A2CDEFGHJK',
       amount: 50,
-      supporter: validSupporter.export(),
+      supporter: validSupporter.toSnapshot(),
       tier: { id: 'A2CDEFGHJK', name: 'A', value: 10 },
     })
     expect(result).toBeFailureWithMessage('TierName should be at least 3 characters long.')
   })
 
-  it('should fail to import NaN amount format', () => {
-    const result = Donation.import({
+  it('should fail to fromSnapshot NaN amount format', () => {
+    const result = Donation.fromSnapshot({
       id: 'A2CDEFGHJK',
       amount: NaN,
-      supporter: validSupporter.export(),
+      supporter: validSupporter.toSnapshot(),
       tier: null,
     })
     expect(result).toBeFailureWithMessage('Money value should be an number.')

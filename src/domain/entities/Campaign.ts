@@ -1,9 +1,9 @@
-import { Donation, type DonationExported } from '@entities/Donation'
+import { Donation, type DonationSnapshot } from '@entities/Donation'
 import { Supporter } from '@entities/Supporter'
-import { Tier, type TierExported } from '@entities/Tier'
-import { Id, type IdExported } from '@values/Id'
+import { Tier, type TierSnapshot } from '@entities/Tier'
+import { Id, type IdSnapshot } from '@values/Id'
 import { Money } from '@values/Money'
-import { Name, type NameExported } from '@values/Name'
+import { Name, type NameSnapshot } from '@values/Name'
 import { Result } from '@values/Result'
 
 export class Campaign {
@@ -29,22 +29,22 @@ export class Campaign {
     return this.id.isEqual(other.id)
   }
 
-  export(): CampaignExported {
+  toSnapshot(): CampaignSnapshot {
     return {
-      id: this.id.export(),
-      name: this.name.export(),
-      funding: this.funding.export(),
+      id: this.id.toSnapshot(),
+      name: this.name.toSnapshot(),
+      funding: this.funding.toSnapshot(),
     }
   }
 
-  static import(exported: CampaignExported): Result<Campaign> {
-    const idResult = Id.import(exported.id)
+  static fromSnapshot(snapshot: CampaignSnapshot): Result<Campaign> {
+    const idResult = Id.fromSnapshot(snapshot.id)
     if (idResult.error) return Result.fail(idResult.error)
 
-    const nameResult = CampaignName.make(exported.name)
+    const nameResult = CampaignName.make(snapshot.name)
     if (nameResult.error) return nameResult
 
-    const fundingResult = CampaignFunding.import(exported.funding)
+    const fundingResult = CampaignFunding.fromSnapshot(snapshot.funding)
     if (fundingResult.error) return fundingResult
 
     return Result.succeed(new Campaign(idResult.value, nameResult.value, fundingResult.value))
@@ -88,18 +88,18 @@ class CampaignFunding {
     return this.donations.supporterStats(supporter)
   }
 
-  export(): CampaignFundingExported {
+  toSnapshot(): CampaignFundingSnapshot {
     return {
-      tiers: this.tiers.export(),
-      donations: this.donations.export(),
+      tiers: this.tiers.toSnapshot(),
+      donations: this.donations.toSnapshot(),
     }
   }
 
-  static import(exported: CampaignFundingExported): Result<CampaignFunding> {
-    const tiersResult = Tiers.import(exported.tiers)
+  static fromSnapshot(snapshot: CampaignFundingSnapshot): Result<CampaignFunding> {
+    const tiersResult = Tiers.fromSnapshot(snapshot.tiers)
     if (tiersResult.error) return tiersResult
 
-    const donationsResult = Donations.import(exported.donations)
+    const donationsResult = Donations.fromSnapshot(snapshot.donations)
     if (donationsResult.error) return donationsResult
 
     return Result.succeed(new CampaignFunding(tiersResult.value, donationsResult.value))
@@ -145,12 +145,12 @@ class Tiers {
     return this.tiers.toReversed().find((t) => t.isValueEligible(value)) ?? null
   }
 
-  export(): TierExported[] {
-    return this.tiers.map((t) => t.export())
+  toSnapshot(): TierSnapshot[] {
+    return this.tiers.map((t) => t.toSnapshot())
   }
 
-  static import(exported: TierExported[]): Result<Tiers> {
-    const results = exported.map((tierData) => Tier.import(tierData))
+  static fromSnapshot(snapshot: TierSnapshot[]): Result<Tiers> {
+    const results = snapshot.map((tierData) => Tier.fromSnapshot(tierData))
     const errorResult = results.find((r) => r.error)
 
     if (errorResult && errorResult.error) {
@@ -196,12 +196,12 @@ class Donations {
     return new SupporterDonationStats(donations)
   }
 
-  export(): DonationExported[] {
-    return this.list.map((d) => d.export())
+  toSnapshot(): DonationSnapshot[] {
+    return this.list.map((d) => d.toSnapshot())
   }
 
-  static import(exported: DonationExported[]): Result<Donations> {
-    const results = exported.map((donationData) => Donation.import(donationData))
+  static fromSnapshot(snapshot: DonationSnapshot[]): Result<Donations> {
+    const results = snapshot.map((donationData) => Donation.fromSnapshot(donationData))
     const errorResult = results.find((r) => r.error)
 
     if (errorResult && errorResult.error) {
@@ -235,13 +235,13 @@ class SupporterDonationStats {
   }
 }
 
-export interface CampaignFundingExported {
-  tiers: TierExported[]
-  donations: DonationExported[]
+export interface CampaignFundingSnapshot {
+  tiers: TierSnapshot[]
+  donations: DonationSnapshot[]
 }
 
-export interface CampaignExported {
-  id: IdExported
-  name: NameExported
-  funding: CampaignFundingExported
+export interface CampaignSnapshot {
+  id: IdSnapshot
+  name: NameSnapshot
+  funding: CampaignFundingSnapshot
 }

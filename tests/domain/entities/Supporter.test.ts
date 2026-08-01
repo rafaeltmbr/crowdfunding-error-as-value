@@ -40,17 +40,17 @@ describe('Supporter', () => {
     expect(s1.isEqual(s3)).toBe(false)
   })
 
-  it('should import an exported data and produce an equivalent object', () => {
+  it('should fromSnapshot a snapshot data and produce an equivalent object', () => {
     const original = Supporter.make('John Doe', 'john.doe@example.com').value!
-    const exported = original.export()
+    const snapshot = original.toSnapshot()
 
-    const result = Supporter.import(exported)
+    const result = Supporter.fromSnapshot(snapshot)
     expect(result).toBeSuccess()
     expect(result.value!.isEqual(original)).toBe(true)
   })
 
-  it('should fail to import invalid id format', () => {
-    const result = Supporter.import({
+  it('should fail to fromSnapshot invalid id format', () => {
+    const result = Supporter.fromSnapshot({
       id: 'O0CDEFGHI1',
       name: 'John Doe',
       email: 'john.doe@example.com',
@@ -58,13 +58,21 @@ describe('Supporter', () => {
     expect(result).toBeFailureWithMessage('Id should not contain illegal characters.')
   })
 
-  it('should fail to import invalid name format', () => {
-    const result = Supporter.import({ id: 'A2CDEFGHJK', name: 'A', email: 'john.doe@example.com' })
+  it('should fail to fromSnapshot invalid name format', () => {
+    const result = Supporter.fromSnapshot({
+      id: 'A2CDEFGHJK',
+      name: 'A',
+      email: 'john.doe@example.com',
+    })
     expect(result).toBeFailureWithMessage('Supporter name should be at least 3 characters long.')
   })
 
-  it('should fail to import invalid email format', () => {
-    const result = Supporter.import({ id: 'A2CDEFGHJK', name: 'John Doe', email: 'invalid-email' })
+  it('should fail to fromSnapshot invalid email format', () => {
+    const result = Supporter.fromSnapshot({
+      id: 'A2CDEFGHJK',
+      name: 'John Doe',
+      email: 'invalid-email',
+    })
     expect(result).toBeFailureWithMessage('Email format should be valid.')
   })
 })

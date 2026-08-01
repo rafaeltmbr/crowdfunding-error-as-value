@@ -15,9 +15,9 @@ describe('Money', () => {
     expect(result.value!.isEqual(Money.make(0).value!)).toBe(true)
   })
 
-  it('should verify export returns data', () => {
+  it('should verify toSnapshot returns data', () => {
     const result = Money.make(100)
-    expect(result.value!.export()).toBeDefined()
+    expect(result.value!.toSnapshot()).toBeDefined()
   })
 
   it('should fail if money is NaN', () => {
@@ -61,10 +61,10 @@ describe('Money', () => {
     expect(sum.isEqual(Money.make(30).value!)).toBe(true)
   })
 
-  it('should import an exported data and produce an equivalent object', () => {
+  it('should fromSnapshot a snapshot data and produce an equivalent object', () => {
     const original = Money.make(1234.5).value!
 
-    const result = Money.import(original.export())
+    const result = Money.fromSnapshot(original.toSnapshot())
     expect(result).toBeSuccess()
     expect(result.value!.isEqual(original)).toBe(true)
   })

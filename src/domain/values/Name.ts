@@ -7,12 +7,12 @@ export class Name {
     return this.value === other.value
   }
 
-  export(): NameExported {
+  toSnapshot(): NameSnapshot {
     return this.value
   }
 
-  static import(exported: NameExported): Result<Name> {
-    return this.make(exported)
+  static fromSnapshot(snapshot: NameSnapshot): Result<Name> {
+    return this.make(snapshot)
   }
 
   static make(value: string): Result<Name> {
@@ -34,4 +34,4 @@ export class Name {
   }
 }
 
-export type NameExported = string
+export type NameSnapshot = string

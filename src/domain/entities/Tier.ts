@@ -1,6 +1,6 @@
-import { Id, type IdExported } from '@values/Id'
-import { Money, type MoneyExported } from '@values/Money'
-import { Name, type NameExported } from '@values/Name'
+import { Id, type IdSnapshot } from '@values/Id'
+import { Money, type MoneySnapshot } from '@values/Money'
+import { Name, type NameSnapshot } from '@values/Name'
 import { Result } from '@values/Result'
 
 export class Tier {
@@ -26,22 +26,22 @@ export class Tier {
     return this.id.isEqual(tier.id)
   }
 
-  export(): TierExported {
+  toSnapshot(): TierSnapshot {
     return {
-      id: this.id.export(),
-      name: this.name.export(),
-      value: this.value.export(),
+      id: this.id.toSnapshot(),
+      name: this.name.toSnapshot(),
+      value: this.value.toSnapshot(),
     }
   }
 
-  static import(exported: TierExported): Result<Tier> {
-    const idResult = Id.import(exported.id)
+  static fromSnapshot(snapshot: TierSnapshot): Result<Tier> {
+    const idResult = Id.fromSnapshot(snapshot.id)
     if (idResult.error) return Result.fail(idResult.error)
 
-    const nameResult = TierName.make(exported.name)
+    const nameResult = TierName.make(snapshot.name)
     if (nameResult.error) return nameResult
 
-    const valueResult = TierMoney.make(exported.value)
+    const valueResult = TierMoney.make(snapshot.value)
     if (valueResult.error) return valueResult
 
     return Result.succeed(new Tier(idResult.value, nameResult.value, valueResult.value))
@@ -98,8 +98,8 @@ class TierMoney extends Money {
   }
 }
 
-export interface TierExported {
-  id: IdExported
-  name: NameExported
-  value: MoneyExported
+export interface TierSnapshot {
+  id: IdSnapshot
+  name: NameSnapshot
+  value: MoneySnapshot
 }

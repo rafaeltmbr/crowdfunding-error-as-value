@@ -1,7 +1,7 @@
-import { Supporter, type SupporterExported } from '@entities/Supporter'
-import { Tier, type TierExported } from '@entities/Tier'
-import { Id, type IdExported } from '@values/Id'
-import { Money, type MoneyExported } from '@values/Money'
+import { Supporter, type SupporterSnapshot } from '@entities/Supporter'
+import { Tier, type TierSnapshot } from '@entities/Tier'
+import { Id, type IdSnapshot } from '@values/Id'
+import { Money, type MoneySnapshot } from '@values/Money'
 import { Result } from '@values/Result'
 
 export class Donation {
@@ -31,28 +31,28 @@ export class Donation {
     return this.contribution.addTo(total)
   }
 
-  export(): DonationExported {
-    const contributionExported = this.contribution.export()
+  toSnapshot(): DonationSnapshot {
+    const contributionSnapshot = this.contribution.toSnapshot()
     return {
-      id: this.id.export(),
-      amount: contributionExported.amount,
-      supporter: contributionExported.supporter,
-      tier: this.tier ? this.tier.export() : null,
+      id: this.id.toSnapshot(),
+      amount: contributionSnapshot.amount,
+      supporter: contributionSnapshot.supporter,
+      tier: this.tier ? this.tier.toSnapshot() : null,
     }
   }
 
-  static import(exported: DonationExported): Result<Donation> {
-    const idResult = Id.import(exported.id)
+  static fromSnapshot(snapshot: DonationSnapshot): Result<Donation> {
+    const idResult = Id.fromSnapshot(snapshot.id)
     if (idResult.error) return Result.fail(idResult.error)
 
-    const contributionResult = Contribution.import({
-      amount: exported.amount,
-      supporter: exported.supporter,
+    const contributionResult = Contribution.fromSnapshot({
+      amount: snapshot.amount,
+      supporter: snapshot.supporter,
     })
     if (contributionResult.error) return Result.fail(contributionResult.error)
 
     const tierResult =
-      exported.tier !== null ? Tier.import(exported.tier) : Result.succeed<Tier | null>(null)
+      snapshot.tier !== null ? Tier.fromSnapshot(snapshot.tier) : Result.succeed<Tier | null>(null)
     if (tierResult.error) return Result.fail(tierResult.error)
 
     return Result.succeed(new Donation(idResult.value, contributionResult.value, tierResult.value))
@@ -84,28 +84,28 @@ class Contribution {
     return total.plus(this.amount)
   }
 
-  export(): ContributionExported {
+  toSnapshot(): ContributionSnapshot {
     return {
-      amount: this.amount.export(),
-      supporter: this.supporter.export(),
+      amount: this.amount.toSnapshot(),
+      supporter: this.supporter.toSnapshot(),
     }
   }
 
-  static import(exported: {
-    amount: MoneyExported
-    supporter: SupporterExported
+  static fromSnapshot(snapshot: {
+    amount: MoneySnapshot
+    supporter: SupporterSnapshot
   }): Result<Contribution> {
-    const amountResult = DonationMoney.make(exported.amount)
+    const amountResult = DonationMoney.make(snapshot.amount)
     if (amountResult.error) return amountResult
 
-    const supporterResult = Supporter.import(exported.supporter)
+    const supporterResult = Supporter.fromSnapshot(snapshot.supporter)
     if (supporterResult.error) return supporterResult
 
     return Result.succeed(new Contribution(amountResult.value, supporterResult.value))
   }
 
   static make(amount: Money, supporter: Supporter): Result<Contribution> {
-    const amountExport = amount.export()
+    const amountExport = amount.toSnapshot()
     const donationMoneyResult = DonationMoney.make(amountExport)
     if (donationMoneyResult.error) return Result.fail(donationMoneyResult.error)
 
@@ -135,14 +135,14 @@ class DonationMoney extends Money {
   }
 }
 
-interface ContributionExported {
-  amount: MoneyExported
-  supporter: SupporterExported
+interface ContributionSnapshot {
+  amount: MoneySnapshot
+  supporter: SupporterSnapshot
 }
 
-export interface DonationExported {
-  id: IdExported
-  amount: MoneyExported
-  supporter: SupporterExported
-  tier: TierExported | null
+export interface DonationSnapshot {
+  id: IdSnapshot
+  amount: MoneySnapshot
+  supporter: SupporterSnapshot
+  tier: TierSnapshot | null
 }

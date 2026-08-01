@@ -7,7 +7,7 @@ describe('Tier', () => {
   it('should create a valid tier', () => {
     const result = Tier.make('Silver Tier', 100)
     expect(result).toBeSuccess()
-    expect(result.value!.export()).toBeDefined()
+    expect(result.value!.toSnapshot()).toBeDefined()
   })
 
   it('should fail if name is less than 3 characters', () => {
@@ -65,42 +65,42 @@ describe('Tier', () => {
     expect(tier.isValueEligible(Money.make(11).value!)).toBe(true)
   })
 
-  it('should export a predictable structure', () => {
+  it('should toSnapshot a predictable structure', () => {
     const original = Tier.make('Tier 1', 10).value!
-    const data = original.export()
-    expect(data).toEqual({ id: original.export().id, name: 'Tier 1', value: 10 })
+    const data = original.toSnapshot()
+    expect(data).toEqual({ id: original.toSnapshot().id, name: 'Tier 1', value: 10 })
   })
 
-  it('should import an exported data and produce an equivalent object', () => {
+  it('should fromSnapshot a snapshot data and produce an equivalent object', () => {
     const original = Tier.make('Tier 1', 10).value!
 
-    const result = Tier.import(original.export())
+    const result = Tier.fromSnapshot(original.toSnapshot())
     expect(result).toBeSuccess()
     expect(result.value!.isEqual(result.value!)).toBe(true)
   })
 
-  it('should fail to import if name is too short', () => {
-    const result = Tier.import({ id: 'A2CDEFGHJK', name: 'Ab', value: 10 })
+  it('should fail to fromSnapshot if name is too short', () => {
+    const result = Tier.fromSnapshot({ id: 'A2CDEFGHJK', name: 'Ab', value: 10 })
     expect(result).toBeFailureWithMessage('TierName should be at least 3 characters long.')
   })
 
-  it('should fail to import invalid id format', () => {
-    const result = Tier.import({ id: 'SHORT', name: 'Tier 1', value: 10 })
+  it('should fail to fromSnapshot invalid id format', () => {
+    const result = Tier.fromSnapshot({ id: 'SHORT', name: 'Tier 1', value: 10 })
     expect(result).toBeFailureWithMessage('Id length should be 10 characters long.')
   })
 
-  it('should fail to import if value is negative', () => {
-    const result = Tier.import({ id: 'A2CDEFGHJK', name: 'Tier 1', value: -10 })
+  it('should fail to fromSnapshot if value is negative', () => {
+    const result = Tier.fromSnapshot({ id: 'A2CDEFGHJK', name: 'Tier 1', value: -10 })
     expect(result).toBeFailureWithMessage('TierMoney should be positive.')
   })
 
-  it('should fail to import if value is zero', () => {
-    const result = Tier.import({ id: 'A2CDEFGHJK', name: 'Tier 1', value: 0 })
+  it('should fail to fromSnapshot if value is zero', () => {
+    const result = Tier.fromSnapshot({ id: 'A2CDEFGHJK', name: 'Tier 1', value: 0 })
     expect(result).toBeFailureWithMessage('TierMoney should be positive.')
   })
 
-  it('should fail to import if value is NaN', () => {
-    const result = Tier.import({ id: 'A2CDEFGHJK', name: 'Tier 1', value: NaN })
+  it('should fail to fromSnapshot if value is NaN', () => {
+    const result = Tier.fromSnapshot({ id: 'A2CDEFGHJK', name: 'Tier 1', value: NaN })
     expect(result).toBeFailureWithMessage('Money value should be an number.')
   })
 })

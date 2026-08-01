@@ -15,12 +15,12 @@ export class Money {
     return new Money(this.value + other.value)
   }
 
-  export(): MoneyExported {
+  toSnapshot(): MoneySnapshot {
     return this.value
   }
 
-  static import(exported: MoneyExported): Result<Money> {
-    return this.make(exported)
+  static fromSnapshot(snapshot: MoneySnapshot): Result<Money> {
+    return this.make(snapshot)
   }
 
   static make(value: number): Result<Money> {
@@ -39,4 +39,4 @@ export class Money {
   }
 }
 
-export type MoneyExported = number
+export type MoneySnapshot = number

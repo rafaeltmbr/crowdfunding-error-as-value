@@ -16,9 +16,9 @@ describe('Email', () => {
     expect(email1.isEqual(email3)).toBe(false)
   })
 
-  it('should verify export returns data', () => {
+  it('should verify toSnapshot returns data', () => {
     const result = Email.make('some.email@example.com')
-    expect(result.value!.export()).toBeDefined()
+    expect(result.value!.toSnapshot()).toBeDefined()
   })
 
   it('should fail if empty', () => {
@@ -151,10 +151,10 @@ describe('Email', () => {
     })
   })
 
-  it('should import an exported data and produce an equivalent object', () => {
+  it('should fromSnapshot a snapshot data and produce an equivalent object', () => {
     const original = Email.make('some.email@example.com').value!
 
-    const result = Email.import(original.export())
+    const result = Email.fromSnapshot(original.toSnapshot())
     expect(result).toBeSuccess()
     expect(result.value!.isEqual(original)).toBe(true)
   })

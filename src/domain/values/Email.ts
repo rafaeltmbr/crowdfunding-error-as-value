@@ -7,12 +7,12 @@ export class Email {
     return this.value === other.value
   }
 
-  export(): EmailExported {
+  toSnapshot(): EmailSnapshot {
     return this.value
   }
 
-  static import(exported: EmailExported): Result<Email> {
-    return this.make(exported)
+  static fromSnapshot(snapshot: EmailSnapshot): Result<Email> {
+    return this.make(snapshot)
   }
 
   static make(value: string): Result<Email> {
@@ -80,4 +80,4 @@ export class Email {
   }
 }
 
-export type EmailExported = string
+export type EmailSnapshot = string

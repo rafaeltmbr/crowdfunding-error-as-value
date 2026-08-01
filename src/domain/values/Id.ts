@@ -11,12 +11,12 @@ export class Id {
     return this.value === other.value
   }
 
-  export(): IdExported {
+  toSnapshot(): IdSnapshot {
     return this.value
   }
 
-  static import(exported: IdExported): Result<Id> {
-    const validation = this.validate(exported)
+  static fromSnapshot(snapshot: IdSnapshot): Result<Id> {
+    const validation = this.validate(snapshot)
 
     if (validation.error) return validation
 
@@ -51,4 +51,4 @@ export class Id {
   }
 }
 
-export type IdExported = string
+export type IdSnapshot = string

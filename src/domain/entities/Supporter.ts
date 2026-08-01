@@ -1,6 +1,6 @@
-import { Email, type EmailExported } from '@values/Email'
-import { Id, IdExported } from '@values/Id'
-import { Name, type NameExported } from '@values/Name'
+import { Email, type EmailSnapshot } from '@values/Email'
+import { Id, IdSnapshot } from '@values/Id'
+import { Name, type NameSnapshot } from '@values/Name'
 import { Result } from '@values/Result'
 
 export class Supporter {
@@ -14,22 +14,22 @@ export class Supporter {
     return this.id.isEqual(other.id)
   }
 
-  export(): SupporterExported {
+  toSnapshot(): SupporterSnapshot {
     return {
-      id: this.id.export(),
-      name: this.name.export(),
-      email: this.email.export(),
+      id: this.id.toSnapshot(),
+      name: this.name.toSnapshot(),
+      email: this.email.toSnapshot(),
     }
   }
 
-  static import(exported: SupporterExported): Result<Supporter> {
-    const idResult = Id.import(exported.id)
+  static fromSnapshot(snapshot: SupporterSnapshot): Result<Supporter> {
+    const idResult = Id.fromSnapshot(snapshot.id)
     if (idResult.error) return idResult
 
-    const nameResult = SupporterName.make(exported.name)
+    const nameResult = SupporterName.make(snapshot.name)
     if (nameResult.error) return nameResult
 
-    const emailResult = Email.import(exported.email)
+    const emailResult = Email.fromSnapshot(snapshot.email)
     if (emailResult.error) return emailResult
 
     return Result.succeed(new Supporter(idResult.value, nameResult.value, emailResult.value))
@@ -66,8 +66,8 @@ class SupporterName extends Name {
   }
 }
 
-export interface SupporterExported {
-  id: IdExported
-  name: NameExported
-  email: EmailExported
+export interface SupporterSnapshot {
+  id: IdSnapshot
+  name: NameSnapshot
+  email: EmailSnapshot
 }

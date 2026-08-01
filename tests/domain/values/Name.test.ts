@@ -20,9 +20,9 @@ describe('Name', () => {
     expect(result.value!.isEqual(Name.make('John Doe').value!)).toBe(true)
   })
 
-  it('should verify export returns data', () => {
+  it('should verify toSnapshot returns data', () => {
     const result = Name.make('Valid Name')
-    expect(result.value!.export()).toBeDefined()
+    expect(result.value!.toSnapshot()).toBeDefined()
   })
 
   it('should fail if name is empty', () => {
@@ -35,10 +35,10 @@ describe('Name', () => {
     expect(result).toBeFailureWithMessage('Name should not be empty.')
   })
 
-  it('should import an exported data and produce an equivalent object', () => {
+  it('should fromSnapshot a snapshot data and produce an equivalent object', () => {
     const original = Name.make('Abc123').value!
 
-    const result = Name.import(original.export())
+    const result = Name.fromSnapshot(original.toSnapshot())
     expect(result).toBeSuccess()
     expect(result.value!.isEqual(original)).toBe(true)
   })
