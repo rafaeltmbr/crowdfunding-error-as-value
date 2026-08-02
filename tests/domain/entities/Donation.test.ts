@@ -9,28 +9,28 @@ describe('Donation', () => {
   const validAmount = Money.make(50).value!
 
   it('should create a donation with valid values', () => {
-    const result = Donation.make(validAmount, validSupporter)
+    const result = Donation.make(validAmount, validSupporter.id)
     expect(result).toBeSuccess()
   })
 
   it('should fail if amount is zero', () => {
     const zeroAmount = Money.make(0).value!
-    const result = Donation.make(zeroAmount, validSupporter)
+    const result = Donation.make(zeroAmount, validSupporter.id)
     expect(result).toBeFailureWithMessage('DonationMoney should be positive.')
   })
 
   it('should fail if amount is negative', () => {
     const negativeAmount = Money.make(-10).value!
-    const result = Donation.make(negativeAmount, validSupporter)
+    const result = Donation.make(negativeAmount, validSupporter.id)
     expect(result).toBeFailureWithMessage('DonationMoney should be positive.')
   })
 
   it('should compare donations for equality', () => {
     const anotherSupporter = Supporter.make('Jane Doe', 'jane.doe@example.com').value!
-    const d1 = Donation.make(validAmount, validSupporter).value!
-    const d1b = Donation.make(validAmount, validSupporter).value!
-    const d2 = Donation.make(Money.make(100).value!, validSupporter).value!
-    const d3 = Donation.make(validAmount, anotherSupporter).value!
+    const d1 = Donation.make(validAmount, validSupporter.id).value!
+    const d1b = Donation.make(validAmount, validSupporter.id).value!
+    const d2 = Donation.make(Money.make(100).value!, validSupporter.id).value!
+    const d3 = Donation.make(validAmount, anotherSupporter.id).value!
 
     expect(d1.isEqual(d1)).toBe(true)
     expect(d1.isEqual(d1b)).toBe(false)
@@ -41,10 +41,10 @@ describe('Donation', () => {
   it('should compare donations with tiers for equality', () => {
     const tier1 = Tier.make('Silver', 10).value!
     const tier2 = Tier.make('Gold', 20).value!
-    const d1 = Donation.make(validAmount, validSupporter, tier1).value!
-    const d1b = Donation.make(validAmount, validSupporter, tier1).value!
-    const d2 = Donation.make(validAmount, validSupporter, tier2).value!
-    const d3 = Donation.make(validAmount, validSupporter, null).value!
+    const d1 = Donation.make(validAmount, validSupporter.id, tier1).value!
+    const d1b = Donation.make(validAmount, validSupporter.id, tier1).value!
+    const d2 = Donation.make(validAmount, validSupporter.id, tier2).value!
+    const d3 = Donation.make(validAmount, validSupporter.id, null).value!
 
     expect(d1.isEqual(d1)).toBe(true)
     expect(d1.isEqual(d1b)).toBe(false)
@@ -54,9 +54,9 @@ describe('Donation', () => {
 
   it('should check if donation is eligible for tier', () => {
     const tier = Tier.make('Tier 1', 50).value!
-    const dSmall = Donation.make(Money.make(40).value!, validSupporter).value!
-    const dExact = Donation.make(Money.make(50).value!, validSupporter).value!
-    const dLarge = Donation.make(Money.make(60).value!, validSupporter).value!
+    const dSmall = Donation.make(Money.make(40).value!, validSupporter.id).value!
+    const dExact = Donation.make(Money.make(50).value!, validSupporter.id).value!
+    const dLarge = Donation.make(Money.make(60).value!, validSupporter.id).value!
 
     expect(dSmall.isEligibleForTier(tier)).toBe(false)
     expect(dExact.isEligibleForTier(tier)).toBe(true)
@@ -64,17 +64,17 @@ describe('Donation', () => {
   })
 
   it('should verify if donation belongs to supporter', () => {
-    const donation = Donation.make(validAmount, validSupporter).value!
+    const donation = Donation.make(validAmount, validSupporter.id).value!
     const anotherSupporter = Supporter.make('Jane Doe', 'jane.doe@example.com').value!
 
-    expect(donation.belongsToSupporter(validSupporter)).toBe(true)
-    expect(donation.belongsToSupporter(anotherSupporter)).toBe(false)
+    expect(donation.belongsToSupporter(validSupporter.id)).toBe(true)
+    expect(donation.belongsToSupporter(anotherSupporter.id)).toBe(false)
   })
 
   it('should add tier to bucket if tier exists', () => {
     const tier = Tier.make('Silver', 10).value!
-    const donationWithTier = Donation.make(validAmount, validSupporter, tier).value!
-    const donationWithoutTier = Donation.make(validAmount, validSupporter, null).value!
+    const donationWithTier = Donation.make(validAmount, validSupporter.id, tier).value!
+    const donationWithoutTier = Donation.make(validAmount, validSupporter.id, null).value!
 
     const bucket1 = donationWithTier.addTierToBucket(new Set<Tier>())
     expect(bucket1.size).toBe(1)
@@ -85,7 +85,7 @@ describe('Donation', () => {
   })
 
   it('should add amount to total money', () => {
-    const donation = Donation.make(validAmount, validSupporter).value!
+    const donation = Donation.make(validAmount, validSupporter.id).value!
     const initialTotal = Money.make(10).value!
 
     const newTotal = donation.addToTotal(initialTotal)
@@ -93,28 +93,28 @@ describe('Donation', () => {
   })
 
   it('should toSnapshot a predictable structure', () => {
-    const donation = Donation.make(validAmount, validSupporter).value!
+    const donation = Donation.make(validAmount, validSupporter.id).value!
     expect(donation.toSnapshot()).toEqual({
       id: donation.toSnapshot().id,
       amount: 50,
-      supporter: validSupporter.toSnapshot(),
+      supporterId: validSupporter.id.toSnapshot(),
       tier: null,
     })
   })
 
   it('should toSnapshot a predictable structure with a tier', () => {
     const tier = Tier.make('Silver', 10).value!
-    const donation = Donation.make(validAmount, validSupporter, tier).value!
+    const donation = Donation.make(validAmount, validSupporter.id, tier).value!
     expect(donation.toSnapshot()).toEqual({
       id: donation.toSnapshot().id,
       amount: 50,
-      supporter: validSupporter.toSnapshot(),
+      supporterId: validSupporter.id.toSnapshot(),
       tier: tier.toSnapshot(),
     })
   })
 
   it('should fromSnapshot snapshot data and produce an equivalent object', () => {
-    const original = Donation.make(validAmount, validSupporter).value!
+    const original = Donation.make(validAmount, validSupporter.id).value!
     const snapshot = original.toSnapshot()
 
     const result = Donation.fromSnapshot(snapshot)
@@ -124,7 +124,7 @@ describe('Donation', () => {
 
   it('should fromSnapshot snapshot data with tier and produce an equivalent object', () => {
     const tier = Tier.make('Silver', 10).value!
-    const original = Donation.make(validAmount, validSupporter, tier).value!
+    const original = Donation.make(validAmount, validSupporter.id, tier).value!
     const snapshot = original.toSnapshot()
 
     const result = Donation.fromSnapshot(snapshot)
@@ -132,21 +132,21 @@ describe('Donation', () => {
     expect(result.value!.isEqual(original)).toBe(true)
   })
 
-  it('should fail to fromSnapshot invalid supporter format', () => {
+  it('should fail to fromSnapshot invalid supporterId format', () => {
     const result = Donation.fromSnapshot({
       id: 'A2CDEFGHJK',
       amount: 50,
-      supporter: { id: 'A2CDEFGHJK', name: 'A', email: 'john.doe@example.com' },
+      supporterId: 'SHORT',
       tier: null,
     })
-    expect(result).toBeFailureWithMessage('Supporter name should be at least 3 characters long.')
+    expect(result).toBeFailureWithMessage('Id length should be 10 characters long.')
   })
 
   it('should fail to fromSnapshot invalid id format', () => {
     const result = Donation.fromSnapshot({
       id: 'SHORT',
       amount: 50,
-      supporter: validSupporter.toSnapshot(),
+      supporterId: validSupporter.id.toSnapshot(),
       tier: null,
     })
     expect(result).toBeFailureWithMessage('Id length should be 10 characters long.')
@@ -156,7 +156,7 @@ describe('Donation', () => {
     const result = Donation.fromSnapshot({
       id: 'A2CDEFGHJK',
       amount: 50,
-      supporter: validSupporter.toSnapshot(),
+      supporterId: validSupporter.id.toSnapshot(),
       tier: { id: 'A2CDEFGHJK', name: 'A', value: 10 },
     })
     expect(result).toBeFailureWithMessage('TierName should be at least 3 characters long.')
@@ -166,7 +166,7 @@ describe('Donation', () => {
     const result = Donation.fromSnapshot({
       id: 'A2CDEFGHJK',
       amount: NaN,
-      supporter: validSupporter.toSnapshot(),
+      supporterId: validSupporter.id.toSnapshot(),
       tier: null,
     })
     expect(result).toBeFailureWithMessage('Money value should be an number.')

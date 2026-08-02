@@ -5,18 +5,22 @@ import { Result } from '@values/Result'
 
 export class Supporter {
   protected constructor(
-    protected id: Id,
+    protected _id: Id,
     protected name: SupporterName,
     protected email: Email
   ) {}
 
+  get id(): Id {
+    return this._id
+  }
+
   isEqual(other: Supporter): boolean {
-    return this.id.isEqual(other.id)
+    return this._id.isEqual(other._id)
   }
 
   toSnapshot(): SupporterSnapshot {
     return {
-      id: this.id.toSnapshot(),
+      id: this._id.toSnapshot(),
       name: this.name.toSnapshot(),
       email: this.email.toSnapshot(),
     }

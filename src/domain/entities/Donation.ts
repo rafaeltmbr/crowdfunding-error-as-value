@@ -1,4 +1,3 @@
-import { Supporter, type SupporterSnapshot } from '@entities/Supporter'
 import { Tier, type TierSnapshot } from '@entities/Tier'
 import { Id, type IdSnapshot } from '@values/Id'
 import { Money, type MoneySnapshot } from '@values/Money'
@@ -19,8 +18,8 @@ export class Donation {
     return this.contribution.isEligibleForTier(tier)
   }
 
-  belongsToSupporter(supporter: Supporter): boolean {
-    return this.contribution.belongsTo(supporter)
+  belongsToSupporter(supporterId: Id): boolean {
+    return this.contribution.belongsTo(supporterId)
   }
 
   addTierToBucket(bucket: Set<Tier>): Set<Tier> {
@@ -36,7 +35,7 @@ export class Donation {
     return {
       id: this.id.toSnapshot(),
       amount: contributionSnapshot.amount,
-      supporter: contributionSnapshot.supporter,
+      supporterId: contributionSnapshot.supporterId,
       tier: this.tier ? this.tier.toSnapshot() : null,
     }
   }
@@ -47,7 +46,7 @@ export class Donation {
 
     const contributionResult = Contribution.fromSnapshot({
       amount: snapshot.amount,
-      supporter: snapshot.supporter,
+      supporterId: snapshot.supporterId,
     })
     if (contributionResult.error) return Result.fail(contributionResult.error)
 
@@ -58,8 +57,8 @@ export class Donation {
     return Result.succeed(new Donation(idResult.value, contributionResult.value, tierResult.value))
   }
 
-  static make(amount: Money, supporter: Supporter, tier: Tier | null = null): Result<Donation> {
-    const contributionResult = Contribution.make(amount, supporter)
+  static make(amount: Money, supporterId: Id, tier: Tier | null = null): Result<Donation> {
+    const contributionResult = Contribution.make(amount, supporterId)
     if (contributionResult.error) return Result.fail(contributionResult.error)
 
     return Result.succeed(new Donation(Id.make(), contributionResult.value, tier))
@@ -69,15 +68,15 @@ export class Donation {
 class Contribution {
   protected constructor(
     protected amount: DonationMoney,
-    protected supporter: Supporter
+    protected supporterId: Id
   ) {}
 
   isEligibleForTier(tier: Tier): boolean {
     return tier.isValueEligible(this.amount)
   }
 
-  belongsTo(supporter: Supporter): boolean {
-    return this.supporter.isEqual(supporter)
+  belongsTo(supporterId: Id): boolean {
+    return this.supporterId.isEqual(supporterId)
   }
 
   addTo(total: Money): Money {
@@ -87,29 +86,29 @@ class Contribution {
   toSnapshot(): ContributionSnapshot {
     return {
       amount: this.amount.toSnapshot(),
-      supporter: this.supporter.toSnapshot(),
+      supporterId: this.supporterId.toSnapshot(),
     }
   }
 
   static fromSnapshot(snapshot: {
     amount: MoneySnapshot
-    supporter: SupporterSnapshot
+    supporterId: IdSnapshot
   }): Result<Contribution> {
     const amountResult = DonationMoney.make(snapshot.amount)
     if (amountResult.error) return amountResult
 
-    const supporterResult = Supporter.fromSnapshot(snapshot.supporter)
-    if (supporterResult.error) return supporterResult
+    const supporterIdResult = Id.fromSnapshot(snapshot.supporterId)
+    if (supporterIdResult.error) return supporterIdResult
 
-    return Result.succeed(new Contribution(amountResult.value, supporterResult.value))
+    return Result.succeed(new Contribution(amountResult.value, supporterIdResult.value))
   }
 
-  static make(amount: Money, supporter: Supporter): Result<Contribution> {
+  static make(amount: Money, supporterId: Id): Result<Contribution> {
     const amountExport = amount.toSnapshot()
     const donationMoneyResult = DonationMoney.make(amountExport)
     if (donationMoneyResult.error) return Result.fail(donationMoneyResult.error)
 
-    return Result.succeed(new Contribution(donationMoneyResult.value, supporter))
+    return Result.succeed(new Contribution(donationMoneyResult.value, supporterId))
   }
 }
 
@@ -137,12 +136,12 @@ class DonationMoney extends Money {
 
 interface ContributionSnapshot {
   amount: MoneySnapshot
-  supporter: SupporterSnapshot
+  supporterId: IdSnapshot
 }
 
 export interface DonationSnapshot {
   id: IdSnapshot
   amount: MoneySnapshot
-  supporter: SupporterSnapshot
+  supporterId: IdSnapshot
   tier: TierSnapshot | null
 }

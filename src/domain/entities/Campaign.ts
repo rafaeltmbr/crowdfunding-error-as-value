@@ -1,5 +1,4 @@
 import { Donation, type DonationSnapshot } from '@entities/Donation'
-import { Supporter } from '@entities/Supporter'
 import { Tier, type TierSnapshot } from '@entities/Tier'
 import { Id, type IdSnapshot } from '@values/Id'
 import { Money } from '@values/Money'
@@ -17,12 +16,12 @@ export class Campaign {
     return this.funding.addTier(tier)
   }
 
-  makeDonation(value: Money, supporter: Supporter): Result<void> {
-    return this.funding.makeDonation(value, supporter)
+  makeDonation(value: Money, supporterId: Id): Result<void> {
+    return this.funding.makeDonation(value, supporterId)
   }
 
-  supporterDonationStats(supporter: Supporter): SupporterDonationStats {
-    return this.funding.supporterDonationStats(supporter)
+  supporterDonationStats(supporterId: Id): SupporterDonationStats {
+    return this.funding.supporterDonationStats(supporterId)
   }
 
   isEqual(other: Campaign): boolean {
@@ -73,9 +72,9 @@ class CampaignFunding {
     return this.tiers.add(tier)
   }
 
-  makeDonation(value: Money, supporter: Supporter): Result<void> {
+  makeDonation(value: Money, supporterId: Id): Result<void> {
     const tier = this.tiers.findEligibleForValue(value)
-    const donationResult = Donation.make(value, supporter, tier)
+    const donationResult = Donation.make(value, supporterId, tier)
 
     if (donationResult.error) return donationResult
 
@@ -84,8 +83,8 @@ class CampaignFunding {
     return Result.succeed()
   }
 
-  supporterDonationStats(supporter: Supporter): SupporterDonationStats {
-    return this.donations.supporterStats(supporter)
+  supporterDonationStats(supporterId: Id): SupporterDonationStats {
+    return this.donations.supporterStats(supporterId)
   }
 
   toSnapshot(): CampaignFundingSnapshot {
@@ -191,8 +190,8 @@ class Donations {
     this.list.push(donation)
   }
 
-  supporterStats(supporter: Supporter): SupporterDonationStats {
-    const donations = this.list.filter((donation) => donation.belongsToSupporter(supporter))
+  supporterStats(supporterId: Id): SupporterDonationStats {
+    const donations = this.list.filter((donation) => donation.belongsToSupporter(supporterId))
     return new SupporterDonationStats(donations)
   }
 
