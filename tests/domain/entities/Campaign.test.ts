@@ -1,9 +1,8 @@
-import { Money } from '@values/Money'
-import { describe, expect, it } from 'vitest'
-
 import { Campaign } from '@entities/Campaign'
 import { Supporter } from '@entities/Supporter'
 import { Tier } from '@entities/Tier'
+import { Money } from '@values/Money'
+import { describe, expect, it } from 'vitest'
 
 describe('Campaign', () => {
   const tier10 = Tier.make('Tier 10', 10).value!

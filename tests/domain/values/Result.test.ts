@@ -1,6 +1,5 @@
-import { describe, expect, it } from 'vitest'
-
 import { Result } from '@values/Result'
+import { describe, expect, it } from 'vitest'
 
 describe('Result', () => {
   it('should create a success result', () => {

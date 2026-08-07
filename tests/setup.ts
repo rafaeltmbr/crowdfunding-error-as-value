@@ -1,6 +1,5 @@
-import { expect } from 'vitest'
-
 import { Result } from '@values/Result'
+import { expect } from 'vitest'
 
 expect.extend({
   toBeSuccess(received: Result<unknown>) {

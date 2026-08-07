@@ -1,8 +1,8 @@
-import { describe, expect, it, beforeEach } from 'vitest'
-import { SupporterRepositoryInMemory } from '@repositories/impl/SupporterRepositoryInMemory'
 import { Supporter } from '@entities/Supporter'
+import { SupporterRepositoryInMemory } from '@repositories/impl/SupporterRepositoryInMemory'
 import { Email } from '@values/Email'
 import { Id } from '@values/Id'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 describe('SupporterRepositoryInMemory', () => {
   let repository: SupporterRepositoryInMemory
@@ -16,7 +16,7 @@ describe('SupporterRepositoryInMemory', () => {
   })
 
   describe('upsert', () => {
-    it('should push a new supporter when it does not exist', async () => {
+    it('should save a new supporter when it does not exist', async () => {
       const result = await repository.upsert(supporter1)
       expect(result).toBeSuccess()
 
@@ -27,7 +27,7 @@ describe('SupporterRepositoryInMemory', () => {
 
     it('should update an existing supporter when it already exists', async () => {
       await repository.upsert(supporter1)
-      
+
       const snapshot = supporter1.toSnapshot()
       snapshot.name = 'John Smith'
       const updatedSupporter = Supporter.fromSnapshot(snapshot).value!
@@ -45,14 +45,14 @@ describe('SupporterRepositoryInMemory', () => {
     it('should return a success result with the supporter if found', async () => {
       await repository.upsert(supporter1)
       await repository.upsert(supporter2)
-      
+
       const found = await repository.findById(supporter1.id)
       expect(found).toBeSuccess()
       expect(found.value!.isEqual(supporter1)).toBe(true)
     })
 
     it('should return a success result with null if not found', async () => {
-      const randomId = Id.make().value!
+      const randomId = Id.make()
       const found = await repository.findById(randomId)
       expect(found).toBeSuccess()
       expect(found.value).toBeNull()
@@ -62,10 +62,10 @@ describe('SupporterRepositoryInMemory', () => {
   describe('findByEmail', () => {
     it('should return a success result with the supporter if found', async () => {
       await repository.upsert(supporter1)
-      
+
       const email = Email.make('john@example.com').value!
       const found = await repository.findByEmail(email)
-      
+
       expect(found).toBeSuccess()
       expect(found.value!.isEqual(supporter1)).toBe(true)
     })
@@ -73,7 +73,7 @@ describe('SupporterRepositoryInMemory', () => {
     it('should return a success result with null if not found', async () => {
       const email = Email.make('nonexistent@example.com').value!
       const found = await repository.findByEmail(email)
-      
+
       expect(found).toBeSuccess()
       expect(found.value).toBeNull()
     })
@@ -82,7 +82,7 @@ describe('SupporterRepositoryInMemory', () => {
   describe('delete', () => {
     it('should remove an existing supporter and return success', async () => {
       await repository.upsert(supporter1)
-      
+
       const deleteResult = await repository.delete(supporter1)
       expect(deleteResult).toBeSuccess()
 
