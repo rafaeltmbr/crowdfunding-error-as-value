@@ -4,7 +4,6 @@ export default defineConfig({
     tsconfigPaths: true,
   },
   test: {
-    globals: true,
     environment: 'node',
     setupFiles: ['./tests/setup.ts'],
     coverage: {

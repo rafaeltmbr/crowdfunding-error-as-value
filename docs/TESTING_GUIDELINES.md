@@ -1,21 +1,33 @@
 # Domain Testing Guidelines
 
-Reference implementation: `tests/domain/values/Name.test.ts` (source: `src/domain/values/Name.ts`).
+Reference implementation: `tests/domain/values/Name.test.ts`.
 
 ## Principles
 
 - Tests are executable specifications. A reader must understand class behavior from the test file alone.
-- Be explicit: verify exact error messages, exact snapshot structures, exact return values.
+- Explicit over implicit: import `describe`, `expect`, `it`, `beforeEach` from `vitest`. Globals are disabled.
+- Verify exact error messages, exact snapshot structures, exact return values.
 - One logical behavior per `it(...)` block. Multiple `expect()` calls are fine if they verify facets of the same behavior.
-- Tests must be deterministic and self-contained. Use `beforeEach` to reset state. Never rely on execution order.
+- Tests must be deterministic and self-contained. Use `beforeEach` to reset mutable state. Never rely on execution order.
+
+## Custom Matchers
+
+Defined in `tests/setup.ts`:
+
+- `toBeSuccess()` — asserts `result.error === null`. On failure, prints the actual error message.
+- `toBeFailureWithMessage('exact message')` — asserts the result failed with the exact message string.
+
+Always use `toBeFailureWithMessage(...)`. Never assert just `expect(result.error).not.toBeNull()`.
 
 ## Structure
 
-Use nested `describe` blocks scoped by method or behavior. Never use a flat list of `it(...)` under a single `describe`.
+Every public method gets its own `describe` block. Nest under the class name.
 
 ```typescript
-describe('Name', () => {
+describe('Campaign', () => {
   describe('make', () => { ... })
+  describe('addTier', () => { ... })
+  describe('makeDonation', () => { ... })
   describe('isEqual', () => { ... })
   describe('toSnapshot', () => { ... })
   describe('fromSnapshot', () => { ... })
@@ -23,6 +35,12 @@ describe('Name', () => {
 ```
 
 Use `'should <expected behavior>'` for `it(...)` descriptions. Be specific enough that the description alone tells you what broke.
+
+## Test Setup
+
+- Use `beforeEach` for mutable or stateful objects (repositories, aggregates being modified across tests).
+- Immutable fixtures (Value Objects used as read-only inputs) may live at `describe` scope when never mutated.
+- `.value!` is acceptable when the success path is already proven in a dedicated happy-path test. In the happy-path test itself, assert `toBeSuccess()` before accessing `.value`.
 
 ## Rules by Method Type
 
@@ -34,10 +52,10 @@ Use `'should <expected behavior>'` for `it(...)` descriptions. Be specific enoug
 - If the method normalizes input (e.g., collapsing whitespace), test with tabs `\t`, newlines `\n`, and erratic spaces.
 
 ```typescript
-// GOOD: verifies exact message
+// GOOD
 expect(result).toBeFailureWithMessage('Name should not be empty.')
 
-// BAD: passes even if the wrong error is returned
+// BAD
 expect(result.error).not.toBeNull()
 ```
 
@@ -50,23 +68,34 @@ Test these four scenarios independently:
 3. Inequality: instances with different data are not equal.
 4. Nuances: case sensitivity if applicable.
 
+### Behavior methods
+
+Methods that mutate state or enforce invariants (`addTier`, `makeDonation`, etc.):
+
+- Test the happy path.
+- Test every rejection path with exact error message.
+- Test boundary/edge cases (empty collections, duplicates, threshold values).
+
 ### `toSnapshot`
 
-Assert against the exact expected value using `toEqual(...)`. Never use `toBeDefined()` alone.
+Assert the exact expected value using `toEqual(...)`. Never use `toBeDefined()` alone.
+
+For randomly generated fields (e.g., `id`), use the self-referencing pattern:
 
 ```typescript
-// GOOD
-expect(snapshot).toEqual('Valid Name')
+// GOOD: asserts the full structure
+const snapshot = tier.toSnapshot()
+expect(snapshot).toEqual({ id: snapshot.id, name: 'Tier 1', value: 10 })
 
-// BAD
-expect(snapshot).toBeDefined()
+// BAD: doesn't verify shape or type of id
+expect(snapshot.id).toBeDefined()
 ```
 
 ### `fromSnapshot`
 
 1. **Round-trip**: `fromSnapshot(obj.toSnapshot())` must produce an object that passes `isEqual()`.
-2. **Normalization**: must apply the same rules as `make` (test with untrimmed/padded input).
-3. **Invalid data**: corrupted or tampered data must be rejected with exact error messages.
+2. **Normalization**: if the method normalizes input, test it (e.g., trimming whitespace).
+3. **Invalid data**: test at least one corrupted input per distinct validation path, using `toBeFailureWithMessage('...')`. When `fromSnapshot` delegates to `make`, a representative subset is sufficient — do not duplicate all `make` tests.
 
 ## Edge Cases
 
