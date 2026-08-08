@@ -49,6 +49,23 @@ describe('Email', () => {
       expect(result).toBeSuccess()
       expect(result.value!.isEqual(original)).toBe(true)
     })
+
+    it('should normalize email by lowercasing and trimming', () => {
+      const original = Email.make('some.email@example.com').value!
+      const result = Email.fromSnapshot('  SOME.email@EXAMPLE.com  ')
+      expect(result).toBeSuccess()
+      expect(result.value!.isEqual(original)).toBe(true)
+    })
+
+    it('should fail if email is empty', () => {
+      const result = Email.fromSnapshot('')
+      expect(result).toBeFailureWithMessage('Email should not be empty.')
+    })
+
+    it('should fail if email is invalid', () => {
+      const result = Email.fromSnapshot('invalid-email')
+      expect(result).toBeFailureWithMessage('Email format should be valid.')
+    })
   })
 
   describe('Validation errors', () => {

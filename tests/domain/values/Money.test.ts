@@ -15,6 +15,12 @@ describe('Money', () => {
       expect(result.value!.isEqual(Money.make(0).value!)).toBe(true)
     })
 
+    it('should create negative money', () => {
+      const result = Money.make(-1)
+      expect(result).toBeSuccess()
+      expect(result.value!.isEqual(Money.make(-1).value!)).toBe(true)
+    })
+
     it('should fail if money is NaN', () => {
       const result = Money.make(NaN)
       expect(result).toBeFailureWithMessage('Money value should be an number.')
@@ -93,6 +99,16 @@ describe('Money', () => {
       const result = Money.fromSnapshot(original.toSnapshot())
       expect(result).toBeSuccess()
       expect(result.value!.isEqual(original)).toBe(true)
+    })
+
+    it('should fail to fromSnapshot if money is NaN', () => {
+      const result = Money.fromSnapshot(NaN)
+      expect(result).toBeFailureWithMessage('Money value should be an number.')
+    })
+
+    it('should fail to fromSnapshot if money is Infinity', () => {
+      const result = Money.fromSnapshot(Infinity)
+      expect(result).toBeFailureWithMessage('Money value should be an number.')
     })
   })
 })

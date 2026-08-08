@@ -1,4 +1,5 @@
 import { Supporter } from '@entities/Supporter'
+import { Email } from '@values/Email'
 import { describe, expect, it } from 'vitest'
 
 describe('Supporter', () => {
@@ -54,6 +55,20 @@ describe('Supporter', () => {
       const s1 = Supporter.make('John Doe', 'john.doe@example.com').value!
       const s3 = Supporter.make('Jane Doe', 'jane.doe@example.com').value!
       expect(s1.isEqual(s3)).toBe(false)
+    })
+  })
+
+  describe('isUsingEmail', () => {
+    it('should return true if email matches', () => {
+      const supporter = Supporter.make('John Doe', 'john.doe@example.com').value!
+      const email = Email.make('john.doe@example.com').value!
+      expect(supporter.isUsingEmail(email)).toBe(true)
+    })
+
+    it('should return false if email does not match', () => {
+      const supporter = Supporter.make('John Doe', 'john.doe@example.com').value!
+      const email = Email.make('jane.doe@example.com').value!
+      expect(supporter.isUsingEmail(email)).toBe(false)
     })
   })
 

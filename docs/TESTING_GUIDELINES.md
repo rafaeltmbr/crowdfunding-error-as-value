@@ -39,7 +39,7 @@ Use `'should <expected behavior>'` for `it(...)` descriptions. Be specific enoug
 ## Test Setup
 
 - Use `beforeEach` for mutable or stateful objects (repositories, aggregates being modified across tests).
-- Immutable fixtures (Value Objects used as read-only inputs) may live at `describe` scope when never mutated.
+- Immutable fixtures (Value Objects and Entities used as read-only inputs) may live at `describe` scope when never mutated.
 - `.value!` is acceptable when the success path is already proven in a dedicated happy-path test. In the happy-path test itself, assert `toBeSuccess()` before accessing `.value`.
 
 ## Rules by Method Type

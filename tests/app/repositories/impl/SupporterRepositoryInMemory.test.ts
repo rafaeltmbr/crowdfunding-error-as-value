@@ -29,8 +29,8 @@ describe('SupporterRepositoryInMemory', () => {
       await repository.upsert(supporter1)
 
       const snapshot = supporter1.toSnapshot()
-      snapshot.name = 'John Smith'
-      const updatedSupporter = Supporter.fromSnapshot(snapshot).value!
+      const updatedSnapshot = { ...snapshot, name: 'John Smith' }
+      const updatedSupporter = Supporter.fromSnapshot(updatedSnapshot).value!
 
       const result = await repository.upsert(updatedSupporter)
       expect(result).toBeSuccess()

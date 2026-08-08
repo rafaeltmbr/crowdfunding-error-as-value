@@ -76,13 +76,15 @@ describe('Campaign', () => {
   describe('toSnapshot', () => {
     it('should toSnapshot a predictable structure', () => {
       const campaign = Campaign.make('My Campaign', [tier10]).value!
-      const snapshot = campaign.toSnapshot() as any
-      expect(snapshot.name).toEqual('My Campaign')
-      expect(snapshot.funding.tiers).toEqual([
-        { id: campaign.toSnapshot().funding.tiers[0]!.id, name: 'Tier 10', value: 10 },
-      ])
-      expect(snapshot.funding.donations).toEqual([])
-      expect(snapshot.id).toBeDefined()
+      const snapshot = campaign.toSnapshot()
+      expect(snapshot).toEqual({
+        id: snapshot.id,
+        name: 'My Campaign',
+        funding: {
+          tiers: [{ id: snapshot.funding.tiers[0]!.id, name: 'Tier 10', value: 10 }],
+          donations: [],
+        },
+      })
     })
   })
 
@@ -229,6 +231,25 @@ describe('Campaign', () => {
       stats = campaign.supporterDonationStats(supporter1.id)
       expect(stats.tiers.has(tier20)).toBe(true)
       expect(stats.total.toSnapshot()).toBe(30)
+    })
+  })
+
+  describe('supporterDonationStats', () => {
+    it('should return empty stats for a supporter with no donations', () => {
+      const campaign = Campaign.make('My Campaign', [tier10, tier20]).value!
+      const stats = campaign.supporterDonationStats(supporter1.id)
+
+      expect(stats.tiers.size).toBe(0)
+      expect(stats.total.toSnapshot()).toBe(0)
+    })
+
+    it('should return correct stats for a supporter with donations', () => {
+      const campaign = Campaign.make('My Campaign', [tier10, tier20]).value!
+      campaign.makeDonation(Money.make(10).value!, supporter1.id)
+
+      const stats = campaign.supporterDonationStats(supporter1.id)
+      expect(stats.tiers.has(tier10)).toBe(true)
+      expect(stats.total.toSnapshot()).toBe(10)
     })
   })
 })
