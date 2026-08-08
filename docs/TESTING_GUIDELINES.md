@@ -44,6 +44,7 @@ expect(result.error).not.toBeNull()
 ### Equality (`isEqual`, `isLessThan`)
 
 Test these four scenarios independently:
+
 1. Self-equality: `obj.isEqual(obj)` returns `true`.
 2. Equivalent equality: two distinct instances with the same data are equal.
 3. Inequality: instances with different data are not equal.
@@ -70,6 +71,7 @@ expect(snapshot).toBeDefined()
 ## Edge Cases
 
 Always cover per type:
+
 - **Strings**: `""`, `"   "`, `"\n\t"`, min/max length boundaries.
 - **Numbers**: `0`, `-1`, `NaN`, `Infinity`, `-Infinity`.
 - **Collections**: `[]`, duplicate items, single-item collections.
@@ -83,12 +85,13 @@ Always cover per type:
 
 ## Workflow
 
-Every time a test is created or modified, all three checks must pass:
+Every time a test is created or modified, all four checks must pass:
 
 ```bash
-npm run test:run    # Run tests with coverage. Goal: 100% on domain logic.
-npm run lint        # Ensure stylistic consistency.
-npm run typecheck   # Catch type errors that vitest ignores (it strips types at runtime).
+npm run test:run      # Run tests with coverage. Goal: 100% on domain logic.
+npm run lint          # Ensure stylistic consistency.
+npm run typecheck     # Catch type errors that vitest ignores (it strips types at runtime).
+npm run format:check  # Ensure code is properly formatted.
 ```
 
-All three must pass. A test that runs green but fails typechecking or linting is not done.
+All four must pass. A test that runs green but fails typechecking, linting, or formatting is not done.

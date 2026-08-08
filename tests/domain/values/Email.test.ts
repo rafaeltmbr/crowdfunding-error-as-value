@@ -2,28 +2,53 @@ import { Email } from '@values/Email'
 import { describe, expect, it } from 'vitest'
 
 describe('Email', () => {
-  it('should create if valid', () => {
-    const result = Email.make('some.email@example.com')
-    expect(result).toBeSuccess()
+  describe('make', () => {
+    it('should create if valid', () => {
+      const result = Email.make('some.email@example.com')
+      expect(result).toBeSuccess()
+    })
+
+    it('should fail if empty', () => {
+      const result = Email.make('')
+      expect(result).toBeFailureWithMessage('Email should not be empty.')
+    })
   })
 
-  it('should verify equality', () => {
-    const email1 = Email.make('some.email@example.com').value!
-    const email2 = Email.make('some.email@example.com').value!
-    const email3 = Email.make('other.email@example.com').value!
+  describe('isEqual', () => {
+    it('should verify self-equality', () => {
+      const email1 = Email.make('some.email@example.com').value!
+      expect(email1.isEqual(email1)).toBe(true)
+    })
 
-    expect(email1.isEqual(email2)).toBe(true)
-    expect(email1.isEqual(email3)).toBe(false)
+    it('should verify equivalent equality', () => {
+      const email1 = Email.make('some.email@example.com').value!
+      const email2 = Email.make('some.email@example.com').value!
+      expect(email1.isEqual(email2)).toBe(true)
+    })
+
+    it('should verify inequality', () => {
+      const email1 = Email.make('some.email@example.com').value!
+      const email2 = Email.make('other.email@example.com').value!
+      expect(email1.isEqual(email2)).toBe(false)
+    })
   })
 
-  it('should verify toSnapshot returns data', () => {
-    const result = Email.make('some.email@example.com')
-    expect(result.value!.toSnapshot()).toBeDefined()
+  describe('toSnapshot', () => {
+    it('should verify toSnapshot returns the correct data structure', () => {
+      const result = Email.make('some.email@example.com')
+      const snapshot = result.value!.toSnapshot()
+      expect(snapshot).toEqual('some.email@example.com')
+    })
   })
 
-  it('should fail if empty', () => {
-    const result = Email.make('')
-    expect(result).toBeFailureWithMessage('Email should not be empty.')
+  describe('fromSnapshot', () => {
+    it('should fromSnapshot a snapshot data and produce an equivalent object', () => {
+      const original = Email.make('some.email@example.com').value!
+
+      const result = Email.fromSnapshot(original.toSnapshot())
+      expect(result).toBeSuccess()
+      expect(result.value!.isEqual(original)).toBe(true)
+    })
   })
 
   describe('Validation errors', () => {
@@ -149,13 +174,5 @@ describe('Email', () => {
         expect(result).toBeFailureWithMessage('Email format should be valid.')
       })
     })
-  })
-
-  it('should fromSnapshot a snapshot data and produce an equivalent object', () => {
-    const original = Email.make('some.email@example.com').value!
-
-    const result = Email.fromSnapshot(original.toSnapshot())
-    expect(result).toBeSuccess()
-    expect(result.value!.isEqual(original)).toBe(true)
   })
 })

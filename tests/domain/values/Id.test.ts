@@ -16,37 +16,46 @@ describe('Id', () => {
     })
   })
 
+  describe('toSnapshot', () => {
+    it('should verify toSnapshot returns the exact ID string', () => {
+      const id = Id.fromSnapshot('A2CDEFGHJK').value!
+      expect(id.toSnapshot()).toEqual('A2CDEFGHJK')
+    })
+  })
+
   describe('fromSnapshot', () => {
     it('should fromSnapshot a valid ID string', () => {
       const snapshot = 'A2CDEFGHJK'
       const idResult = Id.fromSnapshot(snapshot)
 
-      expect(idResult.error).toBeNull()
-      expect(idResult.value).toBeInstanceOf(Id)
+      expect(idResult).toBeSuccess()
       expect(idResult.value?.toSnapshot()).toBe('A2CDEFGHJK')
     })
 
-    it('should trim string when fromSnapshot', () => {
+    it('should normalize whitespace when fromSnapshot', () => {
       const idResult = Id.fromSnapshot('A2CDEFGHJK  ')
-      expect(idResult.error).toBeNull()
+      expect(idResult).toBeSuccess()
       expect(idResult.value?.toSnapshot()).toBe('A2CDEFGHJK')
     })
 
     it('should fail to fromSnapshot if length is wrong', () => {
       const idResult = Id.fromSnapshot('ABC')
-      expect(idResult.error).toBeInstanceOf(Error)
-      expect(idResult.error?.message).toBe('Id length should be 10 characters long.')
+      expect(idResult).toBeFailureWithMessage('Id length should be 10 characters long.')
     })
 
     it('should fail to fromSnapshot if contains illegal characters', () => {
       const idResult = Id.fromSnapshot('A2CDEFGHI0')
-      expect(idResult.error).toBeInstanceOf(Error)
-      expect(idResult.error?.message).toBe('Id should not contain illegal characters.')
+      expect(idResult).toBeFailureWithMessage('Id should not contain illegal characters.')
     })
   })
 
   describe('isEqual', () => {
-    it('should return true when two IDs have the same value', () => {
+    it('should verify self-equality', () => {
+      const id1 = Id.fromSnapshot('A2CDEFGHJK').value!
+      expect(id1.isEqual(id1)).toBe(true)
+    })
+
+    it('should return true when two IDs have the same equivalent value', () => {
       const id1 = Id.fromSnapshot('A2CDEFGHJK').value!
       const id2 = Id.fromSnapshot('A2CDEFGHJK').value!
       expect(id1.isEqual(id2)).toBe(true)
