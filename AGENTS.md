@@ -18,3 +18,5 @@ This project strictly enforces specific architectural and testing standards. You
 - **Architecture:** `docs/ARCHITECTURE.md`
 - **Design:** `docs/DESIGN.md`
 - **Testing Standards:** `docs/TESTING.md`
+
+PS: Make sure to kepp the documentation up to date when applied.
