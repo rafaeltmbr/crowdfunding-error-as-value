@@ -38,10 +38,10 @@ export class Tier {
     const idResult = Id.fromSnapshot(snapshot.id)
     if (idResult.error) return Result.fail(idResult.error)
 
-    const nameResult = TierName.make(snapshot.name)
+    const nameResult = TierName.fromSnapshot(snapshot.name)
     if (nameResult.error) return nameResult
 
-    const valueResult = TierMoney.make(snapshot.value)
+    const valueResult = TierMoney.fromSnapshot(snapshot.value)
     if (valueResult.error) return valueResult
 
     return Result.succeed(new Tier(idResult.value, nameResult.value, valueResult.value))
@@ -59,6 +59,7 @@ export class Tier {
 }
 
 class TierName extends Name {
+
   static override make(value: string): Result<TierName> {
     const validation = this.validate(value)
     if (validation.error) return validation
@@ -79,6 +80,7 @@ class TierName extends Name {
 }
 
 class TierMoney extends Money {
+
   static override make(value: number): Result<TierMoney> {
     const validation = this.validate(value)
     if (validation.error) return validation

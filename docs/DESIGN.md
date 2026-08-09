@@ -61,7 +61,7 @@ Value Objects are immutable domain primitives that represent a concept with no i
 Value Objects use inheritance to create domain-specific variants with stricter validation. The base class provides shared logic; subclasses override `validate()` to add constraints, then delegate to `super.validate()`.
 
 - **Rule**: Specialized Value Objects MUST override `validate()` to add their constraints and call `super.validate()` for the base rules.
-- **Rule**: Specialized Value Objects MUST override `make()` and `fromSnapshot()` to return the correct subclass type.
+- **Rule**: Specialized Value Objects MUST override `make()` to return the correct subclass type.
 - **Rule**: Specialized Value Objects that are scoped to a single Entity SHOULD be **unexported and internal** to that Entity's module file.
 
 ## 6. Entities

@@ -94,7 +94,7 @@ class Contribution {
     amount: MoneySnapshot
     supporterId: IdSnapshot
   }): Result<Contribution> {
-    const amountResult = DonationMoney.make(snapshot.amount)
+    const amountResult = DonationMoney.fromSnapshot(snapshot.amount)
     if (amountResult.error) return amountResult
 
     const supporterIdResult = Id.fromSnapshot(snapshot.supporterId)
@@ -113,6 +113,7 @@ class Contribution {
 }
 
 class DonationMoney extends Money {
+
   static override make(value: number): Result<DonationMoney> {
     const validation = this.validate(value)
 

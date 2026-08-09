@@ -34,7 +34,7 @@ export class Supporter {
     const idResult = Id.fromSnapshot(snapshot.id)
     if (idResult.error) return idResult
 
-    const nameResult = SupporterName.make(snapshot.name)
+    const nameResult = SupporterName.fromSnapshot(snapshot.name)
     if (nameResult.error) return nameResult
 
     const emailResult = Email.fromSnapshot(snapshot.email)
@@ -55,6 +55,7 @@ export class Supporter {
 }
 
 class SupporterName extends Name {
+
   static override make(value: string): Result<SupporterName> {
     const normalized = this.validate(value)
     if (normalized.error) return normalized

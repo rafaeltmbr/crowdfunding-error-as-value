@@ -40,7 +40,7 @@ export class Campaign {
     const idResult = Id.fromSnapshot(snapshot.id)
     if (idResult.error) return Result.fail(idResult.error)
 
-    const nameResult = CampaignName.make(snapshot.name)
+    const nameResult = CampaignName.fromSnapshot(snapshot.name)
     if (nameResult.error) return nameResult
 
     const fundingResult = CampaignFunding.fromSnapshot(snapshot.funding)
@@ -110,6 +110,7 @@ class CampaignFunding {
 }
 
 class CampaignName extends Name {
+
   static override make(value: string): Result<CampaignName> {
     const validation = this.validate(value)
     if (validation.error) return validation
