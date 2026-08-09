@@ -71,6 +71,7 @@ Entities are domain objects with a unique identity (`Id`). Two Entities are equa
 
 - **Rule**: Entities MUST have a `protected constructor`.
 - **Rule**: Entity identity is an `Id` Value Object. Equality is based solely on `id.isEqual(other.id)`.
+- **Rule**: Entities MUST implement `hasId(id: Id): boolean` to allow external querying by identity (e.g., inside repositories).
 - **Rule**: All state access and mutation goes through behavior methods.
 
 ### Cross-Aggregate References by Identity
@@ -114,3 +115,4 @@ Repository interfaces define the contract for persisting and retrieving domain o
 - **Rule**: All repository methods MUST return `Promise<Result<T>>` to unify error handling across sync/async boundaries.
 - **Rule**: Repository methods accept and return **domain objects**, not snapshots. Snapshot conversion is an internal adapter concern.
 - **Rule**: Adapter implementations use domain behavior methods (e.g., `entity.isEqual(other)`) instead of comparing raw IDs or fields.
+- **Rule**: In-memory repository adapters MUST store snapshots internally, not domain objects. To evaluate queries, they MUST hydrate the entire collection and filter the hydrated domain objects using domain behavior methods. This enforces the serialization boundary and ensures test doubles perfectly mirror production database constraints.

@@ -45,7 +45,7 @@ export class SupporterRepositoryInMemory implements SupporterRepository {
     const allResult = this.hydrateAll()
     if (allResult.error) return Result.fail(allResult.error)
 
-    const found = allResult.value.find((s) => s.id.isEqual(id)) ?? null
+    const found = allResult.value.find((s) => s.hasId(id)) ?? null
     return Result.succeed(found)
   }
 

@@ -5,21 +5,29 @@ import { Result } from '@values/Result'
 
 export class Donation {
   protected constructor(
-    protected id: Id,
+    protected _id: Id,
     protected contribution: Contribution,
     protected tier: Tier | null
   ) {}
 
+  get id(): Id {
+    return this._id
+  }
+
   isEqual(other: Donation): boolean {
-    return this.id.isEqual(other.id)
+    return this._id.isEqual(other._id)
   }
 
   isEligibleForTier(tier: Tier): boolean {
     return this.contribution.isEligibleForTier(tier)
   }
 
-  belongsToSupporter(supporterId: Id): boolean {
+  belongsToSupporterId(supporterId: Id): boolean {
     return this.contribution.belongsTo(supporterId)
+  }
+
+  hasId(id: Id): boolean {
+    return this._id.isEqual(id)
   }
 
   addTierToBucket(bucket: Set<Tier>): Set<Tier> {
@@ -33,7 +41,7 @@ export class Donation {
   toSnapshot(): DonationSnapshot {
     const contributionSnapshot = this.contribution.toSnapshot()
     return {
-      id: this.id.toSnapshot(),
+      id: this._id.toSnapshot(),
       amount: contributionSnapshot.amount,
       supporterId: contributionSnapshot.supporterId,
       tier: this.tier ? this.tier.toSnapshot() : null,

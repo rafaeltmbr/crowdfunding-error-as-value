@@ -72,6 +72,19 @@ describe('Supporter', () => {
     })
   })
 
+  describe('hasId', () => {
+    it('should return true if id matches', () => {
+      const supporter = Supporter.make('John Doe', 'john.doe@example.com').value!
+      expect(supporter.hasId(supporter.id)).toBe(true)
+    })
+
+    it('should return false if id does not match', () => {
+      const supporter1 = Supporter.make('John Doe', 'john.doe@example.com').value!
+      const supporter2 = Supporter.make('Jane Doe', 'jane.doe@example.com').value!
+      expect(supporter1.hasId(supporter2.id)).toBe(false)
+    })
+  })
+
   describe('toSnapshot', () => {
     it('should verify toSnapshot returns the correct data structure', () => {
       const original = Supporter.make('John Doe', 'john.doe@example.com').value!

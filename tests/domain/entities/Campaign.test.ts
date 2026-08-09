@@ -2,6 +2,7 @@ import { Campaign } from '@entities/Campaign'
 import { Supporter } from '@entities/Supporter'
 import { Tier } from '@entities/Tier'
 import { Money } from '@values/Money'
+import { Name } from '@values/Name'
 import { describe, expect, it } from 'vitest'
 
 describe('Campaign', () => {
@@ -13,6 +14,11 @@ describe('Campaign', () => {
     it('should create a valid campaign with no tiers', () => {
       const result = Campaign.make('My Campaign')
       expect(result).toBeSuccess()
+    })
+
+    it('should expose an id getter', () => {
+      const result = Campaign.make('My Campaign')
+      expect(result.value!.id).toBeDefined()
     })
 
     it('should create a valid campaign with tiers', () => {
@@ -70,6 +76,32 @@ describe('Campaign', () => {
       const c1 = Campaign.make('Campaign 1', [tier10]).value!
       const c2 = Campaign.make('Campaign 2', [tier10]).value!
       expect(c1.isEqual(c2)).toBe(false)
+    })
+  })
+
+  describe('hasName', () => {
+    it('should return true if name matches', () => {
+      const campaign = Campaign.make('Campaign 1').value!
+      const name = Campaign.fromSnapshot(campaign.toSnapshot()).value!.toSnapshot().name
+      expect(campaign.hasName(Name.fromSnapshot(name).value!)).toBe(true)
+    })
+    it('should return false if name does not match', () => {
+      const campaign = Campaign.make('Campaign 1').value!
+      const otherCampaign = Campaign.make('Campaign 2').value!
+      const name = Campaign.fromSnapshot(otherCampaign.toSnapshot()).value!.toSnapshot().name
+      expect(campaign.hasName(Name.fromSnapshot(name).value!)).toBe(false)
+    })
+  })
+
+  describe('hasId', () => {
+    it('should return true if id matches', () => {
+      const campaign = Campaign.make('Campaign 1').value!
+      expect(campaign.hasId(campaign.id)).toBe(true)
+    })
+    it('should return false if id does not match', () => {
+      const c1 = Campaign.make('Campaign 1').value!
+      const c2 = Campaign.make('Campaign 2').value!
+      expect(c1.hasId(c2.id)).toBe(false)
     })
   })
 

@@ -14,6 +14,11 @@ describe('Donation', () => {
       expect(result).toBeSuccess()
     })
 
+    it('should expose an id getter', () => {
+      const result = Donation.make(validAmount, validSupporter.id)
+      expect(result.value!.id).toBeDefined()
+    })
+
     it('should fail if amount is zero', () => {
       const zeroAmount = Money.make(0).value!
       const result = Donation.make(zeroAmount, validSupporter.id)
@@ -107,16 +112,28 @@ describe('Donation', () => {
     })
   })
 
-  describe('belongsToSupporter', () => {
+  describe('hasId', () => {
+    it('should return true if id matches', () => {
+      const donation = Donation.make(validAmount, validSupporter.id).value!
+      expect(donation.hasId(donation.id)).toBe(true)
+    })
+    it('should return false if id does not match', () => {
+      const d1 = Donation.make(validAmount, validSupporter.id).value!
+      const d2 = Donation.make(validAmount, validSupporter.id).value!
+      expect(d1.hasId(d2.id)).toBe(false)
+    })
+  })
+
+  describe('belongsToSupporterId', () => {
     it('should return true if donation belongs to supporter', () => {
       const donation = Donation.make(validAmount, validSupporter.id).value!
-      expect(donation.belongsToSupporter(validSupporter.id)).toBe(true)
+      expect(donation.belongsToSupporterId(validSupporter.id)).toBe(true)
     })
 
     it('should return false if donation belongs to another supporter', () => {
       const donation = Donation.make(validAmount, validSupporter.id).value!
       const anotherSupporter = Supporter.make('Jane Doe', 'jane.doe@example.com').value!
-      expect(donation.belongsToSupporter(anotherSupporter.id)).toBe(false)
+      expect(donation.belongsToSupporterId(anotherSupporter.id)).toBe(false)
     })
   })
 

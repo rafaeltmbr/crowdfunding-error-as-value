@@ -1,4 +1,5 @@
 import { Tier } from '@entities/Tier'
+import { Id } from '@values/Id'
 import { Money } from '@values/Money'
 import { describe, expect, it } from 'vitest'
 
@@ -36,16 +37,31 @@ describe('Tier', () => {
   })
 
   describe('isValueLessThan', () => {
-    it('should return true if tier value is less than another', () => {
+    it('should return true if value is less than', () => {
       const t1 = Tier.make('Tier 1', 10).value!
       const t2 = Tier.make('Tier 2', 20).value!
       expect(t1.isValueLessThan(t2)).toBe(true)
     })
 
-    it('should return false if tier value is not less than another', () => {
+    it('should return false if value is greater or equal', () => {
       const t1 = Tier.make('Tier 1', 20).value!
       const t2 = Tier.make('Tier 2', 10).value!
       expect(t1.isValueLessThan(t2)).toBe(false)
+    })
+  })
+
+  describe('hasId', () => {
+    it('should return true if id matches', () => {
+      const tier = Tier.make('Tier 1', 10).value!
+      const id = Id.fromSnapshot(tier.toSnapshot().id).value!
+      expect(tier.hasId(id)).toBe(true)
+    })
+
+    it('should return false if id does not match', () => {
+      const t1 = Tier.make('Tier 1', 10).value!
+      const t2 = Tier.make('Tier 2', 20).value!
+      const t2Id = Id.fromSnapshot(t2.toSnapshot().id).value!
+      expect(t1.hasId(t2Id)).toBe(false)
     })
   })
 

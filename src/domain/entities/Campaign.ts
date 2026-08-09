@@ -7,10 +7,14 @@ import { Result } from '@values/Result'
 
 export class Campaign {
   protected constructor(
-    protected id: Id,
+    protected _id: Id,
     protected name: CampaignName,
     protected funding: CampaignFunding
   ) {}
+
+  get id(): Id {
+    return this._id
+  }
 
   addTier(tier: Tier): Result<void> {
     return this.funding.addTier(tier)
@@ -25,12 +29,20 @@ export class Campaign {
   }
 
   isEqual(other: Campaign): boolean {
-    return this.id.isEqual(other.id)
+    return this._id.isEqual(other._id)
+  }
+
+  hasName(name: Name): boolean {
+    return this.name.isEqual(name)
+  }
+
+  hasId(id: Id): boolean {
+    return this._id.isEqual(id)
   }
 
   toSnapshot(): CampaignSnapshot {
     return {
-      id: this.id.toSnapshot(),
+      id: this._id.toSnapshot(),
       name: this.name.toSnapshot(),
       funding: this.funding.toSnapshot(),
     }
@@ -190,7 +202,7 @@ class Donations {
   }
 
   supporterStats(supporterId: Id): SupporterDonationStats {
-    const donations = this.list.filter((donation) => donation.belongsToSupporter(supporterId))
+    const donations = this.list.filter((donation) => donation.belongsToSupporterId(supporterId))
     return new SupporterDonationStats(donations)
   }
 

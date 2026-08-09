@@ -14,6 +14,10 @@ export class Tier {
     return this.value.isLessThan(tier.value)
   }
 
+  hasId(id: Id): boolean {
+    return this.id.isEqual(id)
+  }
+
   isValueEqual(tier: Tier): boolean {
     return this.value.isEqual(tier.value)
   }

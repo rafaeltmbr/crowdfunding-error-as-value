@@ -22,6 +22,10 @@ export class Supporter {
     return this.email.isEqual(email)
   }
 
+  hasId(id: Id): boolean {
+    return this._id.isEqual(id)
+  }
+
   toSnapshot(): SupporterSnapshot {
     return {
       id: this._id.toSnapshot(),
