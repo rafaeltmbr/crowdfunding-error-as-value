@@ -40,4 +40,6 @@ npm install
 
 ## Documentation
 
-- [Testing Guidelines](docs/TESTING_GUIDELINES.md) — Standards for writing and verifying domain tests.
+- [Architecture](docs/ARCHITECTURE.md) — Strategic, system-wide decisions (layers, boundaries, ports).
+- [Design](docs/DESIGN.md) — Tactical, class-level patterns (Result, OO, Snapshot, Calisthenics).
+- [Testing Guidelines](docs/TESTING.md) — Standards for writing and verifying domain tests.

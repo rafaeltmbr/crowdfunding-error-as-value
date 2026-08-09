@@ -3,6 +3,7 @@
 Welcome! If you are an AI agent working in this repository, you MUST follow these global rules.
 
 ## 1. Interaction Rules
+
 - **Example Generation:** When asked for an "example", ONLY print the snippet in chat. Do NOT implement it in the project.
 - **File Creation:** Do NOT create new files in the project directory unless explicitly requested.
 - **Scratch Files:** If you need to create temporary scripts to validate hypotheses, create them in your own temporary/artifact directory, NEVER in the project workspace.
@@ -11,7 +12,9 @@ Welcome! If you are an AI agent working in this repository, you MUST follow thes
 - **Validation:** After every development cycle, you MUST ensure the project's validation pipeline (`npm run build`, tests, linters, typechecks) passes cleanly.
 
 ## 2. Project Guidelines
+
 This project strictly enforces specific architectural and testing standards. You MUST read and adhere to the following documents before implementing new features or tests:
 
-- **Architecture & Design:** `docs/ARCHITECTURE_GUIDELINES.md`
-- **Testing Standards:** `docs/TESTING_GUIDELINES.md`
+- **Architecture:** `docs/ARCHITECTURE.md`
+- **Design:** `docs/DESIGN.md`
+- **Testing Standards:** `docs/TESTING.md`
