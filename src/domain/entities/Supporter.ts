@@ -55,6 +55,9 @@ export class Supporter {
 }
 
 class SupporterName extends Name {
+  protected constructor(value: string) {
+    super(value)
+  }
   static override make(value: string): Result<SupporterName> {
     const normalized = this.validate(value)
     if (normalized.error) return normalized

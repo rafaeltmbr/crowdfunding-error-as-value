@@ -113,6 +113,9 @@ class Contribution {
 }
 
 class DonationMoney extends Money {
+  protected constructor(value: number) {
+    super(value)
+  }
   static override make(value: number): Result<DonationMoney> {
     const validation = this.validate(value)
 

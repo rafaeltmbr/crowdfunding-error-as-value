@@ -98,7 +98,7 @@ describe('Campaign', () => {
       expect(result).toBeSuccess()
       expect(result.value!.isEqual(original)).toBe(true)
       const stats = result.value!.supporterDonationStats(supporter1.id)
-      const tiersArray = Array.from(stats.tiers)
+      const tiersArray = Array.from(stats.extractTiers())
       expect(tiersArray.length).toBe(1)
       expect(tiersArray[0]!.isEqual(tier10)).toBe(true)
     })
@@ -178,7 +178,7 @@ describe('Campaign', () => {
       const result = campaign.makeDonation(Money.make(9).value!, supporter1.id)
       expect(result).toBeSuccess()
       const stats = campaign.supporterDonationStats(supporter1.id)
-      expect(stats.tiers.size).toBe(0)
+      expect(stats.extractTiers().size).toBe(0)
     })
 
     it('should accept a donation with sufficient amount and return the matching tier', () => {
@@ -186,7 +186,7 @@ describe('Campaign', () => {
       const result = campaign.makeDonation(Money.make(10).value!, supporter1.id)
       expect(result).toBeSuccess()
       const stats = campaign.supporterDonationStats(supporter1.id)
-      expect(stats.tiers.has(tier10)).toBe(true)
+      expect(stats.extractTiers().has(tier10)).toBe(true)
     })
 
     it('should accept a donation and return the largest matching tier', () => {
@@ -195,12 +195,12 @@ describe('Campaign', () => {
       const result1 = campaign.makeDonation(Money.make(20).value!, supporter1.id)
       expect(result1).toBeSuccess()
       let stats = campaign.supporterDonationStats(supporter1.id)
-      expect(stats.tiers.has(tier20)).toBe(true)
+      expect(stats.extractTiers().has(tier20)).toBe(true)
 
       const result2 = campaign.makeDonation(Money.make(25).value!, supporter1.id)
       expect(result2).toBeSuccess()
       stats = campaign.supporterDonationStats(supporter1.id)
-      expect(stats.tiers.has(tier20)).toBe(true)
+      expect(stats.extractTiers().has(tier20)).toBe(true)
     })
 
     it('should accept multiple donations of the same amount', () => {
@@ -209,13 +209,13 @@ describe('Campaign', () => {
       const result1 = campaign.makeDonation(Money.make(10).value!, supporter1.id)
       expect(result1).toBeSuccess()
       let stats = campaign.supporterDonationStats(supporter1.id)
-      expect(stats.tiers.has(tier10)).toBe(true)
+      expect(stats.extractTiers().has(tier10)).toBe(true)
 
       const result2 = campaign.makeDonation(Money.make(10).value!, supporter1.id)
       expect(result2).toBeSuccess()
       stats = campaign.supporterDonationStats(supporter1.id)
-      expect(stats.tiers.has(tier10)).toBe(true)
-      expect(stats.total.toSnapshot()).toBe(20)
+      expect(stats.extractTiers().has(tier10)).toBe(true)
+      expect(stats.calculateTotal().toSnapshot()).toBe(20)
     })
 
     it('should accept multiple donations of different amounts', () => {
@@ -224,13 +224,13 @@ describe('Campaign', () => {
       const result1 = campaign.makeDonation(Money.make(10).value!, supporter1.id)
       expect(result1).toBeSuccess()
       let stats = campaign.supporterDonationStats(supporter1.id)
-      expect(stats.tiers.has(tier10)).toBe(true)
+      expect(stats.extractTiers().has(tier10)).toBe(true)
 
       const result2 = campaign.makeDonation(Money.make(20).value!, supporter1.id)
       expect(result2).toBeSuccess()
       stats = campaign.supporterDonationStats(supporter1.id)
-      expect(stats.tiers.has(tier20)).toBe(true)
-      expect(stats.total.toSnapshot()).toBe(30)
+      expect(stats.extractTiers().has(tier20)).toBe(true)
+      expect(stats.calculateTotal().toSnapshot()).toBe(30)
     })
   })
 
@@ -239,8 +239,8 @@ describe('Campaign', () => {
       const campaign = Campaign.make('My Campaign', [tier10, tier20]).value!
       const stats = campaign.supporterDonationStats(supporter1.id)
 
-      expect(stats.tiers.size).toBe(0)
-      expect(stats.total.toSnapshot()).toBe(0)
+      expect(stats.extractTiers().size).toBe(0)
+      expect(stats.calculateTotal().toSnapshot()).toBe(0)
     })
 
     it('should return correct stats for a supporter with donations', () => {
@@ -248,8 +248,12 @@ describe('Campaign', () => {
       campaign.makeDonation(Money.make(10).value!, supporter1.id)
 
       const stats = campaign.supporterDonationStats(supporter1.id)
-      expect(stats.tiers.has(tier10)).toBe(true)
-      expect(stats.total.toSnapshot()).toBe(10)
+      expect(stats.extractTiers().has(tier10)).toBe(true)
+      expect(stats.calculateTotal().toSnapshot()).toBe(10)
+
+      // Test caching logic by calling a second time
+      expect(stats.extractTiers().has(tier10)).toBe(true)
+      expect(stats.calculateTotal().toSnapshot()).toBe(10)
     })
   })
 })

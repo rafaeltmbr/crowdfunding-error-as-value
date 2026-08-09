@@ -7,6 +7,8 @@ export default {
     },
     schema: [], // no options
     messages: {
+      missingConstructor:
+        "Specialized Value Object '{{ className }}' must have a protected constructor.",
       missingMake: "Specialized Value Object '{{ className }}' must override static make().",
       missingValidate:
         "Specialized Value Object '{{ className }}' must override static validate().",
@@ -30,6 +32,15 @@ export default {
 
         // Find make and validate methods
         const methods = node.body.body.filter((element) => element.type === 'MethodDefinition')
+
+        const constructor = methods.find((m) => m.kind === 'constructor')
+        if (!constructor || constructor.accessibility !== 'protected') {
+          context.report({
+            node,
+            messageId: 'missingConstructor',
+            data: { className },
+          })
+        }
 
         const hasMake = methods.some(
           (m) => m.static === true && m.key.type === 'Identifier' && m.key.name === 'make'

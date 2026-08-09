@@ -59,6 +59,9 @@ export class Tier {
 }
 
 class TierName extends Name {
+  protected constructor(value: string) {
+    super(value)
+  }
   static override make(value: string): Result<TierName> {
     const validation = this.validate(value)
     if (validation.error) return validation
@@ -79,6 +82,9 @@ class TierName extends Name {
 }
 
 class TierMoney extends Money {
+  protected constructor(value: number) {
+    super(value)
+  }
   static override make(value: number): Result<TierMoney> {
     const validation = this.validate(value)
     if (validation.error) return validation
@@ -90,9 +96,7 @@ class TierMoney extends Money {
     const baseValidation = super.validate(value)
     if (baseValidation.error) return baseValidation
 
-    if (baseValidation.value <= 0) {
-      return Result.fail(new Error('TierMoney should be positive.'))
-    }
+    if (baseValidation.value <= 0) return Result.fail(new Error('TierMoney should be positive.'))
 
     return Result.succeed(baseValidation.value)
   }

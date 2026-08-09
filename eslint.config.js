@@ -98,6 +98,15 @@ export default tseslint.config(
           selector: 'TSUndefinedKeyword',
           message: 'Use "null" or a "Result/Option" type instead of "undefined".',
         },
+        {
+          selector: 'MethodDefinition[kind="set"]',
+          message: 'Setters are forbidden. Use behavior methods instead.',
+        },
+        {
+          selector: 'MethodDefinition[kind="get"][key.name!="id"]',
+          message:
+            'Getters are forbidden (except for "get id()"). Ask objects to perform behaviors instead of inspecting their state.',
+        },
       ],
     },
   },

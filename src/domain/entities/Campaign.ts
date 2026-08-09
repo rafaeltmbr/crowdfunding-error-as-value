@@ -110,6 +110,9 @@ class CampaignFunding {
 }
 
 class CampaignName extends Name {
+  protected constructor(value: string) {
+    super(value)
+  }
   static override make(value: string): Result<CampaignName> {
     const validation = this.validate(value)
     if (validation.error) return validation
@@ -152,9 +155,7 @@ class Tiers {
     const results = snapshot.map((tierData) => Tier.fromSnapshot(tierData))
     const errorResult = results.find((r) => r.error)
 
-    if (errorResult && errorResult.error) {
-      return Result.fail(errorResult.error)
-    }
+    if (errorResult && errorResult.error) return Result.fail(errorResult.error)
 
     const tiers = results.map((r) => r.value!)
 
@@ -175,9 +176,7 @@ class Tiers {
       (tier, i) => i < sortedTiers.length - 1 && tier.isValueEqual(sortedTiers[i + 1]!)
     )
 
-    if (hasDuplicates) {
-      return Result.fail(new Error('Tiers values should be unique.'))
-    }
+    if (hasDuplicates) return Result.fail(new Error('Tiers values should be unique.'))
 
     return Result.succeed(sortedTiers)
   }
@@ -203,9 +202,7 @@ class Donations {
     const results = snapshot.map((donationData) => Donation.fromSnapshot(donationData))
     const errorResult = results.find((r) => r.error)
 
-    if (errorResult && errorResult.error) {
-      return Result.fail(errorResult.error)
-    }
+    if (errorResult && errorResult.error) return Result.fail(errorResult.error)
 
     const donations = results.map((r) => r.value!)
     return Result.succeed(this.make(donations))
@@ -217,20 +214,27 @@ class Donations {
 }
 
 class SupporterDonationStats {
+  private cachedTotal: Money | null = null
+  private cachedTiers: Set<Tier> | null = null
+
   constructor(protected donations: Donation[]) {}
 
-  get total(): Money {
-    return this.donations.reduce(
+  calculateTotal(): Money {
+    if (this.cachedTotal !== null) return this.cachedTotal
+
+    return (this.cachedTotal = this.donations.reduce(
       (total, donation) => donation.addToTotal(total),
       Money.make(0).value!
-    )
+    ))
   }
 
-  get tiers(): Set<Tier> {
-    return this.donations.reduce(
+  extractTiers(): Set<Tier> {
+    if (this.cachedTiers !== null) return this.cachedTiers
+
+    return (this.cachedTiers = this.donations.reduce(
       (bucket, donation) => donation.addTierToBucket(bucket),
       new Set<Tier>()
-    )
+    ))
   }
 }
 

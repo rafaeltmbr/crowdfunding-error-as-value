@@ -35,6 +35,7 @@ Object Calisthenics is used as a discipline to **force out of the procedural min
 
 - **Tell, Don't Ask**: Do not query an object's state to make decisions on its behalf. Tell the object what to do and let it decide how. This keeps behavior inside the object that owns the data.
 - **One level of indentation per method**: Keeps methods simple and prevents leaking knowledge about object internal structures. There are exceptions, but deep nesting is a sign of procedural thinking.
+- **Early Return and Fail Fast (Guard Clauses)**: Avoid `else` blocks and deeply nested conditions. If a validation fails or a cached value exists, return or fail immediately. This flattens the code and keeps the "happy path" completely unindented.
 - **Avoid primitive obsession**: Wrap primitive values in Value Objects that carry meaning and validation. A `Money` is not a `number`; a `Name` is not a `string`.
 - **First-class collections**: Raw arrays of domain objects MUST NOT be exposed. Wrap them in collection classes that expose domain-meaningful methods and enforce their own invariants (e.g., rejecting duplicates, maintaining sort order).
 - **No getters**: Do not expose internal state through getters. The only exception is `get id()` on Entities that need to be referenced externally (e.g., by the application layer through repository queries).

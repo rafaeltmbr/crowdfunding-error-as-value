@@ -57,9 +57,7 @@ export class Email {
     const parts = normalized.split('@')
     if (parts.length <= 1) return Result.succeed()
 
-    if (parts[0]!.length > 64) {
-      return Result.fail(new Error('Email format should be valid.'))
-    }
+    if (parts[0]!.length > 64) return Result.fail(new Error('Email format should be valid.'))
 
     const domainParts = parts[1]!.split('.')
 

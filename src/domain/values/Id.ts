@@ -43,9 +43,7 @@ export class Id {
 
     const hasIllegalChars = normalized.split('').some((char) => !this.ALPHABET_SET.has(char))
 
-    if (hasIllegalChars) {
-      return Result.fail(new Error('Id should not contain illegal characters.'))
-    }
+    if (hasIllegalChars) return Result.fail(new Error('Id should not contain illegal characters.'))
 
     return Result.succeed(normalized)
   }
