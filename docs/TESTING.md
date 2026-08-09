@@ -1,4 +1,4 @@
-# Domain Testing Guidelines
+# Testing 
 
 Reference implementation: `tests/domain/values/Name.test.ts`.
 
