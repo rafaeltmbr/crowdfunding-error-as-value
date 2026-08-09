@@ -4,7 +4,7 @@
     "paths": {
       "@app/*": ["./src/app/*"],
       "@entities/*": ["./src/domain/entities/*"],
-      "@repositories/*": ["./src/app/repositories/*"],
+      "@infra/*": ["./src/infra/*"],
       "@services/*": ["./src/app/services/*"],
       "@values/*": ["./src/domain/values/*"]
     },

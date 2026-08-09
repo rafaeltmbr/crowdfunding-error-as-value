@@ -41,6 +41,18 @@ export default tseslint.config(
       'max-params': ['error', { max: 3 }],
 
       // Dependency structure & Clean Architecture
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['./*', '../*'],
+              message:
+                'Relative imports are not allowed. Use alias imports (e.g., @entities/) instead.',
+            },
+          ],
+        },
+      ],
       'import-x/no-cycle': 'error',
       'import-x/no-restricted-paths': [
         'error',

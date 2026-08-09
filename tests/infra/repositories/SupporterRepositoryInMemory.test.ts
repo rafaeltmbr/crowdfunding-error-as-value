@@ -1,8 +1,9 @@
 import { Supporter } from '@entities/Supporter'
-import { SupporterRepositoryInMemory } from '@repositories/impl/SupporterRepositoryInMemory'
+import { SupporterRepositoryInMemory } from '@infra/repositories/SupporterRepositoryInMemory'
 import { Email } from '@values/Email'
 import { Id } from '@values/Id'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { Result } from '@values/Result'
+import { beforeEach, describe, expect, it, vi, afterEach } from 'vitest'
 
 describe('SupporterRepositoryInMemory', () => {
   let repository: SupporterRepositoryInMemory
@@ -13,6 +14,10 @@ describe('SupporterRepositoryInMemory', () => {
     repository = new SupporterRepositoryInMemory()
     supporter1 = Supporter.make('John Doe', 'john@example.com').value!
     supporter2 = Supporter.make('Jane Doe', 'jane@example.com').value!
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   describe('upsert', () => {
@@ -39,6 +44,14 @@ describe('SupporterRepositoryInMemory', () => {
       expect(found).toBeSuccess()
       expect(found.value!.toSnapshot().name).toBe('John Smith')
     })
+
+    it('should return failure if deserialization fails', async () => {
+      await repository.upsert(supporter1)
+      vi.spyOn(Supporter, 'fromSnapshot').mockReturnValue(Result.fail(new Error('Corrupted data')))
+
+      const result = await repository.upsert(supporter2)
+      expect(result).toBeFailureWithMessage('Corrupted data')
+    })
   })
 
   describe('findById', () => {
@@ -56,6 +69,16 @@ describe('SupporterRepositoryInMemory', () => {
       const found = await repository.findById(randomId)
       expect(found).toBeSuccess()
       expect(found.value).toBeNull()
+    })
+
+    it('should return failure if deserialization fails', async () => {
+      await repository.upsert(supporter1)
+      await repository.upsert(supporter2) // Adds multiple to hit acc.error condition
+
+      vi.spyOn(Supporter, 'fromSnapshot').mockReturnValue(Result.fail(new Error('Corrupted data')))
+
+      const found = await repository.findById(supporter1.id)
+      expect(found).toBeFailureWithMessage('Corrupted data')
     })
   })
 
@@ -77,6 +100,15 @@ describe('SupporterRepositoryInMemory', () => {
       expect(found).toBeSuccess()
       expect(found.value).toBeNull()
     })
+
+    it('should return failure if deserialization fails', async () => {
+      await repository.upsert(supporter1)
+      vi.spyOn(Supporter, 'fromSnapshot').mockReturnValue(Result.fail(new Error('Corrupted data')))
+
+      const email = Email.make('john@example.com').value!
+      const found = await repository.findByEmail(email)
+      expect(found).toBeFailureWithMessage('Corrupted data')
+    })
   })
 
   describe('delete', () => {
@@ -94,6 +126,14 @@ describe('SupporterRepositoryInMemory', () => {
     it('should return a failure result if the supporter does not exist', async () => {
       const deleteResult = await repository.delete(supporter1)
       expect(deleteResult).toBeFailureWithMessage('Supporter does not exist.')
+    })
+
+    it('should return failure if deserialization fails', async () => {
+      await repository.upsert(supporter1)
+      vi.spyOn(Supporter, 'fromSnapshot').mockReturnValue(Result.fail(new Error('Corrupted data')))
+
+      const deleteResult = await repository.delete(supporter1)
+      expect(deleteResult).toBeFailureWithMessage('Corrupted data')
     })
   })
 })

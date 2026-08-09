@@ -1,4 +1,4 @@
-import { Result } from './Result'
+import { Result } from '@values/Result'
 
 export class Email {
   protected constructor(protected value: string) {}

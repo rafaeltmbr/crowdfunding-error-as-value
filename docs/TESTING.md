@@ -1,4 +1,4 @@
-# Testing 
+# Testing
 
 Reference implementation: `tests/domain/values/Name.test.ts`.
 
@@ -111,6 +111,15 @@ Always cover per type:
 - Private/protected methods (test through the public API).
 - Framework behavior (vitest, expect).
 - External libraries.
+
+## Mocking and Defensive Code
+
+Because the project enforces strict 100% test coverage, you must test even "unreachable" defensive branches (e.g., handling deserialization failures on perfectly valid internal data).
+
+- **Do NOT use `/* v8 ignore next */`**. Instead of ignoring defensive code, simulate the failure using test spies.
+- Use `vi.spyOn(Class, 'method').mockReturnValue(...)` to force an error state without mutating private internal collections.
+- Always use `vi.restoreAllMocks()` in an `afterEach` block if you are using spies to prevent cross-test contamination.
+- Use `toBeFailureWithMessage(...)` to assert that your mocked error was correctly caught and returned by the adapter or service.
 
 ## Workflow
 

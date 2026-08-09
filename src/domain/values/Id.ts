@@ -1,4 +1,4 @@
-import { Result } from './Result'
+import { Result } from '@values/Result'
 
 export class Id {
   protected static ALPHABET: Readonly<string> = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
