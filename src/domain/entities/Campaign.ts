@@ -110,7 +110,6 @@ class CampaignFunding {
 }
 
 class CampaignName extends Name {
-
   static override make(value: string): Result<CampaignName> {
     const validation = this.validate(value)
     if (validation.error) return validation

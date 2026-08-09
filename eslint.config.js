@@ -83,6 +83,8 @@ export default tseslint.config(
 
       // Custom rule: Enforce handling of Result types
       'local/no-floating-result': 'error',
+      'local/require-vo-overrides': 'error',
+      'local/require-entity-methods': 'error',
 
       // Forbid 'undefined'
       'no-undefined': 'error',
