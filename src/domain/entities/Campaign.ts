@@ -226,27 +226,20 @@ class Donations {
 }
 
 class SupporterDonationStats {
-  private cachedTotal: Money | null = null
-  private cachedTiers: Set<Tier> | null = null
-
   constructor(protected donations: Donation[]) {}
 
   calculateTotal(): Money {
-    if (this.cachedTotal !== null) return this.cachedTotal
-
-    return (this.cachedTotal = this.donations.reduce(
+    return this.donations.reduce(
       (total, donation) => donation.addToTotal(total),
       Money.make(0).value!
-    ))
+    )
   }
 
   extractTiers(): Set<Tier> {
-    if (this.cachedTiers !== null) return this.cachedTiers
-
-    return (this.cachedTiers = this.donations.reduce(
+    return this.donations.reduce(
       (bucket, donation) => donation.addTierToBucket(bucket),
       new Set<Tier>()
-    ))
+    )
   }
 }
 

@@ -123,4 +123,3 @@ Every method should either be a command that performs an action, or a query that
 
 - **Rule**: Commands (methods with side-effects that modify observable state) MUST NOT return any domain data. If they can fail, they return `Result<void>`.
 - **Rule**: Queries (methods that return data) MUST NOT modify the observable state of the system.
-
