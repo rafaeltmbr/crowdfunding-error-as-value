@@ -116,3 +116,11 @@ Repository interfaces define the contract for persisting and retrieving domain o
 - **Rule**: Repository methods accept and return **domain objects**, not snapshots. Snapshot conversion is an internal adapter concern.
 - **Rule**: Adapter implementations use domain behavior methods (e.g., `entity.isEqual(other)`) instead of comparing raw IDs or fields.
 - **Rule**: In-memory repository adapters MUST store snapshots internally, not domain objects. To evaluate queries, they MUST hydrate the entire collection and filter the hydrated domain objects using domain behavior methods. This enforces the serialization boundary and ensures test doubles perfectly mirror production database constraints.
+
+## 11. Command-Query Separation (CQS)
+
+Every method should either be a command that performs an action, or a query that returns data to the caller, but not both.
+
+- **Rule**: Commands (methods with side-effects that modify observable state) MUST NOT return any domain data. If they can fail, they return `Result<void>`.
+- **Rule**: Queries (methods that return data) MUST NOT modify the observable state of the system.
+
