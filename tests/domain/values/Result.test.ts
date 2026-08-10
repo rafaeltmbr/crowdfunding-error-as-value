@@ -1,4 +1,4 @@
-import { Result } from '@values/Result'
+import { Result, Success, Failure } from '@values/Result'
 import { describe, expect, it } from 'vitest'
 
 describe('Result', () => {
@@ -30,5 +30,25 @@ describe('Result', () => {
       expect(result.error).toBe(error)
       expect(result.value).toBeNull()
     })
+  })
+})
+
+describe('Success', () => {
+  it('should hold the value and null error', () => {
+    const value = { foo: 'bar' }
+    const success = new Success(value)
+
+    expect(success.value).toBe(value)
+    expect(success.error).toBeNull()
+  })
+})
+
+describe('Failure', () => {
+  it('should hold the error and null value', () => {
+    const error = new Error('Something went wrong')
+    const failure = new Failure(error)
+
+    expect(failure.error).toBe(error)
+    expect(failure.value).toBeNull()
   })
 })
