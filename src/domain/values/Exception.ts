@@ -90,4 +90,8 @@ export class Exception {
   static notFound(code: string, args: unknown[] = []): Exception {
     return this.make(ExceptionGroup.NotFound, code, args)
   }
+
+  static unexpected(code: string, args: unknown[] = []): Exception {
+    return this.make(ExceptionGroup.Unexpected, code, args)
+  }
 }

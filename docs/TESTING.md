@@ -135,13 +135,10 @@ Because the project enforces strict 100% test coverage, you must test even "unre
 
 ## Workflow
 
-Every time a test is created or modified, all four checks must pass:
+Every time a test is created or modified, the validation script must pass:
 
 ```bash
-npm run test:run      # Run tests with coverage. Goal: 100% on domain logic.
-npm run lint          # Ensure stylistic consistency.
-npm run typecheck     # Catch type errors that vitest ignores (it strips types at runtime).
-npm run format:check  # Ensure code is properly formatted.
+npm run validate
 ```
 
-All four must pass. A test that runs green but fails typechecking, linting, or formatting is not done.
+A test that runs green but fails typechecking, linting, or formatting is not done.

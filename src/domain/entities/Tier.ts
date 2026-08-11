@@ -52,11 +52,11 @@ export class Tier {
     return Result.succeed(new Tier(idResult.value, nameResult.value, valueResult.value))
   }
 
-  static make(name: string, value: number): Result<Tier> {
-    const nameResult = TierName.make(name)
+  static make(name: Name, value: Money): Result<Tier> {
+    const nameResult = TierName.from(name)
     if (nameResult.error) return nameResult
 
-    const valueResult = TierMoney.make(value)
+    const valueResult = TierMoney.from(value)
     if (valueResult.error) return valueResult
 
     return Result.succeed(new Tier(Id.make(), nameResult.value, valueResult.value))
@@ -68,10 +68,22 @@ class TierName extends Name {
     super(value)
   }
   static override make(value: string): Result<TierName> {
-    const validation = this.validate(value)
-    if (validation.error) return validation
+    return Result.fail(Exception.unexpected('TIER_NAME_INVALID_FACTORY_METHOD', [value]))
+  }
 
-    return Result.succeed(new TierName(validation.value))
+  static from(baseName: Name): Result<TierName> {
+    const rawValue = (baseName as TierName).value
+    const normalized = this.validate(rawValue)
+    if (normalized.error) return normalized
+
+    return Result.succeed(new TierName(normalized.value))
+  }
+
+  static override fromSnapshot(snapshot: string): Result<TierName> {
+    const normalized = this.validate(snapshot)
+    if (normalized.error) return normalized
+
+    return Result.succeed(new TierName(normalized.value))
   }
 
   protected static override validate(value: string): Result<string> {
@@ -91,10 +103,22 @@ class TierMoney extends Money {
     super(value)
   }
   static override make(value: number): Result<TierMoney> {
-    const validation = this.validate(value)
-    if (validation.error) return validation
+    return Result.fail(Exception.unexpected('TIER_MONEY_INVALID_FACTORY_METHOD', [String(value)]))
+  }
 
-    return Result.succeed(new TierMoney(validation.value))
+  static from(baseMoney: Money): Result<TierMoney> {
+    const rawValue = (baseMoney as TierMoney).value
+    const normalized = this.validate(rawValue)
+    if (normalized.error) return normalized
+
+    return Result.succeed(new TierMoney(normalized.value))
+  }
+
+  static override fromSnapshot(snapshot: number): Result<TierMoney> {
+    const normalized = this.validate(snapshot)
+    if (normalized.error) return normalized
+
+    return Result.succeed(new TierMoney(normalized.value))
   }
 
   protected static override validate(value: number): Result<number> {

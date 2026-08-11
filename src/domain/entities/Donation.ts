@@ -113,9 +113,8 @@ class Contribution {
   }
 
   static make(amount: Money, supporterId: Id): Result<Contribution> {
-    const amountExport = amount.toSnapshot()
-    const donationMoneyResult = DonationMoney.make(amountExport)
-    if (donationMoneyResult.error) return Result.fail(donationMoneyResult.error)
+    const donationMoneyResult = DonationMoney.from(amount)
+    if (donationMoneyResult.error) return donationMoneyResult
 
     return Result.succeed(new Contribution(donationMoneyResult.value, supporterId))
   }
@@ -126,11 +125,24 @@ class DonationMoney extends Money {
     super(value)
   }
   static override make(value: number): Result<DonationMoney> {
-    const validation = this.validate(value)
+    return Result.fail(
+      Exception.unexpected('DONATION_MONEY_INVALID_FACTORY_METHOD', [String(value)])
+    )
+  }
 
-    if (validation.error) return validation
+  static from(baseMoney: Money): Result<DonationMoney> {
+    const rawValue = (baseMoney as DonationMoney).value
+    const normalized = this.validate(rawValue)
+    if (normalized.error) return normalized
 
-    return Result.succeed(new DonationMoney(validation.value))
+    return Result.succeed(new DonationMoney(normalized.value))
+  }
+
+  static override fromSnapshot(snapshot: number): Result<DonationMoney> {
+    const normalized = this.validate(snapshot)
+    if (normalized.error) return normalized
+
+    return Result.succeed(new DonationMoney(normalized.value))
   }
 
   protected static override validate(value: number): Result<number> {

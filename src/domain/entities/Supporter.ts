@@ -48,14 +48,11 @@ export class Supporter {
     return Result.succeed(new Supporter(idResult.value, nameResult.value, emailResult.value))
   }
 
-  static make(name: string, email: string): Result<Supporter> {
-    const nameResult = SupporterName.make(name)
+  static make(name: Name, email: Email): Result<Supporter> {
+    const nameResult = SupporterName.from(name)
     if (nameResult.error) return nameResult
 
-    const emailResult = Email.make(email)
-    if (emailResult.error) return emailResult
-
-    return Result.succeed(new Supporter(Id.make(), nameResult.value, emailResult.value))
+    return Result.succeed(new Supporter(Id.make(), nameResult.value, email))
   }
 }
 
@@ -63,8 +60,21 @@ class SupporterName extends Name {
   protected constructor(value: string) {
     super(value)
   }
+
   static override make(value: string): Result<SupporterName> {
-    const normalized = this.validate(value)
+    return Result.fail(Exception.unexpected('SUPPORTER_NAME_INVALID_FACTORY_METHOD', [value]))
+  }
+
+  static from(baseName: Name): Result<SupporterName> {
+    const rawValue = (baseName as SupporterName).value
+    const normalized = this.validate(rawValue)
+    if (normalized.error) return normalized
+
+    return Result.succeed(new SupporterName(normalized.value))
+  }
+
+  static override fromSnapshot(snapshot: string): Result<SupporterName> {
+    const normalized = this.validate(snapshot)
     if (normalized.error) return normalized
 
     return Result.succeed(new SupporterName(normalized.value))

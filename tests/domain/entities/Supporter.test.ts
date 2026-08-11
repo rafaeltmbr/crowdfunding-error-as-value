@@ -2,6 +2,7 @@ import { Supporter } from '@entities/Supporter'
 
 import { Email } from '@values/Email'
 import { describe, expect, it } from 'vitest'
+import { Name } from '@values/Name'
 
 describe('Supporter', () => {
   const validName = 'John Snow'
@@ -9,65 +10,74 @@ describe('Supporter', () => {
 
   describe('make', () => {
     it('should create a supporter with valid values', () => {
-      const result = Supporter.make(validName, validEmail)
+      const result = Supporter.make(Name.make(validName).value!, Email.make(validEmail).value!)
       expect(result).toBeSuccess()
     })
 
-    it('should fail if name is empty', () => {
-      const result = Supporter.make('', validEmail)
-      expect(result).toBeFailureWithCode('NAME_EMPTY')
-    })
-
     it('should fail if name less than 3 characters', () => {
-      const result = Supporter.make('Jo', validEmail)
+      const result = Supporter.make(Name.make('Jo').value!, Email.make(validEmail).value!)
       expect(result).toBeFailureWithCode('SUPPORTER_NAME_MIN_LENGTH')
-    })
-
-    it('should fail if email is empty', () => {
-      const result = Supporter.make(validName, '')
-      expect(result).toBeFailureWithCode('EMAIL_EMPTY')
-    })
-
-    it('should fail if email is invalid', () => {
-      const result = Supporter.make(validName, 'john.snow.example.com')
-      expect(result).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
     })
   })
 
   describe('isEqual', () => {
     it('should verify self-equality', () => {
-      const s1 = Supporter.make('John Doe', 'john.doe@example.com').value!
+      const s1 = Supporter.make(
+        Name.make('John Doe').value!,
+        Email.make('john.doe@example.com').value!
+      ).value!
       expect(s1.isEqual(s1)).toBe(true)
     })
 
     it('should verify equivalent equality', () => {
-      const s1 = Supporter.make('John Doe', 'john.doe@example.com').value!
+      const s1 = Supporter.make(
+        Name.make('John Doe').value!,
+        Email.make('john.doe@example.com').value!
+      ).value!
       const s2 = Supporter.fromSnapshot(s1.toSnapshot()).value!
       expect(s1.isEqual(s2)).toBe(true)
     })
 
     it('should verify inequality with different instances', () => {
-      const s1 = Supporter.make('John Doe', 'john.doe@example.com').value!
-      const s2 = Supporter.make('John Doe', 'john.doe@example.com').value!
+      const s1 = Supporter.make(
+        Name.make('John Doe').value!,
+        Email.make('john.doe@example.com').value!
+      ).value!
+      const s2 = Supporter.make(
+        Name.make('John Doe').value!,
+        Email.make('john.doe@example.com').value!
+      ).value!
       expect(s1.isEqual(s2)).toBe(false)
     })
 
     it('should verify inequality with different data', () => {
-      const s1 = Supporter.make('John Doe', 'john.doe@example.com').value!
-      const s3 = Supporter.make('Jane Doe', 'jane.doe@example.com').value!
+      const s1 = Supporter.make(
+        Name.make('John Doe').value!,
+        Email.make('john.doe@example.com').value!
+      ).value!
+      const s3 = Supporter.make(
+        Name.make('Jane Doe').value!,
+        Email.make('jane.doe@example.com').value!
+      ).value!
       expect(s1.isEqual(s3)).toBe(false)
     })
   })
 
   describe('isUsingEmail', () => {
     it('should return true if email matches', () => {
-      const supporter = Supporter.make('John Doe', 'john.doe@example.com').value!
+      const supporter = Supporter.make(
+        Name.make('John Doe').value!,
+        Email.make('john.doe@example.com').value!
+      ).value!
       const email = Email.make('john.doe@example.com').value!
       expect(supporter.isUsingEmail(email)).toBe(true)
     })
 
     it('should return false if email does not match', () => {
-      const supporter = Supporter.make('John Doe', 'john.doe@example.com').value!
+      const supporter = Supporter.make(
+        Name.make('John Doe').value!,
+        Email.make('john.doe@example.com').value!
+      ).value!
       const email = Email.make('jane.doe@example.com').value!
       expect(supporter.isUsingEmail(email)).toBe(false)
     })
@@ -75,20 +85,32 @@ describe('Supporter', () => {
 
   describe('hasId', () => {
     it('should return true if id matches', () => {
-      const supporter = Supporter.make('John Doe', 'john.doe@example.com').value!
+      const supporter = Supporter.make(
+        Name.make('John Doe').value!,
+        Email.make('john.doe@example.com').value!
+      ).value!
       expect(supporter.hasId(supporter.id)).toBe(true)
     })
 
     it('should return false if id does not match', () => {
-      const supporter1 = Supporter.make('John Doe', 'john.doe@example.com').value!
-      const supporter2 = Supporter.make('Jane Doe', 'jane.doe@example.com').value!
+      const supporter1 = Supporter.make(
+        Name.make('John Doe').value!,
+        Email.make('john.doe@example.com').value!
+      ).value!
+      const supporter2 = Supporter.make(
+        Name.make('Jane Doe').value!,
+        Email.make('jane.doe@example.com').value!
+      ).value!
       expect(supporter1.hasId(supporter2.id)).toBe(false)
     })
   })
 
   describe('toSnapshot', () => {
     it('should verify toSnapshot returns the correct data structure', () => {
-      const original = Supporter.make('John Doe', 'john.doe@example.com').value!
+      const original = Supporter.make(
+        Name.make('John Doe').value!,
+        Email.make('john.doe@example.com').value!
+      ).value!
       const snapshot = original.toSnapshot()
       expect(snapshot).toEqual({
         id: snapshot.id,
@@ -100,7 +122,10 @@ describe('Supporter', () => {
 
   describe('fromSnapshot', () => {
     it('should fromSnapshot a snapshot data and produce an equivalent object', () => {
-      const original = Supporter.make('John Doe', 'john.doe@example.com').value!
+      const original = Supporter.make(
+        Name.make('John Doe').value!,
+        Email.make('john.doe@example.com').value!
+      ).value!
       const snapshot = original.toSnapshot()
 
       const result = Supporter.fromSnapshot(snapshot)
@@ -126,6 +151,15 @@ describe('Supporter', () => {
       expect(result).toBeFailureWithCode('SUPPORTER_NAME_MIN_LENGTH')
     })
 
+    it('should fail to fromSnapshot empty name', () => {
+      const result = Supporter.fromSnapshot({
+        id: 'A2CDEFGHJK',
+        name: '',
+        email: 'john.doe@example.com',
+      })
+      expect(result).toBeFailureWithCode('NAME_EMPTY')
+    })
+
     it('should fail to fromSnapshot invalid email format', () => {
       const result = Supporter.fromSnapshot({
         id: 'A2CDEFGHJK',
@@ -133,6 +167,21 @@ describe('Supporter', () => {
         email: 'invalid-email',
       })
       expect(result).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
+    })
+  })
+})
+
+describe('SupporterName', () => {
+  describe('make', () => {
+    it('should fail with SUPPORTER_NAME_INVALID_FACTORY_METHOD', () => {
+      const supporter = Supporter.make(
+        Name.make('John Doe').value!,
+        Email.make('test@test.com').value!
+      ).value!
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const SupporterNameClass = (supporter as any).name.constructor
+      const result = SupporterNameClass.make('test')
+      expect(result).toBeFailureWithCode('SUPPORTER_NAME_INVALID_FACTORY_METHOD')
     })
   })
 })

@@ -44,7 +44,7 @@ Errors are **domain primitives** — immutable signal objects that carry structu
 return Result.fail(Exception.validation('CAMPAIGN_NAME_MIN_LENGTH', [3]))
 
 // Campaign.make signature
-static make(name: string): Result<Campaign>
+static make(name: Name): Result<Campaign>
 
 // Consumer narrows via group when needed:
 if (result.error?.belongToGroup(ExceptionGroup.Validation)) { /* 400 */ }
@@ -83,8 +83,61 @@ Value Objects are immutable domain primitives that represent a concept with no i
 Value Objects use inheritance to create domain-specific variants with stricter validation. The base class provides shared logic; subclasses override `validate()` to add constraints, then delegate to `super.validate()`.
 
 - **Rule**: Specialized Value Objects MUST override `validate()` to add their constraints and call `super.validate()` for the base rules.
-- **Rule**: Specialized Value Objects MUST override `make()` to return the correct subclass type.
+- **Rule**: Specialized Value Objects MUST override `make()` to return an unexpected failure (e.g., `SUPPORTER_NAME_INVALID_FACTORY_METHOD`). This disables creating the specialized object directly from primitives, enforcing that it is only created by upcasting from the base VO.
+- **Rule**: Specialized Value Objects MUST override `fromSnapshot(snapshot)` to parse directly using `this.validate(snapshot)`, avoiding the disabled `make()` method.
 - **Rule**: Specialized Value Objects that are scoped to a single Entity SHOULD be **unexported and internal** to that Entity's module file.
+- **Rule**: Specialized Value Objects MUST NOT add new attributes. They exist to narrow the validity space through stricter validation, not to expand the data structure. If additional attributes are needed, it is a different concept and should be modeled as a separate Value Object via composition, not inheritance.
+
+### Contextual Upgrading (Upcasting)
+
+When an Entity accepts a base Value Object (e.g., `Name`) from the Application Layer, it needs to upgrade it into its internal specialized variant (e.g., `SupporterName`) to apply aggregate-specific invariants. Specialized Value Objects provide a static factory for this purpose.
+
+- **Rule**: Specialized Value Objects MUST provide a static `from(base: Base): Result<Derived>` factory method (e.g., `SupporterName.from(name)`).
+- **Rule**: Inside `from`, the base instance is downcast to the derived type to access the `protected value` property: `(baseName as SupporterName).value`. Since specialized VOs are structurally identical to their base (no additional attributes), this cast is safe.
+- **Rule**: After extracting the raw value, the factory MUST delegate to `this.validate(rawValue)` before constructing the derived instance. This ensures `validate` remains the single source of truth for all specialized rules.
+
+```typescript
+class SupporterName extends Name {
+  protected constructor(value: string) {
+    super(value)
+  }
+
+  // 1. Block the primitive factory to enforce upcasting
+  static override make(value: string): Result<SupporterName> {
+    return Result.fail(Exception.unexpected('SUPPORTER_NAME_INVALID_FACTORY_METHOD', [value]))
+  }
+
+  // 2. Idiomatic upcast method
+  static from(baseName: Name): Result<SupporterName> {
+    const rawValue = (baseName as SupporterName).value
+
+    // 3. Delegate to the specialized validate method (single source of truth)
+    const normalized = this.validate(rawValue)
+    if (normalized.error) return normalized
+
+    return Result.succeed(new SupporterName(normalized.value))
+  }
+
+  // 4. Safely override fromSnapshot to bypass the disabled make()
+  static override fromSnapshot(snapshot: string): Result<SupporterName> {
+    const normalized = this.validate(snapshot)
+    if (normalized.error) return normalized
+
+    return Result.succeed(new SupporterName(normalized.value))
+  }
+
+  protected static override validate(value: string): Result<string> {
+    const baseValidation = super.validate(value)
+    if (baseValidation.error) return baseValidation
+
+    if (baseValidation.value.length < 3) {
+      return Result.fail(Exception.validation('SUPPORTER_NAME_MIN_LENGTH', [3]))
+    }
+
+    return baseValidation
+  }
+}
+```
 
 ## 6. Entities
 
@@ -94,6 +147,28 @@ Entities are domain objects with a unique identity (`Id`). Two Entities are equa
 - **Rule**: Entity identity is an `Id` Value Object. Equality is based solely on `id.isEqual(other.id)`.
 - **Rule**: Entities MUST implement `hasId(id: Id): boolean` to allow external querying by identity (e.g., inside repositories).
 - **Rule**: All state access and mutation goes through behavior methods.
+
+### Entity Construction
+
+Entity `make()` methods accept **base Value Objects** (e.g., `Name`, `Email`), not primitives. The Infrastructure Layer (e.g., Controllers, CLI handlers) parses primitives into Value Objects once at the boundary, and passes those VOs to the Application Layer. The Application Layer uses those VOs to interact with Repositories and passes the same VOs into Entity factories — eliminating redundant validation and primitive obsession.
+
+- **Rule**: Entity `make()` methods MUST accept base Value Objects for any parameter that maps to an existing VO type. Do not accept raw primitives (`string`, `number`) when a domain Value Object exists for that concept.
+- **Rule**: Internally, the Entity upgrades the base VO to its specialized variant using the `from()` factory (see §5). The Application Layer never needs to know about aggregate-internal specialized VOs.
+- **Rule**: VOs that have no aggregate-specific specialization (e.g., `Email`) are passed through directly without upgrading.
+
+```typescript
+export class Supporter {
+  // Accepts base VOs, not primitives
+  static make(name: Name, email: Email): Result<Supporter> {
+    // Upgrade the generic Name to a specialized SupporterName
+    const supporterNameResult = SupporterName.from(name)
+    if (supporterNameResult.error) return supporterNameResult
+
+    // Email is passed through directly — no redundant parsing
+    return Result.succeed(new Supporter(Id.make(), supporterNameResult.value, email))
+  }
+}
+```
 
 ### Cross-Aggregate References by Identity
 

@@ -10,9 +10,10 @@
     "lint": "eslint src",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "build": "npm audit && npm run typecheck && npm run format:check && npm run lint && npm run test:run && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json --resolve-full-paths && echo \"Done!\"",
+    "validate": "npm run typecheck && npm run format:check && npm run lint && npm run coverage && echo \"Validated!\"",
+    "build": "npm audit && npm run validate && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json --resolve-full-paths && echo \"Done!\"",
     "typecheck": "tsc --noEmit",
-    "test:run": "vitest run --coverage"
+    "coverage": "vitest run --coverage"
   },
   "keywords": [],
   "author": "",

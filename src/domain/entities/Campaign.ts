@@ -62,8 +62,8 @@ export class Campaign {
     return Result.succeed(new Campaign(idResult.value, nameResult.value, fundingResult.value))
   }
 
-  static make(name: string, tiers: Tier[] = []): Result<Campaign> {
-    const nameResult = CampaignName.make(name)
+  static make(name: Name, tiers: Tier[] = []): Result<Campaign> {
+    const nameResult = CampaignName.from(name)
     if (nameResult.error) return nameResult
 
     const tiersResult = Tiers.make(tiers)
@@ -127,10 +127,22 @@ class CampaignName extends Name {
     super(value)
   }
   static override make(value: string): Result<CampaignName> {
-    const validation = this.validate(value)
-    if (validation.error) return validation
+    return Result.fail(Exception.unexpected('CAMPAIGN_NAME_INVALID_FACTORY_METHOD', [value]))
+  }
 
-    return Result.succeed(new CampaignName(validation.value))
+  static from(baseName: Name): Result<CampaignName> {
+    const rawValue = (baseName as CampaignName).value
+    const normalized = this.validate(rawValue)
+    if (normalized.error) return normalized
+
+    return Result.succeed(new CampaignName(normalized.value))
+  }
+
+  static override fromSnapshot(snapshot: string): Result<CampaignName> {
+    const normalized = this.validate(snapshot)
+    if (normalized.error) return normalized
+
+    return Result.succeed(new CampaignName(normalized.value))
   }
 
   protected static override validate(value: string): Result<string> {

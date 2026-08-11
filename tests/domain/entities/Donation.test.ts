@@ -3,9 +3,14 @@ import { Supporter } from '@entities/Supporter'
 import { Tier } from '@entities/Tier'
 import { Money } from '@values/Money'
 import { describe, expect, it } from 'vitest'
+import { Name } from '@values/Name'
+import { Email } from '@values/Email'
 
 describe('Donation', () => {
-  const validSupporter = Supporter.make('John Doe', 'john.doe@example.com').value!
+  const validSupporter = Supporter.make(
+    Name.make('John Doe').value!,
+    Email.make('john.doe@example.com').value!
+  ).value!
   const validAmount = Money.make(50).value!
 
   describe('make', () => {
@@ -58,34 +63,37 @@ describe('Donation', () => {
 
     it('should verify inequality with different supporters', () => {
       const d1 = Donation.make(validAmount, validSupporter.id).value!
-      const anotherSupporter = Supporter.make('Jane Doe', 'jane.doe@example.com').value!
+      const anotherSupporter = Supporter.make(
+        Name.make('Jane Doe').value!,
+        Email.make('jane.doe@example.com').value!
+      ).value!
       const d3 = Donation.make(validAmount, anotherSupporter.id).value!
       expect(d1.isEqual(d3)).toBe(false)
     })
 
     it('should verify self-equality with tier', () => {
-      const tier1 = Tier.make('Silver', 10).value!
+      const tier1 = Tier.make(Name.make('Silver').value!, Money.make(10).value!).value!
       const d1 = Donation.make(validAmount, validSupporter.id, tier1).value!
       expect(d1.isEqual(d1)).toBe(true)
     })
 
     it('should verify inequality with different instances with tier', () => {
-      const tier1 = Tier.make('Silver', 10).value!
+      const tier1 = Tier.make(Name.make('Silver').value!, Money.make(10).value!).value!
       const d1 = Donation.make(validAmount, validSupporter.id, tier1).value!
       const d1b = Donation.make(validAmount, validSupporter.id, tier1).value!
       expect(d1.isEqual(d1b)).toBe(false)
     })
 
     it('should verify inequality with different tiers', () => {
-      const tier1 = Tier.make('Silver', 10).value!
-      const tier2 = Tier.make('Gold', 20).value!
+      const tier1 = Tier.make(Name.make('Silver').value!, Money.make(10).value!).value!
+      const tier2 = Tier.make(Name.make('Gold').value!, Money.make(20).value!).value!
       const d1 = Donation.make(validAmount, validSupporter.id, tier1).value!
       const d2 = Donation.make(validAmount, validSupporter.id, tier2).value!
       expect(d1.isEqual(d2)).toBe(false)
     })
 
     it('should verify inequality when one has no tier', () => {
-      const tier1 = Tier.make('Silver', 10).value!
+      const tier1 = Tier.make(Name.make('Silver').value!, Money.make(10).value!).value!
       const d1 = Donation.make(validAmount, validSupporter.id, tier1).value!
       const d3 = Donation.make(validAmount, validSupporter.id, null).value!
       expect(d1.isEqual(d3)).toBe(false)
@@ -94,19 +102,19 @@ describe('Donation', () => {
 
   describe('isEligibleForTier', () => {
     it('should return false if donation is less than tier', () => {
-      const tier = Tier.make('Tier 1', 50).value!
+      const tier = Tier.make(Name.make('Tier 1').value!, Money.make(50).value!).value!
       const dSmall = Donation.make(Money.make(40).value!, validSupporter.id).value!
       expect(dSmall.isEligibleForTier(tier)).toBe(false)
     })
 
     it('should return true if donation is exact tier amount', () => {
-      const tier = Tier.make('Tier 1', 50).value!
+      const tier = Tier.make(Name.make('Tier 1').value!, Money.make(50).value!).value!
       const dExact = Donation.make(Money.make(50).value!, validSupporter.id).value!
       expect(dExact.isEligibleForTier(tier)).toBe(true)
     })
 
     it('should return true if donation is greater than tier amount', () => {
-      const tier = Tier.make('Tier 1', 50).value!
+      const tier = Tier.make(Name.make('Tier 1').value!, Money.make(50).value!).value!
       const dLarge = Donation.make(Money.make(60).value!, validSupporter.id).value!
       expect(dLarge.isEligibleForTier(tier)).toBe(true)
     })
@@ -132,14 +140,17 @@ describe('Donation', () => {
 
     it('should return false if donation belongs to another supporter', () => {
       const donation = Donation.make(validAmount, validSupporter.id).value!
-      const anotherSupporter = Supporter.make('Jane Doe', 'jane.doe@example.com').value!
+      const anotherSupporter = Supporter.make(
+        Name.make('Jane Doe').value!,
+        Email.make('jane.doe@example.com').value!
+      ).value!
       expect(donation.belongsToSupporterId(anotherSupporter.id)).toBe(false)
     })
   })
 
   describe('addTierToBucket', () => {
     it('should add tier to bucket if tier exists', () => {
-      const tier = Tier.make('Silver', 10).value!
+      const tier = Tier.make(Name.make('Silver').value!, Money.make(10).value!).value!
       const donationWithTier = Donation.make(validAmount, validSupporter.id, tier).value!
       const bucket = donationWithTier.addTierToBucket(new Set<Tier>())
       expect(bucket.size).toBe(1)
@@ -175,7 +186,7 @@ describe('Donation', () => {
     })
 
     it('should toSnapshot a predictable structure with a tier', () => {
-      const tier = Tier.make('Silver', 10).value!
+      const tier = Tier.make(Name.make('Silver').value!, Money.make(10).value!).value!
       const donation = Donation.make(validAmount, validSupporter.id, tier).value!
       expect(donation.toSnapshot()).toEqual({
         id: donation.toSnapshot().id,
@@ -197,7 +208,7 @@ describe('Donation', () => {
     })
 
     it('should fromSnapshot snapshot data with tier and produce an equivalent object', () => {
-      const tier = Tier.make('Silver', 10).value!
+      const tier = Tier.make(Name.make('Silver').value!, Money.make(10).value!).value!
       const original = Donation.make(validAmount, validSupporter.id, tier).value!
       const snapshot = original.toSnapshot()
 
@@ -244,6 +255,22 @@ describe('Donation', () => {
         tier: null,
       })
       expect(result).toBeFailureWithCode('MONEY_INVALID_VALUE')
+    })
+  })
+})
+
+describe('DonationMoney', () => {
+  describe('make', () => {
+    it('should fail with DONATION_MONEY_INVALID_FACTORY_METHOD', () => {
+      const supporter = Supporter.make(
+        Name.make('John Doe').value!,
+        Email.make('test@example.com').value!
+      ).value!
+      const donation = Donation.make(Money.make(10).value!, supporter.id).value!
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const DonationMoneyClass = (donation as any).contribution.amount.constructor
+      const result = DonationMoneyClass.make(10)
+      expect(result).toBeFailureWithCode('DONATION_MONEY_INVALID_FACTORY_METHOD')
     })
   })
 })

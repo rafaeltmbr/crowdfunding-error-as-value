@@ -6,6 +6,8 @@ import { Id } from '@values/Id'
 import { Money } from '@values/Money'
 import { Result } from '@values/Result'
 import { beforeEach, describe, expect, it, vi, afterEach } from 'vitest'
+import { Name } from '@values/Name'
+import { Email } from '@values/Email'
 
 describe('DonationRepositoryInMemory', () => {
   let repository: DonationRepositoryInMemory
@@ -15,7 +17,10 @@ describe('DonationRepositoryInMemory', () => {
 
   beforeEach(() => {
     repository = new DonationRepositoryInMemory()
-    supporter1 = Supporter.make('John Doe', 'john@example.com').value!
+    supporter1 = Supporter.make(
+      Name.make('John Doe').value!,
+      Email.make('john@example.com').value!
+    ).value!
     const amount1 = Money.make(50).value!
     const amount2 = Money.make(100).value!
     donation1 = Donation.make(amount1, supporter1.id).value!

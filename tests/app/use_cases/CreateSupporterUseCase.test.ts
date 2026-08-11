@@ -5,6 +5,7 @@ import { Email } from '@values/Email'
 import { Exception, ExceptionGroup } from '@values/Exception'
 import { Result } from '@values/Result'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { Name } from '@values/Name'
 
 describe('CreateSupporterUseCase', () => {
   let repository: SupporterRepositoryInMemory
@@ -21,10 +22,11 @@ describe('CreateSupporterUseCase', () => {
 
   describe('execute', () => {
     it('should create and persist a new supporter successfully', async () => {
-      const result = await useCase.execute({ name: 'John Doe', email: 'john@example.com' })
+      const name = Name.make('John Doe').value!
+      const email = Email.make('john@example.com').value!
+      const result = await useCase.execute({ name, email })
       expect(result).toBeSuccess()
 
-      const email = Email.make('john@example.com').value!
       const saved = await repository.findByEmail(email)
 
       expect(saved).toBeSuccess()
@@ -32,23 +34,26 @@ describe('CreateSupporterUseCase', () => {
       expect(saved.value!.toSnapshot().name).toEqual('John Doe')
     })
 
-    it('should fail if the email format is invalid', async () => {
-      const result = await useCase.execute({ name: 'John Doe', email: 'invalid-email' })
-      expect(result).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
-    })
-
     it('should fail if the name is invalid for a supporter', async () => {
       // 2 characters, less than the minimum of 3 required by SupporterName
-      const result = await useCase.execute({ name: 'Jo', email: 'john@example.com' })
+      const name = Name.make('Jo').value!
+      const email = Email.make('john@example.com').value!
+      const result = await useCase.execute({ name, email })
       expect(result).toBeFailureWithCode('SUPPORTER_NAME_MIN_LENGTH')
     })
 
     it('should fail if the email is already in use by another supporter', async () => {
       // Pre-populate repository with a supporter using the same email
-      const existingSupporter = Supporter.make('Jane Doe', 'john@example.com').value!
+      const existingSupporter = Supporter.make(
+        Name.make('Jane Doe').value!,
+        Email.make('john@example.com').value!
+      ).value!
       await repository.upsert(existingSupporter)
 
-      const result = await useCase.execute({ name: 'John Doe', email: 'john@example.com' })
+      const result = await useCase.execute({
+        name: Name.make('John Doe').value!,
+        email: Email.make('john@example.com').value!,
+      })
       expect(result).toBeFailureWithCode('SUPPORTER_EMAIL_ALREADY_EXISTS')
     })
 
@@ -57,7 +62,10 @@ describe('CreateSupporterUseCase', () => {
         Result.fail(Exception.make(ExceptionGroup.Infrastructure, 'DB_FIND_ERROR'))
       )
 
-      const result = await useCase.execute({ name: 'John Doe', email: 'john@example.com' })
+      const result = await useCase.execute({
+        name: Name.make('John Doe').value!,
+        email: Email.make('john@example.com').value!,
+      })
       expect(result).toBeFailureWithCode('DB_FIND_ERROR')
     })
 
@@ -66,7 +74,10 @@ describe('CreateSupporterUseCase', () => {
         Result.fail(Exception.make(ExceptionGroup.Infrastructure, 'DB_UPSERT_ERROR'))
       )
 
-      const result = await useCase.execute({ name: 'John Doe', email: 'john@example.com' })
+      const result = await useCase.execute({
+        name: Name.make('John Doe').value!,
+        email: Email.make('john@example.com').value!,
+      })
       expect(result).toBeFailureWithCode('DB_UPSERT_ERROR')
     })
   })

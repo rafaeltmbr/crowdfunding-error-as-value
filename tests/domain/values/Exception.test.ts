@@ -17,6 +17,13 @@ describe('Exception', () => {
     expect(exception.toSnapshot().args).toEqual(['arg1'])
   })
 
+  it('should create an unexpected exception', () => {
+    const exception = Exception.unexpected('UNEXPECTED_ERROR', ['arg1'])
+    expect(exception.toSnapshot().group).toBe(ExceptionGroup.Unexpected)
+    expect(exception.toSnapshot().code).toBe('UNEXPECTED_ERROR')
+    expect(exception.toSnapshot().args).toEqual(['arg1'])
+  })
+
   it('should correctly assert group and code', () => {
     const exception = Exception.validation('TEST_CODE')
     expect(exception.belongToGroup(ExceptionGroup.Validation)).toBe(true)

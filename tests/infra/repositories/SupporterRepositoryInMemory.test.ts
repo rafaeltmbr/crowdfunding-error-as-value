@@ -6,6 +6,7 @@ import { Email } from '@values/Email'
 import { Id } from '@values/Id'
 import { Result } from '@values/Result'
 import { beforeEach, describe, expect, it, vi, afterEach } from 'vitest'
+import { Name } from '@values/Name'
 
 describe('SupporterRepositoryInMemory', () => {
   let repository: SupporterRepositoryInMemory
@@ -14,8 +15,14 @@ describe('SupporterRepositoryInMemory', () => {
 
   beforeEach(() => {
     repository = new SupporterRepositoryInMemory()
-    supporter1 = Supporter.make('John Doe', 'john@example.com').value!
-    supporter2 = Supporter.make('Jane Doe', 'jane@example.com').value!
+    supporter1 = Supporter.make(
+      Name.make('John Doe').value!,
+      Email.make('john@example.com').value!
+    ).value!
+    supporter2 = Supporter.make(
+      Name.make('Jane Doe').value!,
+      Email.make('jane@example.com').value!
+    ).value!
   })
 
   afterEach(() => {

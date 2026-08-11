@@ -10,7 +10,7 @@ Welcome! If you are an AI agent working in this repository, you MUST follow thes
 - **Scratch Files:** If you need to create temporary scripts to validate hypotheses, create them in your own temporary/artifact directory, NEVER in the project workspace.
 - **Version Control:** NEVER stage or commit files (`git add` / `git commit`) unless explicitly instructed. The user has the final say on integration.
 - **Planning:** Always present a step-by-step plan for user approval before starting complex changes or features.
-- **Validation:** After every development cycle, you MUST ensure the project's validation pipeline (`npm run build`, tests, linters, typechecks) passes cleanly.
+- **Validation:** After every development cycle, you MUST ensure the project's validation pipeline (`npm run validate`) passes cleanly.
 - **Bug Fixing:** Before fixing a bug, you MUST write a failing test that asserts the presence of the bug (Test-Driven Bug Fixing). Only after seeing the test fail should you proceed with the fix.
 
 ## 2. Project Guidelines

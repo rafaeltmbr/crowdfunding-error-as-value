@@ -13,8 +13,8 @@ describe('CampaignRepositoryInMemory', () => {
 
   beforeEach(() => {
     repository = new CampaignRepositoryInMemory()
-    campaign1 = Campaign.make('First Campaign').value!
-    campaign2 = Campaign.make('Second Campaign').value!
+    campaign1 = Campaign.make(Name.make('First Campaign').value!).value!
+    campaign2 = Campaign.make(Name.make('Second Campaign').value!).value!
   })
 
   afterEach(() => {

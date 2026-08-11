@@ -2,6 +2,7 @@ import { SupporterRepository } from '@app/repositories/SupporterRepository'
 import { Supporter } from '@entities/Supporter'
 import { Email } from '@values/Email'
 import { Exception } from '@values/Exception'
+import { Name } from '@values/Name'
 import { Result } from '@values/Result'
 
 export class CreateSupporterUseCase {
@@ -20,15 +21,14 @@ export class CreateSupporterUseCase {
     return Result.succeed()
   }
 
-  private async validateEmailDuplication(email: string): Promise<Result<void>> {
-    const emailResult = Email.make(email)
-    if (emailResult.error) return emailResult
-
-    const foundResult = await this.supporterRepository.findByEmail(emailResult.value)
+  private async validateEmailDuplication(email: Email): Promise<Result<void>> {
+    const foundResult = await this.supporterRepository.findByEmail(email)
     if (foundResult.error) return foundResult
 
     if (foundResult.value) {
-      return Result.fail(Exception.validation('SUPPORTER_EMAIL_ALREADY_EXISTS', [email]))
+      return Result.fail(
+        Exception.validation('SUPPORTER_EMAIL_ALREADY_EXISTS', [email.toSnapshot()])
+      )
     }
 
     return Result.succeed()
@@ -36,6 +36,6 @@ export class CreateSupporterUseCase {
 }
 
 export interface CreateSupporterParams {
-  name: string
-  email: string
+  name: Name
+  email: Email
 }
