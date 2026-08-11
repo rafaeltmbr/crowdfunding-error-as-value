@@ -8,11 +8,11 @@ import { Result } from '@values/Result'
 export class CreateSupporterUseCase {
   constructor(private supporterRepository: SupporterRepository) {}
 
-  public async execute(params: CreateSupporterParams): Promise<Result<void>> {
-    const duplicateResult = await this.validateEmailDuplication(params.email)
+  public async execute(name: Name, email: Email): Promise<Result<void>> {
+    const duplicateResult = await this.validateEmailDuplication(email)
     if (duplicateResult.error) return duplicateResult
 
-    const supporterResult = Supporter.make(params.name, params.email)
+    const supporterResult = Supporter.make(name, email)
     if (supporterResult.error) return supporterResult
 
     const persistenceResult = await this.supporterRepository.upsert(supporterResult.value)
@@ -26,16 +26,9 @@ export class CreateSupporterUseCase {
     if (foundResult.error) return foundResult
 
     if (foundResult.value) {
-      return Result.fail(
-        Exception.validation('SUPPORTER_EMAIL_ALREADY_EXISTS', [email.toSnapshot()])
-      )
+      return Result.fail(Exception.validation('SUPPORTER_EMAIL_ALREADY_EXISTS', [email]))
     }
 
     return Result.succeed()
   }
-}
-
-export interface CreateSupporterParams {
-  name: Name
-  email: Email
 }
