@@ -1,4 +1,4 @@
-import { ValidationError } from '@values/DomainError'
+import { Exception } from '@values/Exception'
 import { Result } from '@values/Result'
 
 export class Name {
@@ -29,15 +29,9 @@ export class Name {
       .filter((c) => c !== '')
       .join(' ')
 
-    if (normalized === '') return Result.fail(new EmptyNameError())
+    if (normalized === '') return Result.fail(Exception.validation('NAME_EMPTY'))
 
     return Result.succeed(normalized)
-  }
-}
-
-export class EmptyNameError extends ValidationError {
-  constructor() {
-    super('NAME_EMPTY', 'Name should not be empty.')
   }
 }
 

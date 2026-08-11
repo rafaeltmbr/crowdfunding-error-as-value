@@ -1,4 +1,4 @@
-import { ValidationError } from '@values/DomainError'
+import { Exception } from '@values/Exception'
 import { Result } from '@values/Result'
 
 export class Money {
@@ -33,16 +33,10 @@ export class Money {
 
   protected static validate(value: number): Result<number> {
     if (Number.isNaN(value) || !Number.isFinite(value)) {
-      return Result.fail(new InvalidMoneyValueError())
+      return Result.fail(Exception.validation('MONEY_INVALID_VALUE'))
     }
 
     return Result.succeed(value)
-  }
-}
-
-export class InvalidMoneyValueError extends ValidationError {
-  constructor() {
-    super('MONEY_INVALID_VALUE', 'Money value should be an number.')
   }
 }
 

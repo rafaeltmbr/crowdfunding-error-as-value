@@ -1,4 +1,4 @@
-import { NotFoundError } from '@values/DomainError'
+import { Exception } from '@values/Exception'
 import { Campaign } from '@entities/Campaign'
 import { CampaignRepositoryInMemory } from '@infra/repositories/CampaignRepositoryInMemory'
 import { Id } from '@values/Id'
@@ -48,10 +48,12 @@ describe('CampaignRepositoryInMemory', () => {
 
     it('should return failure if deserialization fails', async () => {
       await repository.upsert(campaign1)
-      vi.spyOn(Campaign, 'fromSnapshot').mockReturnValue(Result.fail(new Error('Corrupted data')))
+      vi.spyOn(Campaign, 'fromSnapshot').mockReturnValue(
+        Result.fail(Exception.validation('CORRUPTED_DATA'))
+      )
 
       const result = await repository.upsert(campaign2)
-      expect(result).toBeFailureWithMessage('Corrupted data')
+      expect(result).toBeFailureWithCode('CORRUPTED_DATA')
     })
   })
 
@@ -76,10 +78,12 @@ describe('CampaignRepositoryInMemory', () => {
       await repository.upsert(campaign1)
       await repository.upsert(campaign2)
 
-      vi.spyOn(Campaign, 'fromSnapshot').mockReturnValue(Result.fail(new Error('Corrupted data')))
+      vi.spyOn(Campaign, 'fromSnapshot').mockReturnValue(
+        Result.fail(Exception.validation('CORRUPTED_DATA'))
+      )
 
       const found = await repository.findById(campaign1.id)
-      expect(found).toBeFailureWithMessage('Corrupted data')
+      expect(found).toBeFailureWithCode('CORRUPTED_DATA')
     })
   })
 
@@ -104,11 +108,13 @@ describe('CampaignRepositoryInMemory', () => {
 
     it('should return failure if deserialization fails', async () => {
       await repository.upsert(campaign1)
-      vi.spyOn(Campaign, 'fromSnapshot').mockReturnValue(Result.fail(new Error('Corrupted data')))
+      vi.spyOn(Campaign, 'fromSnapshot').mockReturnValue(
+        Result.fail(Exception.validation('CORRUPTED_DATA'))
+      )
 
       const name = Name.make('First Campaign').value!
       const found = await repository.findByName(name)
-      expect(found).toBeFailureWithMessage('Corrupted data')
+      expect(found).toBeFailureWithCode('CORRUPTED_DATA')
     })
   })
 
@@ -126,16 +132,17 @@ describe('CampaignRepositoryInMemory', () => {
 
     it('should return a failure result if the campaign does not exist', async () => {
       const deleteResult = await repository.delete(campaign1)
-      expect(deleteResult).toBeFailureWithMessage('Campaign does not exist.')
-      expect(deleteResult).toBeFailureOfType(NotFoundError)
+      expect(deleteResult).toBeFailureWithCode('CAMPAIGN_NOT_FOUND')
     })
 
     it('should return failure if deserialization fails', async () => {
       await repository.upsert(campaign1)
-      vi.spyOn(Campaign, 'fromSnapshot').mockReturnValue(Result.fail(new Error('Corrupted data')))
+      vi.spyOn(Campaign, 'fromSnapshot').mockReturnValue(
+        Result.fail(Exception.validation('CORRUPTED_DATA'))
+      )
 
       const deleteResult = await repository.delete(campaign1)
-      expect(deleteResult).toBeFailureWithMessage('Corrupted data')
+      expect(deleteResult).toBeFailureWithCode('CORRUPTED_DATA')
     })
   })
 })

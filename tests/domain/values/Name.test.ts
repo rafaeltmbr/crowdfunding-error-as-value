@@ -1,5 +1,4 @@
-import { ValidationError } from '@values/DomainError'
-import { EmptyNameError, Name } from '@values/Name'
+import { Name } from '@values/Name'
 import { describe, expect, it } from 'vitest'
 
 describe('Name', () => {
@@ -30,14 +29,12 @@ describe('Name', () => {
 
     it('should fail if name is empty', () => {
       const result = Name.make('')
-      expect(result).toBeFailureWithMessage('Name should not be empty.')
-      expect(result).toBeFailureOfType(EmptyNameError)
-      expect(result).toBeFailureOfType(ValidationError)
+      expect(result).toBeFailureWithCode('NAME_EMPTY')
     })
 
     it('should fail if name only contains whitespace', () => {
       const result = Name.make('   ')
-      expect(result).toBeFailureWithMessage('Name should not be empty.')
+      expect(result).toBeFailureWithCode('NAME_EMPTY')
     })
   })
 
@@ -91,21 +88,12 @@ describe('Name', () => {
 
     it('should fail fromSnapshot from invalid format data', () => {
       const result = Name.fromSnapshot('')
-      expect(result).toBeFailureWithMessage('Name should not be empty.')
+      expect(result).toBeFailureWithCode('NAME_EMPTY')
     })
 
     it('should fail fromSnapshot from whitespace-only data', () => {
       const result = Name.fromSnapshot('   \n\t  ')
-      expect(result).toBeFailureWithMessage('Name should not be empty.')
+      expect(result).toBeFailureWithCode('NAME_EMPTY')
     })
-  })
-})
-
-describe('EmptyNameError', () => {
-  it('should create an error with the correct code and message', () => {
-    const error = new EmptyNameError()
-    expect(error.code).toBe('NAME_EMPTY')
-    expect(error.message).toBe('Name should not be empty.')
-    expect(error.tag).toBe('ValidationError')
   })
 })

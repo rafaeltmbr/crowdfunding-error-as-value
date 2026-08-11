@@ -1,5 +1,5 @@
 import { Tier, type TierSnapshot } from '@entities/Tier'
-import { ValidationError } from '@values/DomainError'
+import { Exception } from '@values/Exception'
 import { Id, type IdSnapshot } from '@values/Id'
 import { Money, type MoneySnapshot } from '@values/Money'
 import { Result } from '@values/Result'
@@ -139,16 +139,10 @@ class DonationMoney extends Money {
     if (baseValidation.error) return baseValidation
 
     if (baseValidation.value <= 0) {
-      return Result.fail(new NonPositiveDonationMoneyError())
+      return Result.fail(Exception.validation('DONATION_MONEY_NON_POSITIVE'))
     }
 
     return Result.succeed(baseValidation.value)
-  }
-}
-
-class NonPositiveDonationMoneyError extends ValidationError {
-  constructor() {
-    super('DONATION_MONEY_NON_POSITIVE', 'DonationMoney should be positive.')
   }
 }
 

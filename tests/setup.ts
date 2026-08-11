@@ -6,16 +6,27 @@ expect.extend({
     const { isNot } = this
     return {
       pass: received.error === null,
-      message: () =>
-        `expected ${received} ${isNot ? 'not ' : ''}to be a Success result, but it ${
-          received.error ? `failed with error: "${received.error.message}"` : 'succeeded'
-        }`,
+      message: () => {
+        const errorMessage = received.error
+          ? typeof (received.error as any).message === 'function'
+            ? (received.error as any).message()
+            : (received.error as any).message
+          : ''
+        return `expected ${received} ${isNot ? 'not ' : ''}to be a Success result, but it ${
+          received.error ? `failed with error: "${errorMessage}"` : 'succeeded'
+        }`
+      },
     }
   },
   toBeFailureWithMessage(received: Result<unknown>, expectedMessage: string) {
     const { isNot } = this
     const hasError = received.error !== null
-    const messageMatches = received.error?.message === expectedMessage
+    const errorMessage = hasError
+      ? typeof (received.error as any).message === 'function'
+        ? (received.error as any).message()
+        : (received.error as any).message
+      : undefined
+    const messageMatches = errorMessage === expectedMessage
 
     return {
       pass: hasError && messageMatches,
@@ -24,23 +35,33 @@ expect.extend({
           return `expected result ${isNot ? 'not ' : ''}to be a Failure, but it succeeded with value: ${JSON.stringify(received.value)}`
         }
 
-        return `expected failure message ${isNot ? 'not ' : ''}to be "${expectedMessage}", but got "${received.error?.message}"`
+        return `expected failure message ${isNot ? 'not ' : ''}to be "${expectedMessage}", but got "${errorMessage}"`
       },
     }
   },
-  toBeFailureOfType(received: Result<unknown>, ErrorClass: new (...args: never[]) => Error) {
+  toBeFailureWithCode(received: Result<unknown>, expectedCode: string) {
     const { isNot } = this
     const hasError = received.error !== null
-    const isCorrectType = received.error instanceof ErrorClass
+    const hasCorrectCode = hasError && (received.error as any).hasCode?.(expectedCode)
 
     return {
-      pass: hasError && isCorrectType,
+      pass: hasError && hasCorrectCode,
       message: () => {
-        if (!hasError) {
-          return `expected result ${isNot ? 'not ' : ''}to be a Failure of type ${ErrorClass.name}, but it succeeded with value: ${JSON.stringify(received.value)}`
-        }
+        if (!hasError) return `expected result ${isNot ? 'not ' : ''}to be a Failure...`
+        return `expected failure code ${isNot ? 'not ' : ''}to be "${expectedCode}", but got "${(received.error as any)?.code}"`
+      },
+    }
+  },
+  toBeFailureOfGroup(received: Result<unknown>, expectedGroup: any) {
+    const { isNot } = this
+    const hasError = received.error !== null
+    const hasCorrectGroup = hasError && (received.error as any).belongToGroup?.(expectedGroup)
 
-        return `expected failure ${isNot ? 'not ' : ''}to be of type ${ErrorClass.name}, but got ${received.error?.constructor.name} with message "${received.error?.message}"`
+    return {
+      pass: hasError && hasCorrectGroup,
+      message: () => {
+        if (!hasError) return `expected result ${isNot ? 'not ' : ''}to be a Failure...`
+        return `expected failure group ${isNot ? 'not ' : ''}to be "${expectedGroup}", but got "${(received.error as any)?.group}"`
       },
     }
   },

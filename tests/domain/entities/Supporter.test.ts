@@ -1,5 +1,5 @@
 import { Supporter } from '@entities/Supporter'
-import { ValidationError } from '@values/DomainError'
+
 import { Email } from '@values/Email'
 import { describe, expect, it } from 'vitest'
 
@@ -15,23 +15,22 @@ describe('Supporter', () => {
 
     it('should fail if name is empty', () => {
       const result = Supporter.make('', validEmail)
-      expect(result).toBeFailureWithMessage('Name should not be empty.')
+      expect(result).toBeFailureWithCode('NAME_EMPTY')
     })
 
     it('should fail if name less than 3 characters', () => {
       const result = Supporter.make('Jo', validEmail)
-      expect(result).toBeFailureWithMessage('Supporter name should be at least 3 characters long.')
-      expect(result).toBeFailureOfType(ValidationError)
+      expect(result).toBeFailureWithCode('SUPPORTER_NAME_MIN_LENGTH')
     })
 
     it('should fail if email is empty', () => {
       const result = Supporter.make(validName, '')
-      expect(result).toBeFailureWithMessage('Email should not be empty.')
+      expect(result).toBeFailureWithCode('EMAIL_EMPTY')
     })
 
     it('should fail if email is invalid', () => {
       const result = Supporter.make(validName, 'john.snow.example.com')
-      expect(result).toBeFailureWithMessage('Email format should be valid.')
+      expect(result).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
     })
   })
 
@@ -115,7 +114,7 @@ describe('Supporter', () => {
         name: 'John Doe',
         email: 'john.doe@example.com',
       })
-      expect(result).toBeFailureWithMessage('Id should not contain illegal characters.')
+      expect(result).toBeFailureWithCode('ID_ILLEGAL_CHARS')
     })
 
     it('should fail to fromSnapshot invalid name format', () => {
@@ -124,7 +123,7 @@ describe('Supporter', () => {
         name: 'A',
         email: 'john.doe@example.com',
       })
-      expect(result).toBeFailureWithMessage('Supporter name should be at least 3 characters long.')
+      expect(result).toBeFailureWithCode('SUPPORTER_NAME_MIN_LENGTH')
     })
 
     it('should fail to fromSnapshot invalid email format', () => {
@@ -133,7 +132,7 @@ describe('Supporter', () => {
         name: 'John Doe',
         email: 'invalid-email',
       })
-      expect(result).toBeFailureWithMessage('Email format should be valid.')
+      expect(result).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
     })
   })
 })

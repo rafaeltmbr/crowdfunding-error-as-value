@@ -1,4 +1,4 @@
-import { ValidationError } from '@values/DomainError'
+import { Exception } from '@values/Exception'
 import { Result } from '@values/Result'
 
 export class Id {
@@ -39,28 +39,14 @@ export class Id {
     const normalized = value.trim()
 
     if (normalized.length !== this.LENGTH) {
-      return Result.fail(new InvalidIdLengthError(this.LENGTH))
+      return Result.fail(Exception.validation('ID_INVALID_LENGTH', [this.LENGTH]))
     }
 
     const hasIllegalChars = normalized.split('').some((char) => !this.ALPHABET_SET.has(char))
 
-    if (hasIllegalChars) return Result.fail(new IllegalIdCharsError())
+    if (hasIllegalChars) return Result.fail(Exception.validation('ID_ILLEGAL_CHARS'))
 
     return Result.succeed(normalized)
-  }
-}
-
-export class InvalidIdLengthError extends ValidationError {
-  constructor(expectedLength: number) {
-    super('ID_INVALID_LENGTH', `Id length should be ${expectedLength} characters long.`, {
-      expectedLength,
-    })
-  }
-}
-
-export class IllegalIdCharsError extends ValidationError {
-  constructor() {
-    super('ID_ILLEGAL_CHARS', 'Id should not contain illegal characters.')
   }
 }
 

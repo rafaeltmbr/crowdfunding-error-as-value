@@ -1,4 +1,3 @@
-import { ValidationError } from '@values/DomainError'
 import { Campaign } from '@entities/Campaign'
 import { Supporter } from '@entities/Supporter'
 import { Tier } from '@entities/Tier'
@@ -29,20 +28,18 @@ describe('Campaign', () => {
 
     it('should fail if campaign name is less than 3 characters', () => {
       const result = Campaign.make('Ca')
-      expect(result).toBeFailureWithMessage('Campaign name should be at least 3 characters long.')
-      expect(result).toBeFailureOfType(ValidationError)
+      expect(result).toBeFailureWithCode('CAMPAIGN_NAME_MIN_LENGTH')
     })
 
     it('should fail if campaign name is empty', () => {
       const result = Campaign.make('')
-      expect(result).toBeFailureWithMessage('Name should not be empty.')
+      expect(result).toBeFailureWithCode('NAME_EMPTY')
     })
 
     it('should fail if tiers have duplicate values', () => {
       const duplicateTier = Tier.make('Another Tier 10', 10).value!
       const result = Campaign.make('My Campaign', [tier10, duplicateTier])
-      expect(result).toBeFailureWithMessage('Tiers values should be unique.')
-      expect(result).toBeFailureOfType(ValidationError)
+      expect(result).toBeFailureWithCode('TIER_VALUE_DUPLICATE')
     })
   })
 
@@ -59,7 +56,7 @@ describe('Campaign', () => {
       const duplicateTier = Tier.make('Another Tier 10', 10).value!
       const result = campaign.addTier(duplicateTier)
 
-      expect(result).toBeFailureWithMessage('Tiers values should be unique.')
+      expect(result).toBeFailureWithCode('TIER_VALUE_DUPLICATE')
     })
   })
 
@@ -144,7 +141,7 @@ describe('Campaign', () => {
         name: 'Valid Name',
         funding: { tiers: [], donations: [] },
       })
-      expect(result).toBeFailureWithMessage('Id length should be 10 characters long.')
+      expect(result).toBeFailureWithCode('ID_INVALID_LENGTH')
     })
 
     it('should fail to fromSnapshot invalid name format', () => {
@@ -153,7 +150,7 @@ describe('Campaign', () => {
         name: 'Ab',
         funding: { tiers: [], donations: [] },
       })
-      expect(result).toBeFailureWithMessage('Campaign name should be at least 3 characters long.')
+      expect(result).toBeFailureWithCode('CAMPAIGN_NAME_MIN_LENGTH')
     })
 
     it('should fail to fromSnapshot with invalid tier inside funding', () => {
@@ -162,7 +159,7 @@ describe('Campaign', () => {
         name: 'Valid Name',
         funding: { tiers: [{ id: 'A2CDEFGHJK', name: 'A', value: 10 }], donations: [] },
       })
-      expect(result).toBeFailureWithMessage('TierName should be at least 3 characters long.')
+      expect(result).toBeFailureWithCode('TIER_NAME_MIN_LENGTH')
     })
 
     it('should fail to fromSnapshot with invalid donation inside funding', () => {
@@ -176,7 +173,7 @@ describe('Campaign', () => {
           ],
         },
       })
-      expect(result).toBeFailureWithMessage('DonationMoney should be positive.')
+      expect(result).toBeFailureWithCode('DONATION_MONEY_NON_POSITIVE')
     })
 
     it('should fail to fromSnapshot if campaign name is too short', () => {
@@ -185,7 +182,7 @@ describe('Campaign', () => {
         name: 'Ca',
         funding: { tiers: [], donations: [] },
       })
-      expect(result).toBeFailureWithMessage('Campaign name should be at least 3 characters long.')
+      expect(result).toBeFailureWithCode('CAMPAIGN_NAME_MIN_LENGTH')
     })
 
     it('should fail to fromSnapshot if tiers have duplicate values', () => {
@@ -197,7 +194,7 @@ describe('Campaign', () => {
           donations: [],
         },
       })
-      expect(result).toBeFailureWithMessage('Tiers values should be unique.')
+      expect(result).toBeFailureWithCode('TIER_VALUE_DUPLICATE')
     })
   })
 
@@ -205,7 +202,7 @@ describe('Campaign', () => {
     it('should fail to accept a donation with invalid (negative) amount', () => {
       const campaign = Campaign.make('My Campaign', [tier10, tier20]).value!
       const result = campaign.makeDonation(Money.make(-5).value!, supporter1.id)
-      expect(result).toBeFailureWithMessage('DonationMoney should be positive.')
+      expect(result).toBeFailureWithCode('DONATION_MONEY_NON_POSITIVE')
     })
 
     it('should accept a donation with unsufficient amount and return no tier', () => {

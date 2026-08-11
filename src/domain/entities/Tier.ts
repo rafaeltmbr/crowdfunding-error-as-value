@@ -1,4 +1,4 @@
-import { ValidationError } from '@values/DomainError'
+import { Exception } from '@values/Exception'
 import { Id, type IdSnapshot } from '@values/Id'
 import { Money, type MoneySnapshot } from '@values/Money'
 import { Name, type NameSnapshot } from '@values/Name'
@@ -79,7 +79,7 @@ class TierName extends Name {
     if (baseValidation.error) return baseValidation
 
     if (baseValidation.value.length < 3) {
-      return Result.fail(new ShortTierNameError())
+      return Result.fail(Exception.validation('TIER_NAME_MIN_LENGTH', [3]))
     }
 
     return Result.succeed(baseValidation.value)
@@ -101,23 +101,11 @@ class TierMoney extends Money {
     const baseValidation = super.validate(value)
     if (baseValidation.error) return baseValidation
 
-    if (baseValidation.value <= 0) return Result.fail(new NonPositiveTierMoneyError())
+    if (baseValidation.value <= 0) {
+      return Result.fail(Exception.validation('TIER_MONEY_NON_POSITIVE'))
+    }
 
     return Result.succeed(baseValidation.value)
-  }
-}
-
-class ShortTierNameError extends ValidationError {
-  constructor() {
-    super('TIER_NAME_MIN_LENGTH', 'TierName should be at least 3 characters long.', {
-      minLength: 3,
-    })
-  }
-}
-
-class NonPositiveTierMoneyError extends ValidationError {
-  constructor() {
-    super('TIER_MONEY_NON_POSITIVE', 'TierMoney should be positive.')
   }
 }
 

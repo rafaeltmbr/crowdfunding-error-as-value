@@ -15,18 +15,17 @@ Reference implementation: `tests/domain/values/Name.test.ts`.
 Defined in `tests/setup.ts`:
 
 - `toBeSuccess()` — asserts `result.error === null`. On failure, prints the actual error message.
-- `toBeFailureWithMessage('exact message')` — asserts the result failed with the exact message string. This is the **primary matcher** for validation specs.
-- `toBeFailureOfType(ErrorClass)` — asserts `result.error instanceof ErrorClass`. Use this to verify the error **kind** without coupling to the exact message wording. Useful for behavior/integration tests and for verifying inheritance (e.g., a leaf error is also a `ValidationError`).
+- `toBeFailureWithCode('EXACT_CODE')` — asserts the result failed with the exact exception code. This is the **primary matcher** for validation specs.
+- `toBeFailureOfGroup(ExceptionGroup)` — asserts `result.error.belongToGroup(ExceptionGroup)`. Use this to verify the error **kind** without coupling to the exact code. Useful for behavior/integration tests (e.g., distinguishing NotFound from Validation).
 
-Always use `toBeFailureWithMessage(...)` for validation tests to pin exact error messages. Use `toBeFailureOfType(...)` alongside message checks when the error type is semantically important (e.g., distinguishing `NotFoundError` from `ValidationError`).
+Always use `toBeFailureWithCode(...)` for validation tests to pin exact error codes. Use `toBeFailureOfGroup(...)` alongside code checks when the error group is semantically important.
 
 ```typescript
-// GOOD: asserts both kind and message
-expect(result).toBeFailureWithMessage('Campaign name should be at least 3 characters long.')
-expect(result).toBeFailureOfType(ValidationError)
+// GOOD: asserts code
+expect(result).toBeFailureWithCode('CAMPAIGN_NAME_MIN_LENGTH')
 
-// GOOD: asserts kind only (behavior test, message not important)
-expect(result).toBeFailureOfType(NotFoundError)
+// GOOD: asserts group only (behavior test, specific code not important)
+expect(result).toBeFailureOfGroup(ExceptionGroup.NotFound)
 
 // BAD: too loose
 expect(result.error).not.toBeNull()
@@ -60,13 +59,13 @@ Use `'should <expected behavior>'` for `it(...)` descriptions. Be specific enoug
 ### Factory methods (`make`)
 
 - Test the happy path with valid input.
-- Test every validation rule with its exact error message using `toBeFailureWithMessage('...')`.
+- Test every validation rule with its exact error code using `toBeFailureWithCode('...')`.
 - Test boundary values (minimum length, single character, zero, etc.).
 - If the method normalizes input (e.g., collapsing whitespace), test with tabs `\t`, newlines `\n`, and erratic spaces.
 
 ```typescript
 // GOOD
-expect(result).toBeFailureWithMessage('Name should not be empty.')
+expect(result).toBeFailureWithCode('NAME_EMPTY')
 
 // BAD
 expect(result.error).not.toBeNull()
@@ -86,7 +85,7 @@ Test these four scenarios independently:
 Methods that mutate state or enforce invariants (`addTier`, `makeDonation`, etc.):
 
 - Test the happy path.
-- Test every rejection path with exact error message.
+- Test every rejection path with exact error code.
 - Test boundary/edge cases (empty collections, duplicates, threshold values).
 
 ### `toSnapshot`
@@ -108,7 +107,7 @@ expect(snapshot.id).toBeDefined()
 
 1. **Round-trip**: `fromSnapshot(obj.toSnapshot())` must produce an object that passes `isEqual()`.
 2. **Normalization**: if the method normalizes input, test it (e.g., trimming whitespace).
-3. **Invalid data**: test at least one corrupted input per distinct validation path, using `toBeFailureWithMessage('...')`. When `fromSnapshot` delegates to `make`, a representative subset is sufficient — do not duplicate all `make` tests.
+3. **Invalid data**: test at least one corrupted input per distinct validation path, using `toBeFailureWithCode('...')`. When `fromSnapshot` delegates to `make`, a representative subset is sufficient — do not duplicate all `make` tests.
 
 ## Edge Cases
 
@@ -132,7 +131,7 @@ Because the project enforces strict 100% test coverage, you must test even "unre
 - **Do NOT use `/* v8 ignore next */`**. Instead of ignoring defensive code, simulate the failure using test spies.
 - Use `vi.spyOn(Class, 'method').mockReturnValue(...)` to force an error state without mutating private internal collections.
 - Always use `vi.restoreAllMocks()` in an `afterEach` block if you are using spies to prevent cross-test contamination.
-- Use `toBeFailureWithMessage(...)` to assert that your mocked error was correctly caught and returned by the adapter or service.
+- Use `toBeFailureWithCode(...)` to assert that your mocked error was correctly caught and returned by the adapter or service.
 
 ## Workflow
 

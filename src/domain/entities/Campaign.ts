@@ -1,6 +1,6 @@
 import { Donation, type DonationSnapshot } from '@entities/Donation'
 import { Tier, type TierSnapshot } from '@entities/Tier'
-import { ValidationError } from '@values/DomainError'
+import { Exception } from '@values/Exception'
 import { Id, type IdSnapshot } from '@values/Id'
 import { Money } from '@values/Money'
 import { Name, type NameSnapshot } from '@values/Name'
@@ -138,7 +138,7 @@ class CampaignName extends Name {
     if (baseValidation.error) return baseValidation
 
     if (baseValidation.value.length < 3) {
-      return Result.fail(new ShortCampaignNameError())
+      return Result.fail(Exception.validation('CAMPAIGN_NAME_MIN_LENGTH', [3]))
     }
 
     return baseValidation
@@ -189,7 +189,7 @@ class Tiers {
       (tier, i) => i < sortedTiers.length - 1 && tier.isValueEqual(sortedTiers[i + 1]!)
     )
 
-    if (hasDuplicates) return Result.fail(new DuplicateTierValueError())
+    if (hasDuplicates) return Result.fail(Exception.validation('TIER_VALUE_DUPLICATE'))
 
     return Result.succeed(sortedTiers)
   }
@@ -241,20 +241,6 @@ class SupporterDonationStats {
       (bucket, donation) => donation.addTierToBucket(bucket),
       new Set<Tier>()
     )
-  }
-}
-
-class ShortCampaignNameError extends ValidationError {
-  constructor() {
-    super('CAMPAIGN_NAME_MIN_LENGTH', 'Campaign name should be at least 3 characters long.', {
-      minLength: 3,
-    })
-  }
-}
-
-class DuplicateTierValueError extends ValidationError {
-  constructor() {
-    super('TIER_VALUE_DUPLICATE', 'Tiers values should be unique.')
   }
 }
 

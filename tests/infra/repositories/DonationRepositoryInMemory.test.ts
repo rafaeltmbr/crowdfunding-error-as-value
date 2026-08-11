@@ -1,4 +1,4 @@
-import { NotFoundError } from '@values/DomainError'
+import { Exception } from '@values/Exception'
 import { Donation } from '@entities/Donation'
 import { Supporter } from '@entities/Supporter'
 import { DonationRepositoryInMemory } from '@infra/repositories/DonationRepositoryInMemory'
@@ -53,10 +53,12 @@ describe('DonationRepositoryInMemory', () => {
 
     it('should return failure if deserialization fails', async () => {
       await repository.upsert(donation1)
-      vi.spyOn(Donation, 'fromSnapshot').mockReturnValue(Result.fail(new Error('Corrupted data')))
+      vi.spyOn(Donation, 'fromSnapshot').mockReturnValue(
+        Result.fail(Exception.validation('CORRUPTED_DATA'))
+      )
 
       const result = await repository.upsert(donation2)
-      expect(result).toBeFailureWithMessage('Corrupted data')
+      expect(result).toBeFailureWithCode('CORRUPTED_DATA')
     })
   })
 
@@ -81,10 +83,12 @@ describe('DonationRepositoryInMemory', () => {
       await repository.upsert(donation1)
       await repository.upsert(donation2)
 
-      vi.spyOn(Donation, 'fromSnapshot').mockReturnValue(Result.fail(new Error('Corrupted data')))
+      vi.spyOn(Donation, 'fromSnapshot').mockReturnValue(
+        Result.fail(Exception.validation('CORRUPTED_DATA'))
+      )
 
       const found = await repository.findById(donation1.id)
-      expect(found).toBeFailureWithMessage('Corrupted data')
+      expect(found).toBeFailureWithCode('CORRUPTED_DATA')
     })
   })
 
@@ -108,10 +112,12 @@ describe('DonationRepositoryInMemory', () => {
 
     it('should return failure if deserialization fails', async () => {
       await repository.upsert(donation1)
-      vi.spyOn(Donation, 'fromSnapshot').mockReturnValue(Result.fail(new Error('Corrupted data')))
+      vi.spyOn(Donation, 'fromSnapshot').mockReturnValue(
+        Result.fail(Exception.validation('CORRUPTED_DATA'))
+      )
 
       const found = await repository.findBySupporterId(supporter1.id)
-      expect(found).toBeFailureWithMessage('Corrupted data')
+      expect(found).toBeFailureWithCode('CORRUPTED_DATA')
     })
   })
 
@@ -129,16 +135,17 @@ describe('DonationRepositoryInMemory', () => {
 
     it('should return a failure result if the donation does not exist', async () => {
       const deleteResult = await repository.delete(donation1)
-      expect(deleteResult).toBeFailureWithMessage('Donation does not exist.')
-      expect(deleteResult).toBeFailureOfType(NotFoundError)
+      expect(deleteResult).toBeFailureWithCode('DONATION_NOT_FOUND')
     })
 
     it('should return failure if deserialization fails', async () => {
       await repository.upsert(donation1)
-      vi.spyOn(Donation, 'fromSnapshot').mockReturnValue(Result.fail(new Error('Corrupted data')))
+      vi.spyOn(Donation, 'fromSnapshot').mockReturnValue(
+        Result.fail(Exception.validation('CORRUPTED_DATA'))
+      )
 
       const deleteResult = await repository.delete(donation1)
-      expect(deleteResult).toBeFailureWithMessage('Corrupted data')
+      expect(deleteResult).toBeFailureWithCode('CORRUPTED_DATA')
     })
   })
 })

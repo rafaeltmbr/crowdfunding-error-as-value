@@ -1,3 +1,5 @@
+import { Exception } from '@values/Exception'
+
 class ResultBase {
   static succeed(): Success<void>
   static succeed<T>(value: T): Success<T>
@@ -5,7 +7,7 @@ class ResultBase {
     return new Success(value as T)
   }
 
-  static fail<E extends Error = Error>(error: E): Failure<E> {
+  static fail<E = Exception>(error: E): Failure<E> {
     return new Failure(error)
   }
 }
@@ -18,7 +20,7 @@ export class Success<T> extends ResultBase {
   }
 }
 
-export class Failure<E extends Error = Error> extends ResultBase {
+export class Failure<E = Exception> extends ResultBase {
   readonly value = null
 
   constructor(public readonly error: E) {
@@ -26,7 +28,7 @@ export class Failure<E extends Error = Error> extends ResultBase {
   }
 }
 
-export type Result<T, E extends Error = Error> = Success<T> | Failure<E>
+export type Result<T, E = Exception> = Success<T> | Failure<E>
 
 /**
  * **Result Pattern**
@@ -45,15 +47,15 @@ export type Result<T, E extends Error = Error> = Success<T> | Failure<E>
  *   divisor: number,
  * ): Result<number, Error> {
  *   if (Number.isNaN(dividend)) {
- *     return Result.fail(new Error("Dividend must be a number."));
+ *     return Result.fail(Exception.validation("DIVIDEND_NOT_NUMBER"));
  *   }
  *
  *   if (Number.isNaN(divisor)) {
- *     return Result.fail(new Error("Divisor must be a number."));
+ *     return Result.fail(Exception.validation("DIVISOR_NOT_NUMBER"));
  *   }
  *
  *   if (divisor === 0) {
- *     return Result.fail(new Error("Divisor must not be zero."));
+ *     return Result.fail(Exception.validation("DIVISOR_ZERO"));
  *   }
  *
  *   return Result.succeed(dividend / divisor);
@@ -65,7 +67,7 @@ export type Result<T, E extends Error = Error> = Success<T> | Failure<E>
  *   const result = safeDivision(dividend, divisor);
  *
  *   if (result.error) {
- *     return console.error(result.error.message);
+ *     return console.error(result.error.message());
  *   }
  *
  *   console.log(`${dividend}/${divisor} = ${result.value}`);

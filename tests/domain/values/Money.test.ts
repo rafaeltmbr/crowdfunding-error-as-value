@@ -1,5 +1,4 @@
-import { Money, InvalidMoneyValueError } from '@values/Money'
-import { ValidationError } from '@values/DomainError'
+import { Money } from '@values/Money'
 import { describe, expect, it } from 'vitest'
 
 describe('Money', () => {
@@ -24,18 +23,17 @@ describe('Money', () => {
 
     it('should fail if money is NaN', () => {
       const result = Money.make(NaN)
-      expect(result).toBeFailureWithMessage('Money value should be an number.')
-      expect(result).toBeFailureOfType(InvalidMoneyValueError)
+      expect(result).toBeFailureWithCode('MONEY_INVALID_VALUE')
     })
 
     it('should fail if money is Infinity', () => {
       const result = Money.make(Infinity)
-      expect(result).toBeFailureWithMessage('Money value should be an number.')
+      expect(result).toBeFailureWithCode('MONEY_INVALID_VALUE')
     })
 
     it('should fail if money is -Infinity', () => {
       const result = Money.make(-Infinity)
-      expect(result).toBeFailureWithMessage('Money value should be an number.')
+      expect(result).toBeFailureWithCode('MONEY_INVALID_VALUE')
     })
   })
 
@@ -105,21 +103,12 @@ describe('Money', () => {
 
     it('should fail to fromSnapshot if money is NaN', () => {
       const result = Money.fromSnapshot(NaN)
-      expect(result).toBeFailureWithMessage('Money value should be an number.')
+      expect(result).toBeFailureWithCode('MONEY_INVALID_VALUE')
     })
 
     it('should fail to fromSnapshot if money is Infinity', () => {
       const result = Money.fromSnapshot(Infinity)
-      expect(result).toBeFailureWithMessage('Money value should be an number.')
+      expect(result).toBeFailureWithCode('MONEY_INVALID_VALUE')
     })
-  })
-})
-
-describe('InvalidMoneyValueError', () => {
-  it('should create an error with the correct code and message', () => {
-    const error = new InvalidMoneyValueError()
-    expect(error.code).toBe('MONEY_INVALID_VALUE')
-    expect(error.message).toBe('Money value should be an number.')
-    expect(error.tag).toBe('ValidationError')
   })
 })

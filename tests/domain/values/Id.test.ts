@@ -1,5 +1,4 @@
-import { Id, InvalidIdLengthError, IllegalIdCharsError } from '@values/Id'
-import { ValidationError } from '@values/DomainError'
+import { Id } from '@values/Id'
 import { describe, expect, it } from 'vitest'
 
 describe('Id', () => {
@@ -41,14 +40,12 @@ describe('Id', () => {
 
     it('should fail to fromSnapshot if length is wrong', () => {
       const idResult = Id.fromSnapshot('ABC')
-      expect(idResult).toBeFailureWithMessage('Id length should be 10 characters long.')
-      expect(idResult).toBeFailureOfType(InvalidIdLengthError)
+      expect(idResult).toBeFailureWithCode('ID_INVALID_LENGTH')
     })
 
     it('should fail to fromSnapshot if contains illegal characters', () => {
       const idResult = Id.fromSnapshot('A2CDEFGHI0')
-      expect(idResult).toBeFailureWithMessage('Id should not contain illegal characters.')
-      expect(idResult).toBeFailureOfType(IllegalIdCharsError)
+      expect(idResult).toBeFailureWithCode('ID_ILLEGAL_CHARS')
     })
   })
 
@@ -69,23 +66,5 @@ describe('Id', () => {
       const id2 = Id.fromSnapshot('B2CDEFGHJK').value!
       expect(id1.isEqual(id2)).toBe(false)
     })
-  })
-})
-
-describe('InvalidIdLengthError', () => {
-  it('should create an error with the correct code and message', () => {
-    const error = new InvalidIdLengthError(10)
-    expect(error.code).toBe('ID_INVALID_LENGTH')
-    expect(error.message).toBe('Id length should be 10 characters long.')
-    expect(error.tag).toBe('ValidationError')
-  })
-})
-
-describe('IllegalIdCharsError', () => {
-  it('should create an error with the correct code and message', () => {
-    const error = new IllegalIdCharsError()
-    expect(error.code).toBe('ID_ILLEGAL_CHARS')
-    expect(error.message).toBe('Id should not contain illegal characters.')
-    expect(error.tag).toBe('ValidationError')
   })
 })

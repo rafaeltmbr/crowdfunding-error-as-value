@@ -31,35 +31,23 @@ if (!isValid) throw new Error('...')
 
 ### Error Hierarchy
 
-Errors are **domain primitives** — immutable signal objects that carry structured information about what went wrong. They live in `src/domain/values/DomainError.ts` alongside `Result.ts`. They are **not** Value Objects — they have no `make()`, `isEqual()`, or `toSnapshot()`.
+Errors are **domain primitives** — immutable signal objects that carry structured information about what went wrong. They live in `src/domain/values/Exception.ts` alongside `Result.ts`.
 
-- **Rule**: All domain error classes MUST extend the abstract `DomainError` base class.
-- **Rule**: Each error category class carries a `readonly tag` literal for discriminated union narrowing (e.g., `switch(error.tag)` for HTTP status mapping).
-- **Rule**: Errors use **inheritance for granularity control**. Fine-grained leaf classes extend broad category classes. The producer is always specific (returns the leaf type); the consumer chooses the basket (widens the return type to the parent category).
-- **Rule**: Leaf error classes that are scoped to a single module SHOULD be **unexported and internal** (same rule as specialized Value Objects).
-- **Rule**: Leaf error classes that belong to shared base Value Objects (e.g., `Name`, `Email`) MUST be exported.
-- **Rule**: `ValidationError` carries a `code` (stable i18n key) and `params` (interpolation variables) for internationalization support. The `message` is a developer-facing English fallback.
-
-```
-Error (built-in)
-└── DomainError (abstract — tag protocol)
-    ├── ValidationError (code, message, params)
-    │   ├── EmptyNameError (leaf — shared)
-    │   ├── ShortCampaignNameError (leaf — unexported)
-    │   └── ...
-    └── NotFoundError (entity)
-```
+- **Rule**: All errors are represented by the single `Exception` class. Do not create custom error classes or inherit from `Error`.
+- **Rule**: The `Exception` class carries an `ExceptionGroup` enum (`Validation`, `NotFound`, `Infrastructure`, `Unexpected`) for high-level classification and discriminated union narrowing (e.g., `switch(error.group)` for HTTP status mapping).
+- **Rule**: Each `Exception` carries a `code` (stable i18n key) and `args` (interpolation variables) for internationalization support.
+- **Rule**: Create exceptions using factory methods: `Exception.validation('CODE', args)`, `Exception.notFound('CODE')`, etc.
 
 ```typescript
-// GOOD: producer is specific, consumer widens the basket
+// GOOD: producer specifies a code
 // Inside CampaignName (internal module):
-return Result.fail(new ShortCampaignNameError())
+return Result.fail(Exception.validation('CAMPAIGN_NAME_MIN_LENGTH', [3]))
 
-// Campaign.make return type widens to the category:
-static make(name: string): Result<Campaign, ValidationError>
+// Campaign.make signature
+static make(name: string): Result<Campaign>
 
-// Consumer narrows via instanceof when needed:
-if (result.error instanceof ValidationError) { /* 400 */ }
+// Consumer narrows via group when needed:
+if (result.error?.belongToGroup(ExceptionGroup.Validation)) { /* 400 */ }
 ```
 
 ## 3. Object Calisthenics

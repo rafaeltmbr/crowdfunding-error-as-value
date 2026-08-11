@@ -1,4 +1,3 @@
-import { ValidationError } from '@values/DomainError'
 import { Donation } from '@entities/Donation'
 import { Supporter } from '@entities/Supporter'
 import { Tier } from '@entities/Tier'
@@ -23,14 +22,13 @@ describe('Donation', () => {
     it('should fail if amount is zero', () => {
       const zeroAmount = Money.make(0).value!
       const result = Donation.make(zeroAmount, validSupporter.id)
-      expect(result).toBeFailureWithMessage('DonationMoney should be positive.')
-      expect(result).toBeFailureOfType(ValidationError)
+      expect(result).toBeFailureWithCode('DONATION_MONEY_NON_POSITIVE')
     })
 
     it('should fail if amount is negative', () => {
       const negativeAmount = Money.make(-10).value!
       const result = Donation.make(negativeAmount, validSupporter.id)
-      expect(result).toBeFailureWithMessage('DonationMoney should be positive.')
+      expect(result).toBeFailureWithCode('DONATION_MONEY_NON_POSITIVE')
     })
   })
 
@@ -215,7 +213,7 @@ describe('Donation', () => {
         supporterId: 'SHORT',
         tier: null,
       })
-      expect(result).toBeFailureWithMessage('Id length should be 10 characters long.')
+      expect(result).toBeFailureWithCode('ID_INVALID_LENGTH')
     })
 
     it('should fail to fromSnapshot invalid id format', () => {
@@ -225,7 +223,7 @@ describe('Donation', () => {
         supporterId: validSupporter.id.toSnapshot(),
         tier: null,
       })
-      expect(result).toBeFailureWithMessage('Id length should be 10 characters long.')
+      expect(result).toBeFailureWithCode('ID_INVALID_LENGTH')
     })
 
     it('should fail to fromSnapshot invalid tier format', () => {
@@ -235,7 +233,7 @@ describe('Donation', () => {
         supporterId: validSupporter.id.toSnapshot(),
         tier: { id: 'A2CDEFGHJK', name: 'A', value: 10 },
       })
-      expect(result).toBeFailureWithMessage('TierName should be at least 3 characters long.')
+      expect(result).toBeFailureWithCode('TIER_NAME_MIN_LENGTH')
     })
 
     it('should fail to fromSnapshot NaN amount format', () => {
@@ -245,7 +243,7 @@ describe('Donation', () => {
         supporterId: validSupporter.id.toSnapshot(),
         tier: null,
       })
-      expect(result).toBeFailureWithMessage('Money value should be an number.')
+      expect(result).toBeFailureWithCode('MONEY_INVALID_VALUE')
     })
   })
 })

@@ -1,5 +1,4 @@
-import { ValidationError } from '@values/DomainError'
-import { Email, EmptyEmailError, InvalidEmailFormatError } from '@values/Email'
+import { Email } from '@values/Email'
 import { describe, expect, it } from 'vitest'
 
 describe('Email', () => {
@@ -11,9 +10,7 @@ describe('Email', () => {
 
     it('should fail if empty', () => {
       const result = Email.make('')
-      expect(result).toBeFailureWithMessage('Email should not be empty.')
-      expect(result).toBeFailureOfType(EmptyEmailError)
-      expect(result).toBeFailureOfType(ValidationError)
+      expect(result).toBeFailureWithCode('EMAIL_EMPTY')
     })
   })
 
@@ -62,124 +59,106 @@ describe('Email', () => {
 
     it('should fail if email is empty', () => {
       const result = Email.fromSnapshot('')
-      expect(result).toBeFailureWithMessage('Email should not be empty.')
+      expect(result).toBeFailureWithCode('EMAIL_EMPTY')
     })
 
     it('should fail if email is invalid', () => {
       const result = Email.fromSnapshot('invalid-email')
-      expect(result).toBeFailureWithMessage('Email format should be valid.')
+      expect(result).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
     })
   })
 
   describe('Validation errors', () => {
     describe('Missing components', () => {
       it('should fail if email does not have a domain or local-part', () => {
-        expect(Email.make('some.email')).toBeFailureWithMessage('Email format should be valid.')
-        expect(Email.make('example.com')).toBeFailureWithMessage('Email format should be valid.')
-        expect(Email.make('@')).toBeFailureWithMessage('Email format should be valid.')
+        expect(Email.make('some.email')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
+        expect(Email.make('example.com')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
+        expect(Email.make('@')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
 
       it('should fail if email is missing the domain part', () => {
-        expect(Email.make('some.email@')).toBeFailureWithMessage('Email format should be valid.')
-        expect(Email.make('abc@')).toBeFailureWithMessage('Email format should be valid.')
+        expect(Email.make('some.email@')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
+        expect(Email.make('abc@')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
 
       it('should fail if email is missing the local-part', () => {
-        expect(Email.make('@example.com')).toBeFailureWithMessage('Email format should be valid.')
+        expect(Email.make('@example.com')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
     })
 
     describe('Dot position and duplication', () => {
       it('should fail if domain ends with a dot', () => {
-        expect(Email.make('abc@xyz.')).toBeFailureWithMessage('Email format should be valid.')
-        expect(Email.make('abc@example.com.')).toBeFailureWithMessage(
-          'Email format should be valid.'
-        )
+        expect(Email.make('abc@xyz.')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
+        expect(Email.make('abc@example.com.')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
 
       it('should fail if domain starts with a dot', () => {
-        expect(Email.make('abc@.example.com')).toBeFailureWithMessage(
-          'Email format should be valid.'
-        )
+        expect(Email.make('abc@.example.com')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
 
       it('should fail if domain has consecutive dots', () => {
-        expect(Email.make('abc@xyz..com')).toBeFailureWithMessage('Email format should be valid.')
+        expect(Email.make('abc@xyz..com')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
 
       it('should fail if local-part starts with a dot', () => {
-        expect(Email.make('.abc@example.com')).toBeFailureWithMessage(
-          'Email format should be valid.'
-        )
+        expect(Email.make('.abc@example.com')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
 
       it('should fail if local-part ends with a dot', () => {
-        expect(Email.make('abc.@example.com')).toBeFailureWithMessage(
-          'Email format should be valid.'
-        )
+        expect(Email.make('abc.@example.com')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
 
       it('should fail if local-part has consecutive dots', () => {
-        expect(Email.make('abc..def@example.com')).toBeFailureWithMessage(
-          'Email format should be valid.'
-        )
+        expect(Email.make('abc..def@example.com')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
     })
 
     describe('Invalid characters', () => {
       it('should fail if domain contains a comma', () => {
-        expect(Email.make('abc@xyz,com')).toBeFailureWithMessage('Email format should be valid.')
+        expect(Email.make('abc@xyz,com')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
 
       it('should fail if domain contains an underscore', () => {
-        expect(Email.make('abc@sub_domain.com')).toBeFailureWithMessage(
-          'Email format should be valid.'
-        )
+        expect(Email.make('abc@sub_domain.com')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
 
       it('should fail if local-part contains unquoted parentheses', () => {
-        expect(Email.make('abc()def@example.com')).toBeFailureWithMessage(
-          'Email format should be valid.'
-        )
+        expect(Email.make('abc()def@example.com')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
 
       it('should fail if local-part contains brackets', () => {
-        expect(Email.make('abc[]def@example.com')).toBeFailureWithMessage(
-          'Email format should be valid.'
-        )
+        expect(Email.make('abc[]def@example.com')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
     })
 
     describe('Invalid TLD', () => {
       it('should fail if TLD is missing entirely', () => {
-        expect(Email.make('a@b')).toBeFailureWithMessage('Email format should be valid.')
+        expect(Email.make('a@b')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
 
       it('should fail if TLD is too short', () => {
-        expect(Email.make('abc@example.c')).toBeFailureWithMessage('Email format should be valid.')
+        expect(Email.make('abc@example.c')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
 
       it('should fail if TLD is numeric', () => {
-        expect(Email.make('abc@example.123')).toBeFailureWithMessage(
-          'Email format should be valid.'
-        )
+        expect(Email.make('abc@example.123')).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
     })
 
     describe('Length boundaries', () => {
       it('should fail if local-part exceeds 64 characters', () => {
         const longLocalPart = 'a'.repeat(65) + '@example.com'
-        expect(Email.make(longLocalPart)).toBeFailureWithMessage('Email format should be valid.')
+        expect(Email.make(longLocalPart)).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
 
       it('should fail if a domain label exceeds 63 characters', () => {
         const longDomainLabel = 'abc@' + 'a'.repeat(64) + '.com'
-        expect(Email.make(longDomainLabel)).toBeFailureWithMessage('Email format should be valid.')
+        expect(Email.make(longDomainLabel)).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
 
       it('should fail if total email length exceeds 254 characters', () => {
         const longEmail = 'a'.repeat(64) + '@' + 'b'.repeat(186) + '.com'
-        expect(Email.make(longEmail)).toBeFailureWithMessage('Email format should be valid.')
+        expect(Email.make(longEmail)).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
     })
 
@@ -191,26 +170,8 @@ describe('Email', () => {
 
       it('should fail if characters exist before the quoted string', () => {
         const result = Email.make('x"hello"@example.com')
-        expect(result).toBeFailureWithMessage('Email format should be valid.')
+        expect(result).toBeFailureWithCode('EMAIL_INVALID_FORMAT')
       })
     })
-  })
-})
-
-describe('EmptyEmailError', () => {
-  it('should create an error with the correct code and message', () => {
-    const error = new EmptyEmailError()
-    expect(error.code).toBe('EMAIL_EMPTY')
-    expect(error.message).toBe('Email should not be empty.')
-    expect(error.tag).toBe('ValidationError')
-  })
-})
-
-describe('InvalidEmailFormatError', () => {
-  it('should create an error with the correct code and message', () => {
-    const error = new InvalidEmailFormatError()
-    expect(error.code).toBe('EMAIL_INVALID_FORMAT')
-    expect(error.message).toBe('Email format should be valid.')
-    expect(error.tag).toBe('ValidationError')
   })
 })

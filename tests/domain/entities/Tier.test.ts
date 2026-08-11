@@ -1,4 +1,3 @@
-import { ValidationError } from '@values/DomainError'
 import { Tier } from '@entities/Tier'
 import { Id } from '@values/Id'
 import { Money } from '@values/Money'
@@ -13,29 +12,27 @@ describe('Tier', () => {
 
     it('should fail if name is less than 3 characters', () => {
       const result = Tier.make('Ab', 100)
-      expect(result).toBeFailureWithMessage('TierName should be at least 3 characters long.')
-      expect(result).toBeFailureOfType(ValidationError)
+      expect(result).toBeFailureWithCode('TIER_NAME_MIN_LENGTH')
     })
 
     it('should fail if name is empty', () => {
       const result = Tier.make('', 100)
-      expect(result).toBeFailureWithMessage('Name should not be empty.')
+      expect(result).toBeFailureWithCode('NAME_EMPTY')
     })
 
     it('should fail if value is NaN', () => {
       const result = Tier.make('Valid Name', NaN)
-      expect(result).toBeFailureWithMessage('Money value should be an number.')
+      expect(result).toBeFailureWithCode('MONEY_INVALID_VALUE')
     })
 
     it('should fail if value is zero', () => {
       const result = Tier.make('Valid Name', 0)
-      expect(result).toBeFailureWithMessage('TierMoney should be positive.')
-      expect(result).toBeFailureOfType(ValidationError)
+      expect(result).toBeFailureWithCode('TIER_MONEY_NON_POSITIVE')
     })
 
     it('should fail if value is negative', () => {
       const result = Tier.make('Valid Name', -10)
-      expect(result).toBeFailureWithMessage('TierMoney should be positive.')
+      expect(result).toBeFailureWithCode('TIER_MONEY_NON_POSITIVE')
     })
   })
 
@@ -143,27 +140,27 @@ describe('Tier', () => {
 
     it('should fail to fromSnapshot if name is too short', () => {
       const result = Tier.fromSnapshot({ id: 'A2CDEFGHJK', name: 'Ab', value: 10 })
-      expect(result).toBeFailureWithMessage('TierName should be at least 3 characters long.')
+      expect(result).toBeFailureWithCode('TIER_NAME_MIN_LENGTH')
     })
 
     it('should fail to fromSnapshot invalid id format', () => {
       const result = Tier.fromSnapshot({ id: 'SHORT', name: 'Tier 1', value: 10 })
-      expect(result).toBeFailureWithMessage('Id length should be 10 characters long.')
+      expect(result).toBeFailureWithCode('ID_INVALID_LENGTH')
     })
 
     it('should fail to fromSnapshot if value is negative', () => {
       const result = Tier.fromSnapshot({ id: 'A2CDEFGHJK', name: 'Tier 1', value: -10 })
-      expect(result).toBeFailureWithMessage('TierMoney should be positive.')
+      expect(result).toBeFailureWithCode('TIER_MONEY_NON_POSITIVE')
     })
 
     it('should fail to fromSnapshot if value is zero', () => {
       const result = Tier.fromSnapshot({ id: 'A2CDEFGHJK', name: 'Tier 1', value: 0 })
-      expect(result).toBeFailureWithMessage('TierMoney should be positive.')
+      expect(result).toBeFailureWithCode('TIER_MONEY_NON_POSITIVE')
     })
 
     it('should fail to fromSnapshot if value is NaN', () => {
       const result = Tier.fromSnapshot({ id: 'A2CDEFGHJK', name: 'Tier 1', value: NaN })
-      expect(result).toBeFailureWithMessage('Money value should be an number.')
+      expect(result).toBeFailureWithCode('MONEY_INVALID_VALUE')
     })
   })
 })
