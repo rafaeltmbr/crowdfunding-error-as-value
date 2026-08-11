@@ -28,4 +28,20 @@ expect.extend({
       },
     }
   },
+  toBeFailureOfType(received: Result<unknown>, ErrorClass: new (...args: never[]) => Error) {
+    const { isNot } = this
+    const hasError = received.error !== null
+    const isCorrectType = received.error instanceof ErrorClass
+
+    return {
+      pass: hasError && isCorrectType,
+      message: () => {
+        if (!hasError) {
+          return `expected result ${isNot ? 'not ' : ''}to be a Failure of type ${ErrorClass.name}, but it succeeded with value: ${JSON.stringify(received.value)}`
+        }
+
+        return `expected failure ${isNot ? 'not ' : ''}to be of type ${ErrorClass.name}, but got ${received.error?.constructor.name} with message "${received.error?.message}"`
+      },
+    }
+  },
 })

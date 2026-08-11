@@ -1,3 +1,4 @@
+import { ValidationError } from '@values/DomainError'
 import { Tier } from '@entities/Tier'
 import { Id } from '@values/Id'
 import { Money } from '@values/Money'
@@ -13,6 +14,7 @@ describe('Tier', () => {
     it('should fail if name is less than 3 characters', () => {
       const result = Tier.make('Ab', 100)
       expect(result).toBeFailureWithMessage('TierName should be at least 3 characters long.')
+      expect(result).toBeFailureOfType(ValidationError)
     })
 
     it('should fail if name is empty', () => {
@@ -28,6 +30,7 @@ describe('Tier', () => {
     it('should fail if value is zero', () => {
       const result = Tier.make('Valid Name', 0)
       expect(result).toBeFailureWithMessage('TierMoney should be positive.')
+      expect(result).toBeFailureOfType(ValidationError)
     })
 
     it('should fail if value is negative', () => {

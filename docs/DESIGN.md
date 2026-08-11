@@ -29,6 +29,39 @@ if (name.error) return name
 if (!isValid) throw new Error('...')
 ```
 
+### Error Hierarchy
+
+Errors are **domain primitives** — immutable signal objects that carry structured information about what went wrong. They live in `src/domain/values/DomainError.ts` alongside `Result.ts`. They are **not** Value Objects — they have no `make()`, `isEqual()`, or `toSnapshot()`.
+
+- **Rule**: All domain error classes MUST extend the abstract `DomainError` base class.
+- **Rule**: Each error category class carries a `readonly tag` literal for discriminated union narrowing (e.g., `switch(error.tag)` for HTTP status mapping).
+- **Rule**: Errors use **inheritance for granularity control**. Fine-grained leaf classes extend broad category classes. The producer is always specific (returns the leaf type); the consumer chooses the basket (widens the return type to the parent category).
+- **Rule**: Leaf error classes that are scoped to a single module SHOULD be **unexported and internal** (same rule as specialized Value Objects).
+- **Rule**: Leaf error classes that belong to shared base Value Objects (e.g., `Name`, `Email`) MUST be exported.
+- **Rule**: `ValidationError` carries a `code` (stable i18n key) and `params` (interpolation variables) for internationalization support. The `message` is a developer-facing English fallback.
+
+```
+Error (built-in)
+└── DomainError (abstract — tag protocol)
+    ├── ValidationError (code, message, params)
+    │   ├── EmptyNameError (leaf — shared)
+    │   ├── ShortCampaignNameError (leaf — unexported)
+    │   └── ...
+    └── NotFoundError (entity)
+```
+
+```typescript
+// GOOD: producer is specific, consumer widens the basket
+// Inside CampaignName (internal module):
+return Result.fail(new ShortCampaignNameError())
+
+// Campaign.make return type widens to the category:
+static make(name: string): Result<Campaign, ValidationError>
+
+// Consumer narrows via instanceof when needed:
+if (result.error instanceof ValidationError) { /* 400 */ }
+```
+
 ## 3. Object Calisthenics
 
 Object Calisthenics is used as a discipline to **force out of the procedural mindset into the OO paradigm**. The ESLint configuration enforces specific numeric limits (indentation depth, function size, complexity, etc.), but the following principles are the conceptual drivers behind those rules:

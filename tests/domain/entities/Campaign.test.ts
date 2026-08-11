@@ -1,3 +1,4 @@
+import { ValidationError } from '@values/DomainError'
 import { Campaign } from '@entities/Campaign'
 import { Supporter } from '@entities/Supporter'
 import { Tier } from '@entities/Tier'
@@ -29,6 +30,7 @@ describe('Campaign', () => {
     it('should fail if campaign name is less than 3 characters', () => {
       const result = Campaign.make('Ca')
       expect(result).toBeFailureWithMessage('Campaign name should be at least 3 characters long.')
+      expect(result).toBeFailureOfType(ValidationError)
     })
 
     it('should fail if campaign name is empty', () => {
@@ -40,6 +42,7 @@ describe('Campaign', () => {
       const duplicateTier = Tier.make('Another Tier 10', 10).value!
       const result = Campaign.make('My Campaign', [tier10, duplicateTier])
       expect(result).toBeFailureWithMessage('Tiers values should be unique.')
+      expect(result).toBeFailureOfType(ValidationError)
     })
   })
 

@@ -81,6 +81,9 @@ export default tseslint.config(
       // Additional safety: ensure that if something is thrown, it's an Error object
       '@typescript-eslint/only-throw-error': 'error',
 
+      // Exhaustive switch check for better error handling of tagged unions
+      '@typescript-eslint/switch-exhaustiveness-check': 'error',
+
       // Custom rule: Enforce handling of Result types
       'local/no-floating-result': 'error',
       'local/require-vo-overrides': 'error',
@@ -118,6 +121,7 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/switch-exhaustiveness-check': 'error',
       'max-lines-per-function': 'off',
       'max-statements': 'off',
     },

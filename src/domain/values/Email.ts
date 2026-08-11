@@ -1,3 +1,4 @@
+import { ValidationError } from '@values/DomainError'
 import { Result } from '@values/Result'
 
 export class Email {
@@ -46,9 +47,9 @@ export class Email {
   }
 
   private static validateLength(normalized: string): Result<void> {
-    if (normalized.length === 0) return Result.fail(new Error('Email should not be empty.'))
+    if (normalized.length === 0) return Result.fail(new EmptyEmailError())
 
-    if (normalized.length > 254) return Result.fail(new Error('Email format should be valid.'))
+    if (normalized.length > 254) return Result.fail(new InvalidEmailFormatError())
 
     return Result.succeed()
   }
@@ -57,12 +58,12 @@ export class Email {
     const parts = normalized.split('@')
     if (parts.length <= 1) return Result.succeed()
 
-    if (parts[0]!.length > 64) return Result.fail(new Error('Email format should be valid.'))
+    if (parts[0]!.length > 64) return Result.fail(new InvalidEmailFormatError())
 
     const domainParts = parts[1]!.split('.')
 
     if (domainParts.some((part) => part.length > 63)) {
-      return Result.fail(new Error('Email format should be valid.'))
+      return Result.fail(new InvalidEmailFormatError())
     }
 
     return Result.succeed()
@@ -72,9 +73,21 @@ export class Email {
     const pattern =
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
-    if (!normalized.match(pattern)) return Result.fail(new Error('Email format should be valid.'))
+    if (!normalized.match(pattern)) return Result.fail(new InvalidEmailFormatError())
 
     return Result.succeed()
+  }
+}
+
+export class EmptyEmailError extends ValidationError {
+  constructor() {
+    super('EMAIL_EMPTY', 'Email should not be empty.')
+  }
+}
+
+export class InvalidEmailFormatError extends ValidationError {
+  constructor() {
+    super('EMAIL_INVALID_FORMAT', 'Email format should be valid.')
   }
 }
 

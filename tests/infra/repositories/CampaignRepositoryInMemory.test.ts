@@ -1,3 +1,4 @@
+import { NotFoundError } from '@values/DomainError'
 import { Campaign } from '@entities/Campaign'
 import { CampaignRepositoryInMemory } from '@infra/repositories/CampaignRepositoryInMemory'
 import { Id } from '@values/Id'
@@ -126,6 +127,7 @@ describe('CampaignRepositoryInMemory', () => {
     it('should return a failure result if the campaign does not exist', async () => {
       const deleteResult = await repository.delete(campaign1)
       expect(deleteResult).toBeFailureWithMessage('Campaign does not exist.')
+      expect(deleteResult).toBeFailureOfType(NotFoundError)
     })
 
     it('should return failure if deserialization fails', async () => {

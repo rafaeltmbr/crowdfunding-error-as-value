@@ -1,5 +1,6 @@
 import { CampaignRepository } from '@app/repositories/CampaignRepository'
 import { Campaign, type CampaignSnapshot } from '@entities/Campaign'
+import { NotFoundError } from '@values/DomainError'
 import { Id } from '@values/Id'
 import { Name } from '@values/Name'
 import { Result } from '@values/Result'
@@ -61,7 +62,7 @@ export class CampaignRepositoryInMemory implements CampaignRepository {
     if (allResult.error) return Result.fail(allResult.error)
 
     const index = allResult.value.findIndex((c) => c.isEqual(campaign))
-    if (index < 0) return Result.fail(new Error('Campaign does not exist.'))
+    if (index < 0) return Result.fail(new NotFoundError('Campaign'))
 
     this.collection.splice(index, 1)
     return Result.succeed()

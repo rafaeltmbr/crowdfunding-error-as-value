@@ -1,5 +1,6 @@
 import { DonationRepository } from '@app/repositories/DonationRepository'
 import { Donation, type DonationSnapshot } from '@entities/Donation'
+import { NotFoundError } from '@values/DomainError'
 import { Id } from '@values/Id'
 import { Result } from '@values/Result'
 
@@ -60,7 +61,7 @@ export class DonationRepositoryInMemory implements DonationRepository {
     if (allResult.error) return Result.fail(allResult.error)
 
     const index = allResult.value.findIndex((d) => d.isEqual(donation))
-    if (index < 0) return Result.fail(new Error('Donation does not exist.'))
+    if (index < 0) return Result.fail(new NotFoundError('Donation'))
 
     this.collection.splice(index, 1)
     return Result.succeed()

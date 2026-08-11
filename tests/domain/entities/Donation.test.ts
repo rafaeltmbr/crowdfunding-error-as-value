@@ -1,3 +1,4 @@
+import { ValidationError } from '@values/DomainError'
 import { Donation } from '@entities/Donation'
 import { Supporter } from '@entities/Supporter'
 import { Tier } from '@entities/Tier'
@@ -23,6 +24,7 @@ describe('Donation', () => {
       const zeroAmount = Money.make(0).value!
       const result = Donation.make(zeroAmount, validSupporter.id)
       expect(result).toBeFailureWithMessage('DonationMoney should be positive.')
+      expect(result).toBeFailureOfType(ValidationError)
     })
 
     it('should fail if amount is negative', () => {

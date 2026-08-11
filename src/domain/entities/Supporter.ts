@@ -1,3 +1,4 @@
+import { ValidationError } from '@values/DomainError'
 import { Email, type EmailSnapshot } from '@values/Email'
 import { Id, IdSnapshot } from '@values/Id'
 import { Name, type NameSnapshot } from '@values/Name'
@@ -74,10 +75,18 @@ class SupporterName extends Name {
     if (baseValidation.error) return baseValidation
 
     if (baseValidation.value.length < 3) {
-      return Result.fail(new Error('Supporter name should be at least 3 characters long.'))
+      return Result.fail(new ShortSupporterNameError())
     }
 
     return baseValidation
+  }
+}
+
+class ShortSupporterNameError extends ValidationError {
+  constructor() {
+    super('SUPPORTER_NAME_MIN_LENGTH', 'Supporter name should be at least 3 characters long.', {
+      minLength: 3,
+    })
   }
 }
 

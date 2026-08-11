@@ -1,4 +1,5 @@
-import { Email } from '@values/Email'
+import { ValidationError } from '@values/DomainError'
+import { Email, EmptyEmailError, InvalidEmailFormatError } from '@values/Email'
 import { describe, expect, it } from 'vitest'
 
 describe('Email', () => {
@@ -11,6 +12,8 @@ describe('Email', () => {
     it('should fail if empty', () => {
       const result = Email.make('')
       expect(result).toBeFailureWithMessage('Email should not be empty.')
+      expect(result).toBeFailureOfType(EmptyEmailError)
+      expect(result).toBeFailureOfType(ValidationError)
     })
   })
 
@@ -191,5 +194,23 @@ describe('Email', () => {
         expect(result).toBeFailureWithMessage('Email format should be valid.')
       })
     })
+  })
+})
+
+describe('EmptyEmailError', () => {
+  it('should create an error with the correct code and message', () => {
+    const error = new EmptyEmailError()
+    expect(error.code).toBe('EMAIL_EMPTY')
+    expect(error.message).toBe('Email should not be empty.')
+    expect(error.tag).toBe('ValidationError')
+  })
+})
+
+describe('InvalidEmailFormatError', () => {
+  it('should create an error with the correct code and message', () => {
+    const error = new InvalidEmailFormatError()
+    expect(error.code).toBe('EMAIL_INVALID_FORMAT')
+    expect(error.message).toBe('Email format should be valid.')
+    expect(error.tag).toBe('ValidationError')
   })
 })

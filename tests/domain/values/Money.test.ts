@@ -1,4 +1,5 @@
-import { Money } from '@values/Money'
+import { Money, InvalidMoneyValueError } from '@values/Money'
+import { ValidationError } from '@values/DomainError'
 import { describe, expect, it } from 'vitest'
 
 describe('Money', () => {
@@ -24,6 +25,7 @@ describe('Money', () => {
     it('should fail if money is NaN', () => {
       const result = Money.make(NaN)
       expect(result).toBeFailureWithMessage('Money value should be an number.')
+      expect(result).toBeFailureOfType(InvalidMoneyValueError)
     })
 
     it('should fail if money is Infinity', () => {
@@ -110,5 +112,14 @@ describe('Money', () => {
       const result = Money.fromSnapshot(Infinity)
       expect(result).toBeFailureWithMessage('Money value should be an number.')
     })
+  })
+})
+
+describe('InvalidMoneyValueError', () => {
+  it('should create an error with the correct code and message', () => {
+    const error = new InvalidMoneyValueError()
+    expect(error.code).toBe('MONEY_INVALID_VALUE')
+    expect(error.message).toBe('Money value should be an number.')
+    expect(error.tag).toBe('ValidationError')
   })
 })

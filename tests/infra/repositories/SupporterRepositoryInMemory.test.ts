@@ -1,5 +1,6 @@
 import { Supporter } from '@entities/Supporter'
 import { SupporterRepositoryInMemory } from '@infra/repositories/SupporterRepositoryInMemory'
+import { NotFoundError } from '@values/DomainError'
 import { Email } from '@values/Email'
 import { Id } from '@values/Id'
 import { Result } from '@values/Result'
@@ -126,6 +127,7 @@ describe('SupporterRepositoryInMemory', () => {
     it('should return a failure result if the supporter does not exist', async () => {
       const deleteResult = await repository.delete(supporter1)
       expect(deleteResult).toBeFailureWithMessage('Supporter does not exist.')
+      expect(deleteResult).toBeFailureOfType(NotFoundError)
     })
 
     it('should return failure if deserialization fails', async () => {

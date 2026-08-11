@@ -1,3 +1,4 @@
+import { NotFoundError } from '@values/DomainError'
 import { Donation } from '@entities/Donation'
 import { Supporter } from '@entities/Supporter'
 import { DonationRepositoryInMemory } from '@infra/repositories/DonationRepositoryInMemory'
@@ -129,6 +130,7 @@ describe('DonationRepositoryInMemory', () => {
     it('should return a failure result if the donation does not exist', async () => {
       const deleteResult = await repository.delete(donation1)
       expect(deleteResult).toBeFailureWithMessage('Donation does not exist.')
+      expect(deleteResult).toBeFailureOfType(NotFoundError)
     })
 
     it('should return failure if deserialization fails', async () => {

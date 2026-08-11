@@ -1,5 +1,6 @@
 import { SupporterRepository } from '@app/repositories/SupporterRepository'
 import { Supporter, type SupporterSnapshot } from '@entities/Supporter'
+import { NotFoundError } from '@values/DomainError'
 import { Email } from '@values/Email'
 import { Id } from '@values/Id'
 import { Result } from '@values/Result'
@@ -62,7 +63,7 @@ export class SupporterRepositoryInMemory implements SupporterRepository {
     if (allResult.error) return Result.fail(allResult.error)
 
     const index = allResult.value.findIndex((s) => s.isEqual(supporter))
-    if (index < 0) return Result.fail(new Error('Supporter does not exist.'))
+    if (index < 0) return Result.fail(new NotFoundError('Supporter'))
 
     this.collection.splice(index, 1)
     return Result.succeed()

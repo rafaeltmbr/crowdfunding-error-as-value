@@ -1,4 +1,5 @@
 import { Supporter } from '@entities/Supporter'
+import { ValidationError } from '@values/DomainError'
 import { Email } from '@values/Email'
 import { describe, expect, it } from 'vitest'
 
@@ -20,6 +21,7 @@ describe('Supporter', () => {
     it('should fail if name less than 3 characters', () => {
       const result = Supporter.make('Jo', validEmail)
       expect(result).toBeFailureWithMessage('Supporter name should be at least 3 characters long.')
+      expect(result).toBeFailureOfType(ValidationError)
     })
 
     it('should fail if email is empty', () => {

@@ -15,9 +15,22 @@ Reference implementation: `tests/domain/values/Name.test.ts`.
 Defined in `tests/setup.ts`:
 
 - `toBeSuccess()` — asserts `result.error === null`. On failure, prints the actual error message.
-- `toBeFailureWithMessage('exact message')` — asserts the result failed with the exact message string.
+- `toBeFailureWithMessage('exact message')` — asserts the result failed with the exact message string. This is the **primary matcher** for validation specs.
+- `toBeFailureOfType(ErrorClass)` — asserts `result.error instanceof ErrorClass`. Use this to verify the error **kind** without coupling to the exact message wording. Useful for behavior/integration tests and for verifying inheritance (e.g., a leaf error is also a `ValidationError`).
 
-Always use `toBeFailureWithMessage(...)`. Never assert just `expect(result.error).not.toBeNull()`.
+Always use `toBeFailureWithMessage(...)` for validation tests to pin exact error messages. Use `toBeFailureOfType(...)` alongside message checks when the error type is semantically important (e.g., distinguishing `NotFoundError` from `ValidationError`).
+
+```typescript
+// GOOD: asserts both kind and message
+expect(result).toBeFailureWithMessage('Campaign name should be at least 3 characters long.')
+expect(result).toBeFailureOfType(ValidationError)
+
+// GOOD: asserts kind only (behavior test, message not important)
+expect(result).toBeFailureOfType(NotFoundError)
+
+// BAD: too loose
+expect(result.error).not.toBeNull()
+```
 
 ## Structure
 
