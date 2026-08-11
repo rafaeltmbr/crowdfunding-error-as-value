@@ -20,7 +20,7 @@ function getAllTsFiles(dir: string, fileList: string[] = []): string[] {
 }
 
 describe('Test Coverage Standards', () => {
-  it('every class in app, domain, and infra should have its own test suite', () => {
+  it('should have a test suite for every class in app, domain, and infra', () => {
     const srcDir = path.resolve(__dirname, '../src')
     const dirsToCheck = ['app', 'domain', 'infra']
 
