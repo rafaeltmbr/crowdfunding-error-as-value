@@ -24,7 +24,7 @@ describe('CreateSupporterUseCase', () => {
     it('should create and persist a new supporter successfully', async () => {
       const name = Name.make('John Doe').value!
       const email = Email.make('john@example.com').value!
-      const result = await useCase.execute({ name, email })
+      const result = await useCase.execute(name, email)
       expect(result).toBeSuccess()
 
       const saved = await repository.findByEmail(email)
@@ -38,7 +38,7 @@ describe('CreateSupporterUseCase', () => {
       // 2 characters, less than the minimum of 3 required by SupporterName
       const name = Name.make('Jo').value!
       const email = Email.make('john@example.com').value!
-      const result = await useCase.execute({ name, email })
+      const result = await useCase.execute(name, email)
       expect(result).toBeFailureWithCode('SUPPORTER_NAME_MIN_LENGTH')
     })
 
@@ -50,10 +50,10 @@ describe('CreateSupporterUseCase', () => {
       ).value!
       await repository.upsert(existingSupporter)
 
-      const result = await useCase.execute({
-        name: Name.make('John Doe').value!,
-        email: Email.make('john@example.com').value!,
-      })
+      const result = await useCase.execute(
+        Name.make('John Doe').value!,
+        Email.make('john@example.com').value!
+      )
       expect(result).toBeFailureWithCode('SUPPORTER_EMAIL_ALREADY_EXISTS')
     })
 
@@ -62,10 +62,10 @@ describe('CreateSupporterUseCase', () => {
         Result.fail(Exception.make(ExceptionGroup.Infrastructure, 'DB_FIND_ERROR'))
       )
 
-      const result = await useCase.execute({
-        name: Name.make('John Doe').value!,
-        email: Email.make('john@example.com').value!,
-      })
+      const result = await useCase.execute(
+        Name.make('John Doe').value!,
+        Email.make('john@example.com').value!
+      )
       expect(result).toBeFailureWithCode('DB_FIND_ERROR')
     })
 
@@ -74,10 +74,10 @@ describe('CreateSupporterUseCase', () => {
         Result.fail(Exception.make(ExceptionGroup.Infrastructure, 'DB_UPSERT_ERROR'))
       )
 
-      const result = await useCase.execute({
-        name: Name.make('John Doe').value!,
-        email: Email.make('john@example.com').value!,
-      })
+      const result = await useCase.execute(
+        Name.make('John Doe').value!,
+        Email.make('john@example.com').value!
+      )
       expect(result).toBeFailureWithCode('DB_UPSERT_ERROR')
     })
   })
