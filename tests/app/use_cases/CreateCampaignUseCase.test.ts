@@ -1,5 +1,6 @@
 import { CreateCampaignUseCase } from '@app/use_cases/CreateCampaignUseCase'
 import { CampaignRepositoryInMemory } from '@infra/repositories/CampaignRepositoryInMemory'
+import { Id } from '@values/Id'
 import { Name } from '@values/Name'
 import { Money } from '@values/Money'
 import { Exception } from '@values/Exception'
@@ -21,16 +22,18 @@ describe('CreateCampaignUseCase', () => {
   })
 
   describe('execute', () => {
-    it('should create and persist a new campaign successfully', async () => {
+    it('should create and persist a new campaign successfully and return its id', async () => {
       const name = Name.make('Save the Whales').value!
       const tiers = [{ name: Name.make('Basic').value!, value: Money.make(10).value! }]
 
       const result = await useCase.execute({ name, tiers })
       expect(result).toBeSuccess()
+      expect(result.value).toBeInstanceOf(Id)
 
       const saved = await repository.findByName(name)
       expect(saved).toBeSuccess()
       expect(saved.value).not.toBeNull()
+      expect(saved.value!.id.isEqual(result.value!)).toBe(true)
       expect(saved.value!.toSnapshot().name).toEqual('Save the Whales')
     })
 

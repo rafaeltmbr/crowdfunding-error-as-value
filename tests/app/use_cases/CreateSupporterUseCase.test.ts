@@ -3,6 +3,7 @@ import { Supporter } from '@entities/Supporter'
 import { SupporterRepositoryInMemory } from '@infra/repositories/SupporterRepositoryInMemory'
 import { Email } from '@values/Email'
 import { Exception } from '@values/Exception'
+import { Id } from '@values/Id'
 import { Result } from '@values/Result'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Name } from '@values/Name'
@@ -21,16 +22,18 @@ describe('CreateSupporterUseCase', () => {
   })
 
   describe('execute', () => {
-    it('should create and persist a new supporter successfully', async () => {
+    it('should create and persist a new supporter successfully and return its id', async () => {
       const name = Name.make('John Doe').value!
       const email = Email.make('john@example.com').value!
       const result = await useCase.execute(name, email)
       expect(result).toBeSuccess()
+      expect(result.value).toBeInstanceOf(Id)
 
       const saved = await repository.findByEmail(email)
 
       expect(saved).toBeSuccess()
       expect(saved.value).not.toBeNull()
+      expect(saved.value!.id.isEqual(result.value!)).toBe(true)
       expect(saved.value!.toSnapshot().name).toEqual('John Doe')
     })
 

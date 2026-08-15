@@ -222,5 +222,6 @@ Repository interfaces define the contract for persisting and retrieving domain o
 
 Every method should either be a command that performs an action, or a query that returns data to the caller, but not both.
 
-- **Rule**: Commands (methods with side-effects that modify observable state) MUST NOT return any domain data. If they can fail, they return `Result<void>`.
+- **Rule**: Commands (methods with side-effects that modify observable state) MUST NOT return domain data. If they can fail, they return `Result<void>`.
+- **Rule (Creation Exception)**: Creation use cases or commands that instantiate a new aggregate/entity MAY return the generated domain identifier (e.g., `Result<Id>`) to satisfy application needs, as ID generation belongs to the domain (e.g., `Id` Value Object). They MUST NOT return full domain entities or state beyond the necessary identifier.
 - **Rule**: Queries (methods that return data) MUST NOT modify the observable state of the system.
