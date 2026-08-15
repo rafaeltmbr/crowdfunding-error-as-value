@@ -36,3 +36,10 @@ Ports are TypeScript interfaces defined in the **application layer**. They descr
 - **Rule**: Port interfaces MUST live in the application layer.
 - **Rule**: Port return types MUST use `Promise<Result<T>>` to keep error handling consistent across sync and async boundaries.
 - **Rule**: Adapters (implementations) MUST live in the infrastructure layer or, for testing, alongside tests.
+
+## 5. Use Cases & Application Layer Responsibilities
+
+Use Cases orchestrate execution flow across domain aggregates and application ports.
+
+- **Rule**: Use Cases are strictly responsible for **cross-aggregate logic and orchestration** (e.g., enforcing cross-aggregate invariants, coordinating persistence).
+- **Rule**: Use Cases MUST NOT perform intra-aggregate domain validation or construct/validate internal child entities directly — that responsibility belongs exclusively to the Aggregate Root.

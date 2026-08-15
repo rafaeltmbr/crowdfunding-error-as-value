@@ -4,7 +4,6 @@ import { Name } from '@values/Name'
 import { Money } from '@values/Money'
 import { Exception, ExceptionGroup } from '@values/Exception'
 import { Result } from '@values/Result'
-import { Tier } from '@entities/Tier'
 import { Campaign } from '@entities/Campaign'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -24,9 +23,9 @@ describe('CreateCampaignUseCase', () => {
   describe('execute', () => {
     it('should create and persist a new campaign successfully', async () => {
       const name = Name.make('Save the Whales').value!
-      const tiers = [Tier.make(Name.make('Basic').value!, Money.make(10).value!).value!]
+      const tiers = [{ name: Name.make('Basic').value!, value: Money.make(10).value! }]
 
-      const result = await useCase.execute(name, tiers)
+      const result = await useCase.execute({ name, tiers })
       expect(result).toBeSuccess()
 
       const saved = await repository.findByName(name)
@@ -41,21 +40,21 @@ describe('CreateCampaignUseCase', () => {
       )
 
       const name = Name.make('Save the Whales').value!
-      const tiers = [Tier.make(Name.make('Basic').value!, Money.make(10).value!).value!]
+      const tiers = [{ name: Name.make('Basic').value!, value: Money.make(10).value! }]
 
-      const result = await useCase.execute(name, tiers)
+      const result = await useCase.execute({ name, tiers })
       expect(result).toBeFailureWithCode('DB_FIND_ERROR')
     })
 
-    it('should fail if campaign creation fails', async () => {
+    it('should fail if campaign tier creation fails', async () => {
       const name = Name.make('Save the Whales').value!
-      // Provide duplicate tiers to trigger a validation error in Campaign.make
+      // Provide duplicate tiers to trigger a validation error in campaign.makeTier
       const tiers = [
-        Tier.make(Name.make('Basic').value!, Money.make(10).value!).value!,
-        Tier.make(Name.make('Basic').value!, Money.make(10).value!).value!,
+        { name: Name.make('Basic').value!, value: Money.make(10).value! },
+        { name: Name.make('Another Basic').value!, value: Money.make(10).value! },
       ]
 
-      const result = await useCase.execute(name, tiers)
+      const result = await useCase.execute({ name, tiers })
       expect(result).toBeFailureWithCode('TIER_VALUE_DUPLICATE')
     })
 
@@ -65,21 +64,32 @@ describe('CreateCampaignUseCase', () => {
       )
 
       const name = Name.make('Save the Whales').value!
-      const tiers = [Tier.make(Name.make('Basic').value!, Money.make(10).value!).value!]
+      const tiers = [{ name: Name.make('Basic').value!, value: Money.make(10).value! }]
 
-      const result = await useCase.execute(name, tiers)
+      const result = await useCase.execute({ name, tiers })
       expect(result).toBeFailureWithCode('DB_UPSERT_ERROR')
+    })
+
+    it('should fail if Campaign.make returns an error', async () => {
+      vi.spyOn(Campaign, 'make').mockReturnValue(
+        Result.fail(Exception.validation('CAMPAIGN_NAME_MIN_LENGTH'))
+      )
+      const name = Name.make('Save the Whales').value!
+      const tiers = [{ name: Name.make('Basic').value!, value: Money.make(10).value! }]
+
+      const result = await useCase.execute({ name, tiers })
+      expect(result).toBeFailureWithCode('CAMPAIGN_NAME_MIN_LENGTH')
     })
 
     it('should fail if the campaign already exists', async () => {
       const name = Name.make('Save the Whales').value!
-      const tiers = [Tier.make(Name.make('Basic').value!, Money.make(10).value!).value!]
+      const tiers = [{ name: Name.make('Basic').value!, value: Money.make(10).value! }]
 
       // Pre-populate repository with a campaign using the same name
-      const existingCampaign = Campaign.make(name, tiers).value!
+      const existingCampaign = Campaign.make(name).value!
       await repository.upsert(existingCampaign)
 
-      const result = await useCase.execute(name, tiers)
+      const result = await useCase.execute({ name, tiers })
       expect(result).toBeFailureWithCode('CAMPAIGN_NAME_ALREADY_EXISTS')
     })
   })

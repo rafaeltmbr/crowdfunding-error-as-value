@@ -14,6 +14,13 @@ describe('Campaign', () => {
     Email.make('supporter1@example.com').value!
   ).value!
 
+  function createTestCampaign(name = 'My Campaign'): Campaign {
+    const campaign = Campaign.make(Name.make(name).value!).value!
+    campaign.makeTier(Name.make('Tier 10').value!, Money.make(10).value!)
+    campaign.makeTier(Name.make('Tier 20').value!, Money.make(20).value!)
+    return campaign
+  }
+
   describe('make', () => {
     it('should create a valid campaign with no tiers', () => {
       const result = Campaign.make(Name.make('My Campaign').value!)
@@ -25,61 +32,59 @@ describe('Campaign', () => {
       expect(result.value!.id).toBeDefined()
     })
 
-    it('should create a valid campaign with tiers', () => {
-      const result = Campaign.make(Name.make('My Campaign').value!, [tier20, tier10])
-      expect(result).toBeSuccess()
-    })
-
     it('should fail if campaign name is less than 3 characters', () => {
       const result = Campaign.make(Name.make('Ca').value!)
       expect(result).toBeFailureWithCode('CAMPAIGN_NAME_MIN_LENGTH')
     })
-
-    it('should fail if tiers have duplicate values', () => {
-      const duplicateTier = Tier.make(
-        Name.make('Another Tier 10').value!,
-        Money.make(10).value!
-      ).value!
-      const result = Campaign.make(Name.make('My Campaign').value!, [tier10, duplicateTier])
-      expect(result).toBeFailureWithCode('TIER_VALUE_DUPLICATE')
-    })
   })
 
-  describe('addTier', () => {
-    it('should add a tier successfully', () => {
+  describe('makeTier', () => {
+    it('should make a tier successfully', () => {
       const campaign = Campaign.make(Name.make('My Campaign').value!).value!
-      const result = campaign.addTier(tier10)
+      const result = campaign.makeTier(Name.make('Tier 10').value!, Money.make(10).value!)
 
       expect(result).toBeSuccess()
     })
 
-    it('should fail to add a duplicate tier value', () => {
-      const campaign = Campaign.make(Name.make('My Campaign').value!, [tier10]).value!
-      const duplicateTier = Tier.make(
-        Name.make('Another Tier 10').value!,
-        Money.make(10).value!
-      ).value!
-      const result = campaign.addTier(duplicateTier)
+    it('should fail to make a duplicate tier value', () => {
+      const campaign = Campaign.make(Name.make('My Campaign').value!).value!
+      campaign.makeTier(Name.make('Tier 10').value!, Money.make(10).value!)
+      const result = campaign.makeTier(Name.make('Another Tier 10').value!, Money.make(10).value!)
 
       expect(result).toBeFailureWithCode('TIER_VALUE_DUPLICATE')
+    })
+
+    it('should fail to make a tier with invalid tier name', () => {
+      const campaign = Campaign.make(Name.make('My Campaign').value!).value!
+      const result = campaign.makeTier(Name.make('T').value!, Money.make(10).value!)
+
+      expect(result).toBeFailureWithCode('TIER_NAME_MIN_LENGTH')
+    })
+
+    it('should sort tiers when added out of order', () => {
+      const campaign = Campaign.make(Name.make('My Campaign').value!).value!
+      campaign.makeTier(Name.make('Tier 20').value!, Money.make(20).value!)
+      const result = campaign.makeTier(Name.make('Tier 10').value!, Money.make(10).value!)
+
+      expect(result).toBeSuccess()
     })
   })
 
   describe('isEqual', () => {
     it('should verify self-equality', () => {
-      const c1 = Campaign.make(Name.make('Campaign 1').value!, [tier10]).value!
+      const c1 = Campaign.make(Name.make('Campaign 1').value!).value!
       expect(c1.isEqual(c1)).toBe(true)
     })
 
     it('should verify equivalent equality by ID', () => {
-      const c1 = Campaign.make(Name.make('Campaign 1').value!, [tier10]).value!
+      const c1 = Campaign.make(Name.make('Campaign 1').value!).value!
       const c1b = Campaign.fromSnapshot(c1.toSnapshot()).value!
       expect(c1.isEqual(c1b)).toBe(true)
     })
 
     it('should verify inequality by ID', () => {
-      const c1 = Campaign.make(Name.make('Campaign 1').value!, [tier10]).value!
-      const c2 = Campaign.make(Name.make('Campaign 2').value!, [tier10]).value!
+      const c1 = Campaign.make(Name.make('Campaign 1').value!).value!
+      const c2 = Campaign.make(Name.make('Campaign 2').value!).value!
       expect(c1.isEqual(c2)).toBe(false)
     })
   })
@@ -112,7 +117,8 @@ describe('Campaign', () => {
 
   describe('toSnapshot', () => {
     it('should toSnapshot a predictable structure', () => {
-      const campaign = Campaign.make(Name.make('My Campaign').value!, [tier10]).value!
+      const campaign = Campaign.make(Name.make('My Campaign').value!).value!
+      campaign.makeTier(Name.make('Tier 10').value!, Money.make(10).value!)
       const snapshot = campaign.toSnapshot()
       expect(snapshot).toEqual({
         id: snapshot.id,
@@ -127,7 +133,7 @@ describe('Campaign', () => {
 
   describe('fromSnapshot', () => {
     it('should fromSnapshot a snapshot data and produce an equivalent object', () => {
-      const original = Campaign.make(Name.make('My Campaign').value!, [tier10, tier20]).value!
+      const original = createTestCampaign()
       original.makeDonation(Money.make(10).value!, supporter1.id)
       const snapshot = original.toSnapshot()
 
@@ -137,7 +143,7 @@ describe('Campaign', () => {
       const stats = result.value!.supporterDonationStats(supporter1.id)
       const tiersArray = Array.from(stats.extractTiers())
       expect(tiersArray.length).toBe(1)
-      expect(tiersArray[0]!.isEqual(tier10)).toBe(true)
+      expect(tiersArray[0]!.isValueEqual(tier10)).toBe(true)
     })
 
     it('should fail to fromSnapshot invalid id format', () => {
@@ -214,13 +220,13 @@ describe('Campaign', () => {
 
   describe('makeDonation', () => {
     it('should fail to accept a donation with invalid (negative) amount', () => {
-      const campaign = Campaign.make(Name.make('My Campaign').value!, [tier10, tier20]).value!
+      const campaign = createTestCampaign()
       const result = campaign.makeDonation(Money.make(-5).value!, supporter1.id)
       expect(result).toBeFailureWithCode('DONATION_MONEY_NON_POSITIVE')
     })
 
     it('should accept a donation with unsufficient amount and return no tier', () => {
-      const campaign = Campaign.make(Name.make('My Campaign').value!, [tier10, tier20]).value!
+      const campaign = createTestCampaign()
       const result = campaign.makeDonation(Money.make(9).value!, supporter1.id)
       expect(result).toBeSuccess()
       const stats = campaign.supporterDonationStats(supporter1.id)
@@ -228,61 +234,61 @@ describe('Campaign', () => {
     })
 
     it('should accept a donation with sufficient amount and return the matching tier', () => {
-      const campaign = Campaign.make(Name.make('My Campaign').value!, [tier10, tier20]).value!
+      const campaign = createTestCampaign()
       const result = campaign.makeDonation(Money.make(10).value!, supporter1.id)
       expect(result).toBeSuccess()
       const stats = campaign.supporterDonationStats(supporter1.id)
-      expect(stats.extractTiers().has(tier10)).toBe(true)
+      expect(Array.from(stats.extractTiers()).some((t) => t.isValueEqual(tier10))).toBe(true)
     })
 
     it('should accept a donation and return the largest matching tier', () => {
-      const campaign = Campaign.make(Name.make('My Campaign').value!, [tier10, tier20]).value!
+      const campaign = createTestCampaign()
 
       const result1 = campaign.makeDonation(Money.make(20).value!, supporter1.id)
       expect(result1).toBeSuccess()
       let stats = campaign.supporterDonationStats(supporter1.id)
-      expect(stats.extractTiers().has(tier20)).toBe(true)
+      expect(Array.from(stats.extractTiers()).some((t) => t.isValueEqual(tier20))).toBe(true)
 
       const result2 = campaign.makeDonation(Money.make(25).value!, supporter1.id)
       expect(result2).toBeSuccess()
       stats = campaign.supporterDonationStats(supporter1.id)
-      expect(stats.extractTiers().has(tier20)).toBe(true)
+      expect(Array.from(stats.extractTiers()).some((t) => t.isValueEqual(tier20))).toBe(true)
     })
 
     it('should accept multiple donations of the same amount', () => {
-      const campaign = Campaign.make(Name.make('My Campaign').value!, [tier10, tier20]).value!
+      const campaign = createTestCampaign()
 
       const result1 = campaign.makeDonation(Money.make(10).value!, supporter1.id)
       expect(result1).toBeSuccess()
       let stats = campaign.supporterDonationStats(supporter1.id)
-      expect(stats.extractTiers().has(tier10)).toBe(true)
+      expect(Array.from(stats.extractTiers()).some((t) => t.isValueEqual(tier10))).toBe(true)
 
       const result2 = campaign.makeDonation(Money.make(10).value!, supporter1.id)
       expect(result2).toBeSuccess()
       stats = campaign.supporterDonationStats(supporter1.id)
-      expect(stats.extractTiers().has(tier10)).toBe(true)
+      expect(Array.from(stats.extractTiers()).some((t) => t.isValueEqual(tier10))).toBe(true)
       expect(stats.calculateTotal().toSnapshot()).toBe(20)
     })
 
     it('should accept multiple donations of different amounts', () => {
-      const campaign = Campaign.make(Name.make('My Campaign').value!, [tier10, tier20]).value!
+      const campaign = createTestCampaign()
 
       const result1 = campaign.makeDonation(Money.make(10).value!, supporter1.id)
       expect(result1).toBeSuccess()
       let stats = campaign.supporterDonationStats(supporter1.id)
-      expect(stats.extractTiers().has(tier10)).toBe(true)
+      expect(Array.from(stats.extractTiers()).some((t) => t.isValueEqual(tier10))).toBe(true)
 
       const result2 = campaign.makeDonation(Money.make(20).value!, supporter1.id)
       expect(result2).toBeSuccess()
       stats = campaign.supporterDonationStats(supporter1.id)
-      expect(stats.extractTiers().has(tier20)).toBe(true)
+      expect(Array.from(stats.extractTiers()).some((t) => t.isValueEqual(tier20))).toBe(true)
       expect(stats.calculateTotal().toSnapshot()).toBe(30)
     })
   })
 
   describe('supporterDonationStats', () => {
     it('should return empty stats for a supporter with no donations', () => {
-      const campaign = Campaign.make(Name.make('My Campaign').value!, [tier10, tier20]).value!
+      const campaign = createTestCampaign()
       const stats = campaign.supporterDonationStats(supporter1.id)
 
       expect(stats.extractTiers().size).toBe(0)
@@ -290,15 +296,15 @@ describe('Campaign', () => {
     })
 
     it('should return correct stats for a supporter with donations', () => {
-      const campaign = Campaign.make(Name.make('My Campaign').value!, [tier10, tier20]).value!
+      const campaign = createTestCampaign()
       campaign.makeDonation(Money.make(10).value!, supporter1.id)
 
       const stats = campaign.supporterDonationStats(supporter1.id)
-      expect(stats.extractTiers().has(tier10)).toBe(true)
+      expect(Array.from(stats.extractTiers()).some((t) => t.isValueEqual(tier10))).toBe(true)
       expect(stats.calculateTotal().toSnapshot()).toBe(10)
 
       // Test caching logic by calling a second time
-      expect(stats.extractTiers().has(tier10)).toBe(true)
+      expect(Array.from(stats.extractTiers()).some((t) => t.isValueEqual(tier10))).toBe(true)
       expect(stats.calculateTotal().toSnapshot()).toBe(10)
     })
   })

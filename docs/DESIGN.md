@@ -8,6 +8,11 @@ These guidelines are meant for both humans and LLMs. Follow them without excepti
 
 This project enforces strict OO principles to produce **rich, behavioral domain models**. Anemic domain models — objects that are mere data bags with getters and setters — are forbidden. Domain objects MUST encapsulate both state and behavior. The outside world interacts only through descriptive methods.
 
+### Validation Responsibilities
+
+- **Rule**: Domain validations are performed exclusively by the objects themselves (Value Objects or Entities) that contain the data.
+- **Rule**: The only exception is validation logic that spans across multiple aggregates or across the entire application (e.g., verifying that a Supporter email or Campaign name is unique across the application). Because a single entity instance does not and should not know or care about other aggregate instances, cross-aggregate validation is delegated to the Application Layer through Use Cases or Application Services.
+
 ## 2. Error-as-Value: The Result Pattern
 
 The project bans exceptions entirely. All fallible operations return a `Result<T>` discriminated union.

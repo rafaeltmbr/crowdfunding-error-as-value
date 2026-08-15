@@ -17,8 +17,8 @@ export class Campaign {
     return this._id
   }
 
-  addTier(tier: Tier): Result<void> {
-    return this.funding.addTier(tier)
+  makeTier(name: Name, value: Money): Result<void> {
+    return this.funding.makeTier(name, value)
   }
 
   makeDonation(value: Money, supporterId: Id): Result<void> {
@@ -62,14 +62,12 @@ export class Campaign {
     return Result.succeed(new Campaign(idResult.value, nameResult.value, fundingResult.value))
   }
 
-  static make(name: Name, tiers: Tier[] = []): Result<Campaign> {
+  static make(name: Name): Result<Campaign> {
     const nameResult = CampaignName.from(name)
     if (nameResult.error) return nameResult
 
-    const tiersResult = Tiers.make(tiers)
-    if (tiersResult.error) return tiersResult
-
-    const funding = CampaignFunding.make(tiersResult.value, Donations.make())
+    const tiers = Tiers.make([]).value!
+    const funding = CampaignFunding.make(tiers, Donations.make())
 
     return Result.succeed(new Campaign(Id.make(), nameResult.value, funding))
   }
@@ -81,8 +79,11 @@ class CampaignFunding {
     protected donations: Donations
   ) {}
 
-  addTier(tier: Tier): Result<void> {
-    return this.tiers.add(tier)
+  makeTier(name: Name, value: Money): Result<void> {
+    const tierResult = Tier.make(name, value)
+    if (tierResult.error) return tierResult
+
+    return this.tiers.add(tierResult.value)
   }
 
   makeDonation(value: Money, supporterId: Id): Result<void> {
