@@ -41,7 +41,7 @@ Errors are **domain primitives** — immutable signal objects that carry structu
 - **Rule**: All errors are represented by the single `Exception` class. Do not create custom error classes or inherit from `Error`.
 - **Rule**: The `Exception` class carries an `ExceptionGroup` enum (`Validation`, `NotFound`, `Infrastructure`, `Unexpected`) for high-level classification and discriminated union narrowing (e.g., `switch(error.group)` for HTTP status mapping).
 - **Rule**: Each `Exception` carries a `code` (stable i18n key) and `args` (interpolation variables) for internationalization support.
-- **Rule**: Create exceptions using factory methods: `Exception.validation('CODE', args)`, `Exception.notFound('CODE')`, etc.
+- **Rule**: Create exceptions using factory methods: `Exception.validation('CODE', args)`, `Exception.notFound('CODE')`, `Exception.infrastructure('CODE')`, etc.
 
 ```typescript
 // GOOD: producer specifies a code

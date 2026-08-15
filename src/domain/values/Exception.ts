@@ -91,6 +91,10 @@ export class Exception {
     return this.make(ExceptionGroup.NotFound, code, args)
   }
 
+  static infrastructure(code: string, args: unknown[] = []): Exception {
+    return this.make(ExceptionGroup.Infrastructure, code, args)
+  }
+
   static unexpected(code: string, args: unknown[] = []): Exception {
     return this.make(ExceptionGroup.Unexpected, code, args)
   }

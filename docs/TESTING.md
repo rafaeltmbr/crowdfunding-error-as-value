@@ -88,6 +88,11 @@ Methods that mutate state or enforce invariants (`addTier`, `makeDonation`, etc.
 - Test every rejection path with exact error code.
 - Test boundary/edge cases (empty collections, duplicates, threshold values).
 
+### Use Cases (Application Layer)
+
+- Test happy path and error paths (e.g. missing entities, repository failures).
+- Checking inside repositories via snapshot to verify detailed fields is unnecessary when verifying persistence in use case tests — checking collection length or asserting repository method calls with expected parameters is sufficient. Lower-level entity and repository unit tests handle deep state verification.
+
 ### `toSnapshot`
 
 Assert the exact expected value using `toEqual(...)`. Never use `toBeDefined()` alone.

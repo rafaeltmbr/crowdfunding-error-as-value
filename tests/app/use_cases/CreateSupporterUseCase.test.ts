@@ -2,7 +2,7 @@ import { CreateSupporterUseCase } from '@app/use_cases/CreateSupporterUseCase'
 import { Supporter } from '@entities/Supporter'
 import { SupporterRepositoryInMemory } from '@infra/repositories/SupporterRepositoryInMemory'
 import { Email } from '@values/Email'
-import { Exception, ExceptionGroup } from '@values/Exception'
+import { Exception } from '@values/Exception'
 import { Result } from '@values/Result'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Name } from '@values/Name'
@@ -59,7 +59,7 @@ describe('CreateSupporterUseCase', () => {
 
     it('should return failure if repository findByEmail fails', async () => {
       vi.spyOn(repository, 'findByEmail').mockResolvedValue(
-        Result.fail(Exception.make(ExceptionGroup.Infrastructure, 'DB_FIND_ERROR'))
+        Result.fail(Exception.infrastructure('DB_FIND_ERROR'))
       )
 
       const result = await useCase.execute(
@@ -71,7 +71,7 @@ describe('CreateSupporterUseCase', () => {
 
     it('should return failure if repository upsert fails', async () => {
       vi.spyOn(repository, 'upsert').mockResolvedValue(
-        Result.fail(Exception.make(ExceptionGroup.Infrastructure, 'DB_UPSERT_ERROR'))
+        Result.fail(Exception.infrastructure('DB_UPSERT_ERROR'))
       )
 
       const result = await useCase.execute(

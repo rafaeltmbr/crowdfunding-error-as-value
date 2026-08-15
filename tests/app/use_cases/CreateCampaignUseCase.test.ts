@@ -2,7 +2,7 @@ import { CreateCampaignUseCase } from '@app/use_cases/CreateCampaignUseCase'
 import { CampaignRepositoryInMemory } from '@infra/repositories/CampaignRepositoryInMemory'
 import { Name } from '@values/Name'
 import { Money } from '@values/Money'
-import { Exception, ExceptionGroup } from '@values/Exception'
+import { Exception } from '@values/Exception'
 import { Result } from '@values/Result'
 import { Campaign } from '@entities/Campaign'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -36,7 +36,7 @@ describe('CreateCampaignUseCase', () => {
 
     it('should return failure if repository findByName fails', async () => {
       vi.spyOn(repository, 'findByName').mockResolvedValue(
-        Result.fail(Exception.make(ExceptionGroup.Infrastructure, 'DB_FIND_ERROR'))
+        Result.fail(Exception.infrastructure('DB_FIND_ERROR'))
       )
 
       const name = Name.make('Save the Whales').value!
@@ -60,7 +60,7 @@ describe('CreateCampaignUseCase', () => {
 
     it('should return failure if repository upsert fails', async () => {
       vi.spyOn(repository, 'upsert').mockResolvedValue(
-        Result.fail(Exception.make(ExceptionGroup.Infrastructure, 'DB_UPSERT_ERROR'))
+        Result.fail(Exception.infrastructure('DB_UPSERT_ERROR'))
       )
 
       const name = Name.make('Save the Whales').value!

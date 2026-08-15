@@ -17,6 +17,13 @@ describe('Exception', () => {
     expect(exception.toSnapshot().args).toEqual(['arg1'])
   })
 
+  it('should create an infrastructure exception', () => {
+    const exception = Exception.infrastructure('INFRA_ERROR', ['arg1'])
+    expect(exception.toSnapshot().group).toBe(ExceptionGroup.Infrastructure)
+    expect(exception.toSnapshot().code).toBe('INFRA_ERROR')
+    expect(exception.toSnapshot().args).toEqual(['arg1'])
+  })
+
   it('should create an unexpected exception', () => {
     const exception = Exception.unexpected('UNEXPECTED_ERROR', ['arg1'])
     expect(exception.toSnapshot().group).toBe(ExceptionGroup.Unexpected)
