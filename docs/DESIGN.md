@@ -225,3 +225,9 @@ Every method should either be a command that performs an action, or a query that
 - **Rule**: Commands (methods with side-effects that modify observable state) MUST NOT return domain data. If they can fail, they return `Result<void>`.
 - **Rule (Creation Exception)**: Creation use cases or commands that instantiate a new aggregate/entity MAY return the generated domain identifier (e.g., `Result<Id>`) to satisfy application needs, as ID generation belongs to the domain (e.g., `Id` Value Object). They MUST NOT return full domain entities or state beyond the necessary identifier.
 - **Rule**: Queries (methods that return data) MUST NOT modify the observable state of the system.
+
+## 12. Console Integration
+
+The project includes an interactive REPL console (`src/infra/console/Console.ts`) that allows developers to interact with the domain and application layers directly.
+
+- **Rule**: Whenever a new Value Object, Entity, Repository (adapter), or Use Case is added to the project, it MUST be manually imported and registered in the `Console` class. The console relies on explicit manual composition, not auto-discovery.
