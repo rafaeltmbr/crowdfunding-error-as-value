@@ -91,8 +91,11 @@ describe('Console', () => {
 
         child.on('close', () => {
           try {
-            // The output of 'c' should be the actual Campaign instance
+            // The output of 'c' should be the actual Campaign instance (now snapshotted)
             expect(output).toContain('Campaign {')
+            expect(output).toContain('name:')
+            expect(output).toContain('My campaign')
+            expect(output).toContain('CampaignFunding {')
             // Ensure no Result unwrap failures occurred
             expect(output).not.toContain('Uncaught')
             resolve()

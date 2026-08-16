@@ -24,6 +24,27 @@ describe('ReplHelper', () => {
     })
   })
 
+  describe('hasSnapshot', () => {
+    it('should return true for objects with a toSnapshot method', () => {
+      expect(ReplHelper.hasSnapshot({ toSnapshot: () => ({}) })).toBe(true)
+    })
+
+    it('should return false for objects without toSnapshot', () => {
+      expect(ReplHelper.hasSnapshot({})).toBe(false)
+      expect(ReplHelper.hasSnapshot(null)).toBe(false)
+      expect(ReplHelper.hasSnapshot(123)).toBe(false)
+      expect(ReplHelper.hasSnapshot({ toSnapshot: 'not a function' })).toBe(false)
+    })
+  })
+
+  describe('toSnapshot', () => {
+    it('should return the result of the toSnapshot method', () => {
+      expect(ReplHelper.toSnapshot({ toSnapshot: () => ({ snapshot: true }) })).toEqual({
+        snapshot: true,
+      })
+    })
+  })
+
   describe('formatException', () => {
     it('should format an exception with color codes based on its group', () => {
       const ex = Exception.validation('TEST_CODE', ['arg1'])
@@ -87,6 +108,31 @@ describe('ReplHelper', () => {
       const proxied = ReplHelper.withAutoUnwrap(obj)
       const res = (await proxied.makeAsync()) as any
       expect(res.inner).toBe('async')
+    })
+
+    it('should unwrap a successful async Result', async () => {
+      const mockResult = { error: null, value: 'async success' }
+      const mockObj = {
+        async getAsyncResult() {
+          return mockResult
+        },
+      }
+      const proxied = ReplHelper.withAutoUnwrap(mockObj)
+
+      await expect(proxied.getAsyncResult()).resolves.toBe('async success')
+    })
+
+    it('should preserve the original constructor reference and its prototype', () => {
+      class OriginalClass {
+        constructor() {}
+        dummyMethod() {}
+      }
+      const instance = new OriginalClass()
+      const proxied = ReplHelper.withAutoUnwrap(instance)
+
+      expect(proxied.constructor).toBe(OriginalClass)
+      expect(proxied.constructor.prototype).toBe(OriginalClass.prototype)
+      expect(proxied.constructor.name).toBe('OriginalClass')
     })
 
     it('should throw error for Promises returning Failure', async () => {
@@ -172,6 +218,111 @@ describe('ReplHelper', () => {
       const output = ReplHelper.consoleWriter(obj)
       expect(output).toContain('plain')
       expect(output).toContain('object')
+    })
+
+    it('should format an object using toSnapshot if it has one', () => {
+      const obj = {
+        toSnapshot: () => ({ snapshot: 'value' }),
+        internal: 'hidden',
+      }
+      const output = ReplHelper.consoleWriter(obj)
+      expect(output).toContain('snapshot')
+      expect(output).not.toContain('internal')
+    })
+
+    it('should format an array of objects using their toSnapshot methods', () => {
+      const arr = [
+        { toSnapshot: () => ({ snapshot: '1' }), internal: 'hidden1' },
+        { toSnapshot: () => ({ snapshot: '2' }), internal: 'hidden2' },
+        { plain: 'object' },
+      ]
+      const output = ReplHelper.consoleWriter(arr)
+      expect(output).toContain('snapshot')
+      expect(output).toContain("'1'")
+      expect(output).toContain("'2'")
+      expect(output).toContain('plain')
+      expect(output).toContain("'object'")
+      expect(output).not.toContain('hidden1')
+      expect(output).not.toContain('hidden2')
+    })
+
+    it('should recursively format nested snapshot-aware objects and inject prototypes', () => {
+      class NestedClass {
+        toSnapshot() {
+          return { val: 'nested' }
+        }
+      }
+      class WrapperClass {
+        public nested = new NestedClass()
+        toSnapshot() {
+          return { nested: this.nested.toSnapshot() }
+        }
+      }
+
+      const output = ReplHelper.consoleWriter(new WrapperClass())
+      expect(output).toContain('WrapperClass {')
+      expect(output).toContain('NestedClass {')
+      expect(output).toContain('val:')
+      expect(output).toContain('nested')
+    })
+
+    it('should format first-class collections (objects yielding arrays)', () => {
+      class ItemClass {
+        constructor(public val: string) {}
+        toSnapshot() {
+          return { val: this.val }
+        }
+      }
+      class CollectionClass {
+        public items = [new ItemClass('1'), new ItemClass('2')]
+        toSnapshot() {
+          return this.items.map((i) => i.toSnapshot())
+        }
+      }
+
+      const output = ReplHelper.consoleWriter(new CollectionClass())
+      expect(output).toContain('ItemClass {')
+      expect(output).toContain('val:')
+      expect(output).toContain('1')
+      expect(output).toContain('2')
+    })
+
+    it('should format snapshot objects containing raw arrays of domain objects', () => {
+      class ItemClass {
+        constructor(public val: string) {}
+        toSnapshot() {
+          return { val: this.val }
+        }
+      }
+      class WrapperClass {
+        public arr = [new ItemClass('nested-array')]
+        toSnapshot() {
+          return { arr: this.arr.map((i) => i.toSnapshot()) }
+        }
+      }
+
+      const output = ReplHelper.consoleWriter(new WrapperClass())
+      expect(output).toContain('ItemClass {')
+      expect(output).toContain('nested-array')
+    })
+
+    it('should return raw snapshot array if matching original array is not found in collection', () => {
+      class EmptyCollection {
+        toSnapshot() {
+          return [1, 2, 3]
+        }
+      }
+      const output = ReplHelper.consoleWriter(new EmptyCollection())
+      expect(output).toContain('1')
+      expect(output).toContain('2')
+      expect(output).toContain('3')
+    })
+
+    it('should fallback to Object.create(null) if constructor prototype is missing', () => {
+      const obj = Object.create(null)
+      obj.toSnapshot = () => ({ val: 'test-null-proto' })
+      const output = ReplHelper.consoleWriter(obj)
+      expect(output).toContain('test-null-proto')
     })
   })
 })
