@@ -9,6 +9,7 @@ import { Campaign } from '@entities/Campaign'
 import { Donation } from '@entities/Donation'
 import { Supporter } from '@entities/Supporter'
 import { Tier } from '@entities/Tier'
+import { ReplHelper } from '@infra/console/ReplHelper'
 // Repositories (Adapters)
 import { CampaignRepositoryInMemory } from '@infra/repositories/CampaignRepositoryInMemory'
 import { SupporterRepositoryInMemory } from '@infra/repositories/SupporterRepositoryInMemory'
@@ -33,31 +34,58 @@ export class Console {
     this.replServer = repl.start({
       prompt: 'crowdfunding > ',
       useColors: true,
+      writer: ReplHelper.consoleWriter,
     })
+
+    // Intercept REPL evaluation to catch auto-unwrapped domain exceptions
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const defaultEval = (this.replServer as any).eval
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, max-params
+    ;(this.replServer as any).eval = function (
+      this: unknown,
+      cmd: unknown,
+      context: unknown,
+      filename: unknown,
+      callback: (err: unknown, result: unknown) => void
+    ) {
+      defaultEval.call(this, cmd, context, filename, (err: unknown, result: unknown) => {
+        if (
+          err !== null &&
+          typeof err === 'object' &&
+          'toSnapshot' in err &&
+          typeof err.toSnapshot === 'function'
+        ) {
+          return callback(null, Result.fail(err))
+        }
+
+        callback(err, result)
+      })
+    }
   }
 
   private loadContext(): void {
     Object.assign(this.replServer.context, {
       // Values
-      Email,
+      Email: ReplHelper.withAutoUnwrap(Email),
       Exception,
       ExceptionGroup,
-      Id,
-      Money,
-      Name,
+      Id: ReplHelper.withAutoUnwrap(Id),
+      Money: ReplHelper.withAutoUnwrap(Money),
+      Name: ReplHelper.withAutoUnwrap(Name),
       Result,
       // Entities
-      Campaign,
-      Donation,
-      Supporter,
-      Tier,
+      Campaign: ReplHelper.withAutoUnwrap(Campaign),
+      Donation: ReplHelper.withAutoUnwrap(Donation),
+      Supporter: ReplHelper.withAutoUnwrap(Supporter),
+      Tier: ReplHelper.withAutoUnwrap(Tier),
       // Repositories
-      CampaignRepositoryInMemory,
-      SupporterRepositoryInMemory,
+      CampaignRepositoryInMemory: ReplHelper.withAutoUnwrap(CampaignRepositoryInMemory),
+      SupporterRepositoryInMemory: ReplHelper.withAutoUnwrap(SupporterRepositoryInMemory),
       // Use Cases
-      CreateCampaignUseCase,
-      CreateSupporterUseCase,
-      MakeDonationUseCase,
+      CreateCampaignUseCase: ReplHelper.withAutoUnwrap(CreateCampaignUseCase),
+      CreateSupporterUseCase: ReplHelper.withAutoUnwrap(CreateSupporterUseCase),
+      MakeDonationUseCase: ReplHelper.withAutoUnwrap(MakeDonationUseCase),
     })
   }
 
