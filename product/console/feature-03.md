@@ -87,3 +87,7 @@ Use Cases return `Promise<Result<T>>`. The Node REPL's built-in top-level `await
 
 - The `Exception` class's `.message()` method accepts an optional `ErrorTemplate` function for i18n. The console uses the default (no template), which outputs `[Group] CODE: arg1, arg2`. If the project adds i18n templates later, the console's `formatException` can be updated to pass a template function.
 - The color codes use raw ANSI escape sequences. No chalk/colors dependency is needed.
+
+### Testing
+
+- **Unit Testable:** Yes. `isResult`, `formatException`, and the `writer` proxy function can be tested by providing mocked Results and Exceptions and asserting the string output.

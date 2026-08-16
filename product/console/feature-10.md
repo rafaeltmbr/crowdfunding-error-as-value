@@ -34,3 +34,7 @@ Pass a custom `eval` to `repl.start()` that strips type annotations before evalu
 
 - **Recommendation:** Start without this feature. JavaScript in the prompt is usable for interactive sessions. Revisit once the project's minimum Node version supports stable type stripping in the REPL.
 - No new dependencies are needed for Option A.
+
+### Testing
+
+- **Integration Testable:** Yes. If using the `--experimental-strip-types` flag, this can be verified by spawning the console process and passing a TypeScript statement to `stdin` and ensuring it evaluates without a syntax error.

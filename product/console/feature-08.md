@@ -48,3 +48,7 @@ This approach is resilient to new repositories: as long as new InMemory adapters
 - The `clear()` method is discovered dynamically by checking `typeof repo.clear === 'function'`. No hardcoded list of repositories.
 - The Port interface (`CampaignRepository`) remains unchanged. The `clear()` method exists only on the concrete `CampaignRepositoryInMemory` class.
 - **Pre-requisite:** Before implementing this feature, add the `clear()` method to both `CampaignRepositoryInMemory` and `SupporterRepositoryInMemory`.
+
+### Testing
+
+- **Unit Testable:** Yes. The `clear()` function can be tested by seeding data, calling `clear()`, and then asserting that all repositories are empty.

@@ -133,6 +133,7 @@ Always cover per type:
 
 Because the project enforces strict 100% test coverage, you must test even "unreachable" defensive branches (e.g., handling deserialization failures on perfectly valid internal data).
 
+- **Avoid mocking where possible/viable**. Test without mocks whenever you can, using real instances, child processes, or in-memory adapters. Reserve mocking strictly for simulating hard-to-reach defensive branches (like I/O failures or corrupted state) that cannot be triggered naturally.
 - **Do NOT use `/* v8 ignore next */`**. Instead of ignoring defensive code, simulate the failure using test spies.
 - Use `vi.spyOn(Class, 'method').mockReturnValue(...)` to force an error state without mutating private internal collections.
 - Always use `vi.restoreAllMocks()` in an `afterEach` block if you are using spies to prevent cross-test contamination.

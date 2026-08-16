@@ -59,3 +59,7 @@ npm run console
 - `tsx` handles both TypeScript compilation and path alias resolution (it reads `tsconfig.json`).
 - The `bootstrap()` function is `async` to support future async initialization (e.g., database connections when real adapters are introduced).
 - The `exit` handler is where future teardown logic goes (closing connections, flushing data).
+
+### Testing
+
+- **Integration Testable:** Yes. The entry script can be tested by spawning it as a child process and asserting that it boots cleanly without throwing errors, or by importing the `bootstrap` function and mocking `repl.start` to ensure all setup steps are executed.

@@ -208,3 +208,7 @@ replServer.context.UseCases = UseCases
 - This system requires **zero manual changes** when a new Value Object, Entities, Repository, or Use Case is added — as long as the new file follows the project's existing naming conventions.
 - The constructor parameter parsing relies on `tsx`/`esbuild` preserving parameter names. This is guaranteed when running without bundling/minification, which is always the case for `tsx` (it's a runtime loader, not a bundler).
 - When the project introduces hand-written factories for Use Cases or Repositories, the auto-wiring logic in Steps 3-4 should delegate to those factories instead of instantiating directly.
+
+### Testing
+
+- **Unit Testable:** Yes. `scanModules`, `flattenExports`, `instantiateRepos`, and `wireUseCases` can be unit tested by mocking `node:fs` or pointing them to a dummy `fixtures` directory.

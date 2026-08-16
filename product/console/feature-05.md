@@ -28,3 +28,7 @@ Add `.console_history` to `.gitignore`:
 
 - `setupHistory` is a built-in `node:repl` method. No dependencies needed.
 - The history file is plain text, one command per line.
+
+### Testing
+
+- **Unit Testable:** Yes. Can be tested by mocking `replServer.setupHistory` and ensuring it is called with the correct `.console_history` file path during bootstrap.

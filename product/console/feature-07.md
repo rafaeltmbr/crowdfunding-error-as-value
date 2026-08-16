@@ -85,3 +85,7 @@ replServer.context.seed = seed
 - The `seed()` function accesses Use Case instances and Values classes through closure variables from the auto-discovery phase, not through `replServer.context`. This avoids fragile runtime lookups.
 - If `seed()` is called twice, the second call fails with `CAMPAIGN_NAME_ALREADY_EXISTS` or `SUPPORTER_EMAIL_ALREADY_EXISTS` (uniqueness enforced by Use Cases). This is expected. The developer should call `clear()` first (Feature 8).
 - As the domain model grows with new entities, the seed function should be expanded to cover new relationships.
+
+### Testing
+
+- **Unit Testable:** Yes. The `seed()` function can be tested by running it and then querying the repository instances to ensure the expected entities (campaign, supporters, donations) were created.

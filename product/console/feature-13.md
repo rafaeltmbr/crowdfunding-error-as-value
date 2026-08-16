@@ -32,3 +32,7 @@ Requires adding `dotenv` as a devDependency.
 
 - Add `.env` to `.gitignore` to prevent secrets from being committed.
 - **Do not implement until the first infrastructure adapter that requires environment configuration is added.**
+
+### Testing
+
+- **Integration Testable:** Yes. Can be tested by executing the console process with a dummy `.env` file and asserting that `process.env` correctly contains the injected values during the bootstrap phase.

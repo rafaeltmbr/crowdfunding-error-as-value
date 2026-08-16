@@ -14,6 +14,17 @@ The console allows developers to interact with the application's Domain, Applica
 - Dependencies are wired manually — no DI framework. The project will eventually have hand-written factories for use cases and infrastructure adapters (e.g., repositories with file-backed persistence via `load()`/`dump()`), but those do not exist yet.
 - **Zero new dependencies.** The console is built entirely with Node.js built-in modules (`node:repl`, `node:fs`, `node:path`, `node:util`, `node:url`) and the existing `tsx` devDependency.
 
+## Guidelines
+
+When developing features for the console, you MUST strictly adhere to the project's core documentation:
+
+- [Agent Instructions](../../AGENTS.md)
+- [Architecture Guidelines](../../docs/ARCHITECTURE.md)
+- [Design Patterns](../../docs/DESIGN.md)
+- [Testing Standards](../../docs/TESTING.md)
+
+Any code added to the console must follow these rules, including 100% test coverage and proper architectural layering.
+
 ## Architectural Decision
 
 The console is an **infrastructure concern** — it is a developer-facing adapter that wraps the application layer. Following the Hexagonal Architecture, it lives inside the infrastructure layer:
@@ -23,6 +34,14 @@ src/infra/console/
 ```
 
 It is allowed to import from the Application and Domain layers (per the Dependency Rule in `ARCHITECTURE.md`).
+
+## Testing Strategy
+
+Every console feature should have tests when possible. The console is an infrastructure adapter, and its utility functions, formatting logic, and wiring must be verified to prevent regressions and ensure the REPL remains stable as the application evolves.
+
+- Pure utility functions (e.g., Result unwrapping, snapshot detection) MUST be unit tested.
+- Functions with side effects (e.g., `seed()`, `clear()`) MUST be tested by asserting the state changes in the in-memory repositories.
+- The REPL wiring itself can be integration-tested by spawning a console instance, though this is optional compared to testing the isolated functions.
 
 ## Namespace Convention
 

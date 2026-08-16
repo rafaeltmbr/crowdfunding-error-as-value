@@ -34,3 +34,7 @@ replServer.defineCommand('clear', {
 - `.help` is built into Node's REPL and automatically lists all registered commands with their `help` text.
 - `this.displayPrompt()` must be called after each action to restore the prompt.
 - `seed()` is async (it calls Use Cases), so it uses `.then()`. `clear()` is synchronous.
+
+### Testing
+
+- **Unit Testable:** Yes. The command actions can be tested by mocking `replServer.defineCommand`, invoking the actions, and ensuring they call `seed()` or `clear()` and then `displayPrompt()`.

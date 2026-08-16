@@ -87,3 +87,7 @@ With the snapshot inspector:
 - The snapshot conversion happens **after** Result unwrapping, so `Result<Campaign>` is first unwrapped to `Campaign`, then converted to `CampaignSnapshot`.
 - `null` values (e.g., from `findById` returning `Result<Campaign | null>`) pass through safely.
 - This does NOT violate `DESIGN.md` §9's rule that "Snapshots MUST NOT be used to read or inspect domain object internals" in application code. The console is an infrastructure concern (a developer tool). The rule exists to prevent application/domain code from using snapshots to bypass encapsulation.
+
+### Testing
+
+- **Unit Testable:** Yes. `hasSnapshot` and `toSnapshot` can be tested with dummy objects. The extended `writer` can be tested to ensure it maps domain objects correctly before falling back to `util.inspect`.

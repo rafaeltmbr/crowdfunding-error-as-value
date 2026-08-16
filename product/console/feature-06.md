@@ -51,3 +51,7 @@ Call `printBanner(Values, Entities, Repositories, UseCases)` immediately before 
 
 - Since the banner reads the namespace keys, adding a new Use Case or Entities automatically updates the banner. No manual maintenance.
 - The banner formatting shown above is a starting point. The implementer should adjust padding and alignment to fit the actual content width. The key requirement is that it lists all available namespaces and their keys.
+
+### Testing
+
+- **Unit Testable:** Yes. The `printBanner` function can be tested by passing mock namespace objects and spying on `console.log` to verify the output formatting.

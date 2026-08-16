@@ -29,3 +29,7 @@ replServer.context['reload!'] = reload
 - **ESM cache busting is fragile.** The `?t=` trick works for dynamic `import()` but may cause issues with Node's module resolution, especially with path aliases. Thorough testing is needed.
 - **State preservation requires `dump()`/`load()` on repositories.** The user plans to introduce these methods eventually. Until then, `reload!()` would lose in-memory state.
 - **Recommendation:** Defer this feature. Restarting the console is fast for a project of this size. Implement when the developer frequently finds themselves restarting during active domain development AND repository `dump()`/`load()` methods exist.
+
+### Testing
+
+- **Unit Testable:** Yes. The `reload!()` logic can be tested by mocking the module loader to return a newer version of a module and verifying that the internal namespace objects (`Values`, `Entities`, etc.) are updated with the new exports.

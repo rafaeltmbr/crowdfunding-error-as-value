@@ -28,3 +28,7 @@ if (isIncompleteExpression(err)) {
 ### Notes
 
 - If the default `eval` is kept (no TypeScript REPL), this is a zero-effort feature.
+
+### Testing
+
+- **Unit/Integration Testable:** Yes. Since this relies on Node built-ins, testing is mostly verifying that if a custom `eval` is used, it properly catches `isIncompleteExpression` errors and re-throws them wrapped in `Recoverable`.
