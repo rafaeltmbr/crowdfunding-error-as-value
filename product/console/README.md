@@ -28,12 +28,12 @@ It is allowed to import from the Application and Domain layers (per the Dependen
 
 All classes are organized by their architectural nature in the REPL context. The developer accesses them through scoped namespaces:
 
-| Namespace | Source Directory          | Contents                                | Example                               |
-| --------- | ------------------------- | --------------------------------------- | ------------------------------------- |
-| `Values`      | `src/domain/values/`      | Value Object classes (static factories) | `Values.Name.make('Alice')`               |
-| `Entities`  | `src/domain/entities/`    | Entities classes (static factories)       | `Entities.Campaign.make(name)`          |
-| `UseCases` | `src/app/use_cases/`      | Use Case **instances** (pre-wired)      | `UseCases.CreateCampaign.execute(...)` |
-| `Repositories`    | `src/infra/repositories/` | Repository **instances** (pre-wired)    | `Repositories.Campaign.findById(id)`          |
+| Namespace      | Source Directory          | Contents                                | Example                                |
+| -------------- | ------------------------- | --------------------------------------- | -------------------------------------- |
+| `Values`       | `src/domain/values/`      | Value Object classes (static factories) | `Values.Name.make('Alice')`            |
+| `Entities`     | `src/domain/entities/`    | Entities classes (static factories)     | `Entities.Campaign.make(name)`         |
+| `UseCases`     | `src/app/use_cases/`      | Use Case **instances** (pre-wired)      | `UseCases.CreateCampaign.execute(...)` |
+| `Repositories` | `src/infra/repositories/` | Repository **instances** (pre-wired)    | `Repositories.Campaign.findById(id)`   |
 
 > **Note on `Values` vs `Object`:** The namespace for Value Objects is `Values`, not `Object`. Using `Object` would shadow JavaScript's global `Object` built-in, breaking `Object.keys()`, `Object.entries()`, and every other `Object.*` method. `Values` is the standard abbreviation for Value Object in DDD literature.
 
@@ -41,12 +41,12 @@ All classes are organized by their architectural nature in the REPL context. The
 
 Keys are derived automatically from class names using naming conventions. No manual mapping is needed:
 
-| Layer         | Class Name                   | Strip Suffix         | Namespace Key            |
-| ------------- | ---------------------------- | -------------------- | ------------------------ |
-| Value Objects | `Email`                      | —                    | `Values.Email`               |
-| Value Objects | `ExceptionGroup`             | —                    | `Values.ExceptionGroup`      |
-| Entities      | `Campaign`                   | —                    | `Entities.Campaign`        |
-| Repositories  | `CampaignRepositoryInMemory` | `RepositoryInMemory` | `Repositories.Campaign`          |
+| Layer         | Class Name                   | Strip Suffix         | Namespace Key             |
+| ------------- | ---------------------------- | -------------------- | ------------------------- |
+| Value Objects | `Email`                      | —                    | `Values.Email`            |
+| Value Objects | `ExceptionGroup`             | —                    | `Values.ExceptionGroup`   |
+| Entities      | `Campaign`                   | —                    | `Entities.Campaign`       |
+| Repositories  | `CampaignRepositoryInMemory` | `RepositoryInMemory` | `Repositories.Campaign`   |
 | Use Cases     | `CreateCampaignUseCase`      | `UseCase`            | `UseCases.CreateCampaign` |
 
 For Value Objects and Entities, **all named exports** from each file are flattened into the namespace. TypeScript-only exports (`type`, `interface`) are erased at compile time and do not appear. Internal/unexported classes (e.g., `CampaignName`, `Tiers`) are not exported from the module and do not appear either.
@@ -76,7 +76,6 @@ UseCases.CreateCampaign   → CreateCampaignUseCase instance (wired)
 UseCases.CreateSupporter  → CreateSupporterUseCase instance (wired)
 UseCases.MakeDonation     → MakeDonationUseCase instance (wired)
 ```
-
 
 ## Features
 

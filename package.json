@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "console": "tsx src/infra/console/index.ts",
     "test": "vitest",
     "dev": "tsx watch src/app/index.ts",
     "start": "node dist/app/index.js",
