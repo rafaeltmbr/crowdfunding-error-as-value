@@ -12,7 +12,7 @@ The Error-as-Value discipline is enforced at **compile time** (ESLint rules `fun
 
 ### Specification
 
-Override the REPL's default `writer` function. The `writer` is called on every expression result before printing it to the terminal. It only affects **display** — it does not modify the actual REPL context or variable bindings. The developer can still assign `const r = await UseCases.CreateCampaign.execute(...)` and inspect `r.error` or `r.value` manually.
+Override the REPL's default `writer` function. The `writer` is called on every expression result before printing it to the terminal. It only affects **display** — it does not modify the actual REPL context or variable bindings. The developer can still assign `const r = await createCampaign.execute(...)` and inspect `r.error` or `r.value` manually.
 
 **Result detection:**
 

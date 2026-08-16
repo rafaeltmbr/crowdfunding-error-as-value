@@ -13,30 +13,16 @@ When a developer opens the console for the first time, they need to know what's 
 After the auto-discovery phase (Feature 2) has run, build the banner dynamically from the namespace keys:
 
 ```typescript
-function printBanner(
-  values: Record<string, unknown>,
-  entities: Record<string, unknown>,
-  repo: Record<string, unknown>,
-  useCase: Record<string, unknown>
-): void {
-  const valueKeys = Object.keys(values).join(', ')
-  const entityKeys = Object.keys(entities).join(', ')
-  const repoKeys = Object.keys(repo)
-    .map((k) => `Repositories.${k}`)
-    .join(', ')
-  const useCaseKeys = Object.keys(useCase)
-    .map((k) => `UseCases.${k}`)
-    .join(', ')
-
+function printBanner(): void {
   console.log(`
   ┌──────────────────────────────────────────┐
   │         Crowdfunding Console             │
   ├──────────────────────────────────────────┤
   │                                          │
-  │  Values:       ${valueKeys}              │
-  │  Entities:     ${entityKeys}             │
-  │  Repositories: ${repoKeys}               │
-  │  UseCases:     ${useCaseKeys}            │
+  │  Values:       Name, Email, Id...        │
+  │  Entities:     Campaign, Donation...     │
+  │  Repositories: CampaignRepositoryInMe... │
+  │  UseCases:     CreateCampaignUseCase...  │
   │                                          │
   │  Helpers:      seed(), clear()           │
   │  Commands:     .help, .seed, .clear      │
@@ -45,7 +31,7 @@ function printBanner(
 }
 ```
 
-Call `printBanner(Values, Entities, Repositories, UseCases)` immediately before `repl.start(...)`.
+Call `printBanner()` immediately before `repl.start(...)`.
 
 ### Notes
 

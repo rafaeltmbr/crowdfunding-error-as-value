@@ -37,17 +37,8 @@ export class Console {
   }
 
   private loadContext(): void {
-    // 1. Initialize Repositories
-    const campaignRepository = new CampaignRepositoryInMemory()
-    const supporterRepository = new SupporterRepositoryInMemory()
-
-    // 2. Initialize Use Cases
-    const createCampaign = new CreateCampaignUseCase(campaignRepository)
-    const createSupporter = new CreateSupporterUseCase(supporterRepository)
-    const makeDonation = new MakeDonationUseCase(campaignRepository, supporterRepository)
-
-    // 3. Attach to Context
-    this.replServer.context['Values'] = {
+    Object.assign(this.replServer.context, {
+      // Values
       Email,
       Exception,
       ExceptionGroup,
@@ -55,17 +46,19 @@ export class Console {
       Money,
       Name,
       Result,
-    }
-    this.replServer.context['Entities'] = { Campaign, Donation, Supporter, Tier }
-    this.replServer.context['Repositories'] = {
-      Campaign: campaignRepository,
-      Supporter: supporterRepository,
-    }
-    this.replServer.context['UseCases'] = {
-      CreateCampaign: createCampaign,
-      CreateSupporter: createSupporter,
-      MakeDonation: makeDonation,
-    }
+      // Entities
+      Campaign,
+      Donation,
+      Supporter,
+      Tier,
+      // Repositories
+      CampaignRepositoryInMemory,
+      SupporterRepositoryInMemory,
+      // Use Cases
+      CreateCampaignUseCase,
+      CreateSupporterUseCase,
+      MakeDonationUseCase,
+    })
   }
 
   private setupGracefulShutdown(): void {

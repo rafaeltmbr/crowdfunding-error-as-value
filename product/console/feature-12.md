@@ -14,9 +14,9 @@ When the developer edits domain logic or use case orchestration in their editor,
 
 1. **Serialize current state.** For each InMemory repository, extract the current snapshot collection. This requires either a `dump()` method on the adapters (which the user plans to introduce eventually) or direct access to the `collection` field.
 2. **Invalidate ESM module cache.** For ESM modules, Node does not provide `require.cache` invalidation. The approach is to use dynamic `import()` with a cache-busting query parameter: `await import(filePath + '?t=' + Date.now())`.
-3. **Re-run auto-discovery.** Call the same scanner functions from Feature 2 with the cache-busted imports.
+3. **Re-instantiate and re-wire.** Re-import all classes and recreate the instances (similar to manual registration in Feature 2).
 4. **Rehydrate state.** Load the serialized snapshots into the freshly instantiated repositories.
-5. **Update REPL context.** Replace `replServer.context.Values`, `.Entities`, `.Repo`, `.UseCases` with the new namespace objects.
+5. **Update REPL context.** Replace the context properties with the newly instantiated objects.
 
 **Attach to context:**
 
@@ -32,4 +32,4 @@ replServer.context['reload!'] = reload
 
 ### Testing
 
-- **Unit Testable:** Yes. The `reload!()` logic can be tested by mocking the module loader to return a newer version of a module and verifying that the internal namespace objects (`Values`, `Entities`, etc.) are updated with the new exports.
+- **Unit Testable:** Yes. The `reload!()` logic can be tested by mocking the module loader to return a newer version of a module and verifying that the context properties are updated with the new exports.

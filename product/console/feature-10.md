@@ -6,7 +6,7 @@
 
 ### Why
 
-The standard Node REPL evaluates JavaScript, not TypeScript. While `tsx` compiles the console entry script and all its imports, the interactive prompt itself does not understand TypeScript syntax. If the developer types `const name: Name = Values.Name.make('test')`, it fails with a syntax error.
+The standard Node REPL evaluates JavaScript, not TypeScript. While `tsx` compiles the console entry script and all its imports, the interactive prompt itself does not understand TypeScript syntax. If the developer types `const name: Name = Name.make('test')`, it fails with a syntax error.
 
 This is a quality-of-life improvement, not a blocker — developers can omit type annotations when typing in the prompt.
 

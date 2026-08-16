@@ -16,24 +16,17 @@ Instead of complex auto-discovery, we use explicit, manual imports. This drastic
 
 When the console starts, it will:
 
-1. Import all Domain classes (`Values` and `Entities`).
-2. Instantiate `InMemory` repositories.
-3. Instantiate `UseCases` by injecting the required repositories via constructor.
-4. Expose them under `Values`, `Entities`, `Repositories`, and `UseCases` objects in the `replServer.context`.
+1. Import all Domain classes (Value Objects and Entities).
+2. Import all Use Case and Repository classes.
+3. Expose them directly in the `replServer.context`.
 
 ```typescript
-// Example wiring:
-const campaignRepository = new CampaignRepositoryInMemory()
-const supporterRepository = new SupporterRepositoryInMemory()
-
-const createCampaign = new CreateCampaignUseCase(campaignRepository)
-const makeDonation = new MakeDonationUseCase(campaignRepository, supporterRepository)
-
-replServer.context['Repositories'] = {
-  Campaign: campaignRepository,
-  Supporter: supporterRepository,
-}
-replServer.context['UseCases'] = { CreateCampaign: createCampaign, MakeDonation: makeDonation }
+Object.assign(replServer.context, {
+  CampaignRepositoryInMemory,
+  SupporterRepositoryInMemory,
+  CreateCampaignUseCase,
+  MakeDonationUseCase,
+})
 ```
 
 ### Important: Adding New Classes

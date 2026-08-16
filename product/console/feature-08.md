@@ -26,13 +26,13 @@ clear(): void {
 }
 ```
 
-The console's `clear()` function iterates over all repo instances:
+The console's `clear()` function iterates over context values to find those with a `clear` method:
 
 ```typescript
 function clear(): void {
-  for (const repo of Object.values(Repositories)) {
-    if (repo && typeof (repo as Record<string, unknown>).clear === 'function') {
-      ;(repo as { clear(): void }).clear()
+  for (const obj of Object.values(replServer.context)) {
+    if (obj && typeof (obj as Record<string, unknown>).clear === 'function') {
+      ;(obj as { clear(): void }).clear()
     }
   }
   console.log('✓ All repositories cleared.')
@@ -41,7 +41,7 @@ function clear(): void {
 replServer.context.clear = clear
 ```
 
-This approach is resilient to new repositories: as long as new InMemory adapters also implement `clear()`, they are automatically included in the reset.
+This approach is resilient to new repositories: as long as new InMemory adapters also implement `clear()` and are added to the context, they are automatically included in the reset.
 
 ### Notes
 

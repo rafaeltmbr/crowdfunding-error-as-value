@@ -43,57 +43,41 @@ Every console feature should have tests when possible. The console is an infrast
 - Functions with side effects (e.g., `seed()`, `clear()`) MUST be tested by asserting the state changes in the in-memory repositories.
 - The REPL wiring itself can be integration-tested by spawning a console instance, though this is optional compared to testing the isolated functions.
 
-## Namespace Convention
+## Context Registration
 
-All classes are organized by their architectural nature in the REPL context. The developer accesses them through scoped namespaces:
+All Domain classes, Use Cases, and Repositories are exposed directly in the REPL context. Because the exported classes represent unique concepts, there is no name collision.
 
-| Namespace      | Source Directory          | Contents                                | Example                                |
-| -------------- | ------------------------- | --------------------------------------- | -------------------------------------- |
-| `Values`       | `src/domain/values/`      | Value Object classes (static factories) | `Values.Name.make('Alice')`            |
-| `Entities`     | `src/domain/entities/`    | Entities classes (static factories)     | `Entities.Campaign.make(name)`         |
-| `UseCases`     | `src/app/use_cases/`      | Use Case **instances** (pre-wired)      | `UseCases.CreateCampaign.execute(...)` |
-| `Repositories` | `src/infra/repositories/` | Repository **instances** (pre-wired)    | `Repositories.Campaign.findById(id)`   |
+Developers access them by their full names:
 
-> **Note on `Values` vs `Object`:** The namespace for Value Objects is `Values`, not `Object`. Using `Object` would shadow JavaScript's global `Object` built-in, breaking `Object.keys()`, `Object.entries()`, and every other `Object.*` method. `Values` is the standard abbreviation for Value Object in DDD literature.
+- **Value Objects:** `Name.make('Alice')`
+- **Entities:** `Campaign.make(name)`
+- **Use Cases:** `const createCampaign = new CreateCampaignUseCase(repo); createCampaign.execute(...)`
+- **Repositories:** `const repo = new CampaignRepositoryInMemory()`
 
-### Namespace Key Derivation
-
-Keys are derived automatically from class names using naming conventions. No manual mapping is needed:
-
-| Layer         | Class Name                   | Strip Suffix         | Namespace Key             |
-| ------------- | ---------------------------- | -------------------- | ------------------------- |
-| Value Objects | `Email`                      | —                    | `Values.Email`            |
-| Value Objects | `ExceptionGroup`             | —                    | `Values.ExceptionGroup`   |
-| Entities      | `Campaign`                   | —                    | `Entities.Campaign`       |
-| Repositories  | `CampaignRepositoryInMemory` | `RepositoryInMemory` | `Repositories.Campaign`   |
-| Use Cases     | `CreateCampaignUseCase`      | `UseCase`            | `UseCases.CreateCampaign` |
-
-For Value Objects and Entities, **all named exports** from each file are flattened into the namespace. TypeScript-only exports (`type`, `interface`) are erased at compile time and do not appear. Internal/unexported classes (e.g., `CampaignName`, `Tiers`) are not exported from the module and do not appear either.
-
-Current expected REPL context after auto-discovery:
+Current expected REPL context after initialization:
 
 ```
-Values.Name               → Name class
-Values.Email              → Email class
-Values.Id                 → Id class
-Values.Money              → Money class
-Values.Result             → Result factory (const ResultBase)
-Values.Success            → Success class
-Values.Failure            → Failure class
-Values.Exception          → Exception class
-Values.ExceptionGroup     → ExceptionGroup enum
+Name                        → Name class
+Email                       → Email class
+Id                          → Id class
+Money                       → Money class
+Result                      → Result factory (const ResultBase)
+Success                     → Success class
+Failure                     → Failure class
+Exception                   → Exception class
+ExceptionGroup              → ExceptionGroup enum
 
-Entities.Campaign         → Campaign class
-Entities.Supporter        → Supporter class
-Entities.Tier             → Tier class
-Entities.Donation         → Donation class
+Campaign                    → Campaign class
+Supporter                   → Supporter class
+Tier                        → Tier class
+Donation                    → Donation class
 
-Repositories.Campaign     → CampaignRepositoryInMemory instance
-Repositories.Supporter    → SupporterRepositoryInMemory instance
+CampaignRepositoryInMemory  → CampaignRepositoryInMemory class
+SupporterRepositoryInMemory → SupporterRepositoryInMemory class
 
-UseCases.CreateCampaign   → CreateCampaignUseCase instance (wired)
-UseCases.CreateSupporter  → CreateSupporterUseCase instance (wired)
-UseCases.MakeDonation     → MakeDonationUseCase instance (wired)
+CreateCampaignUseCase       → CreateCampaignUseCase class
+CreateSupporterUseCase      → CreateSupporterUseCase class
+MakeDonationUseCase         → MakeDonationUseCase class
 ```
 
 ## Features

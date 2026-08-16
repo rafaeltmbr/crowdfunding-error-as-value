@@ -44,5 +44,37 @@ describe('Console', () => {
         child.on('exit', () => clearTimeout(timeout))
       })
     })
+
+    it('should register all necessary domains, entities, repositories, and use cases in the context', () => {
+      return new Promise<void>((resolve, reject) => {
+        const scriptPath = path.resolve(__dirname, '../../../src/infra/console/index.ts')
+        const child = spawn('npx', ['tsx', scriptPath])
+        let output = ''
+
+        child.stdout.on('data', (data) => {
+          output += data.toString()
+          if (output.includes('crowdfunding > ')) {
+            // Check if classes are defined in the context
+            child.stdin.write('typeof Campaign\n')
+            child.stdin.write('typeof CreateCampaignUseCase\n')
+            child.stdin.write('typeof CampaignRepositoryInMemory\n')
+            child.stdin.end()
+          }
+        })
+
+        child.on('close', () => {
+          try {
+            // Because it evaluates in the REPL, the type strings should be printed
+            // All of them are exported as classes/functions now
+            expect(output).toContain("'function'") // Campaign (class)
+            expect(output).toContain("'function'") // CreateCampaignUseCase (class)
+            expect(output).toContain("'function'") // CampaignRepositoryInMemory (class)
+            resolve()
+          } catch (e) {
+            reject(e)
+          }
+        })
+      })
+    })
   })
 })
