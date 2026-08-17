@@ -10,4 +10,4 @@ coverage/
 *.ts.map
 *.d.ts
 vitest.config.js
-
+.console_history

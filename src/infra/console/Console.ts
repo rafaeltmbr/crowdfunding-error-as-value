@@ -30,11 +30,17 @@ export class Console {
     this.setupGracefulShutdown()
   }
 
+  // eslint-disable-next-line max-lines-per-function
   private setupRepl(): void {
     this.replServer = repl.start({
       prompt: 'crowdfunding > ',
       useColors: true,
       writer: ReplHelper.consoleWriter,
+      terminal: true,
+    })
+
+    this.replServer.setupHistory('.console_history', (err) => {
+      if (err) console.error('Failed to load console history:', err)
     })
 
     // Intercept REPL evaluation to catch auto-unwrapped domain exceptions

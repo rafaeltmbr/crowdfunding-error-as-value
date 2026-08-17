@@ -105,6 +105,98 @@ describe('Console', () => {
         })
       })
     })
+
+    it('should persist commands in history across sessions (state verification)', () => {
+      return new Promise<void>((resolve, reject) => {
+        const scriptPath = path.resolve(__dirname, '../../../src/infra/console/index.ts')
+        const randomCmd = `const random_${Math.floor(Math.random() * 100000)} = ${Math.random()}`
+
+        // Session 1: Write command
+        const child1 = spawn('npx', ['tsx', scriptPath])
+        let output1 = ''
+        let child1Triggered = false
+
+        child1.stdout.on('data', (data) => {
+          output1 += data.toString()
+          if (output1.includes('crowdfunding > ') && !child1Triggered) {
+            child1Triggered = true
+            child1.stdin.write(`${randomCmd}\n`)
+            setTimeout(() => {
+              child1.stdin.write('.exit\n')
+            }, 300)
+          }
+        })
+
+        child1.on('close', () => {
+          // Session 2: Read from history using UP arrow
+          const child2 = spawn('npx', ['tsx', scriptPath])
+          let output2 = ''
+          let child2Triggered = false
+
+          child2.stdout.on('data', (data) => {
+            output2 += data.toString()
+            if (output2.includes('crowdfunding > ') && !child2Triggered) {
+              child2Triggered = true
+              child2.stdin.write('\x1B[A\n')
+              setTimeout(() => {
+                child2.stdin.write('.exit\n')
+              }, 300)
+            }
+          })
+
+          child2.on('close', () => {
+            try {
+              // The output should contain the random command retrieved from history
+              expect(output2).toContain(randomCmd)
+              resolve()
+            } catch (err) {
+              reject(err)
+            }
+          })
+        })
+      })
+    }, 15000)
+
+    it('should log an error if history fails to load (state verification)', () => {
+      return new Promise<void>((resolve, reject) => {
+        const fs = require('node:fs')
+        const scriptPath = path.resolve(__dirname, '../../../src/infra/console/index.ts')
+        const historyPath = path.resolve(__dirname, '../../../.console_history')
+
+        // Remove file and create directory to force error
+        if (fs.existsSync(historyPath)) {
+          fs.rmSync(historyPath, { recursive: true, force: true })
+        }
+        fs.mkdirSync(historyPath)
+
+        const child = spawn('npx', ['tsx', scriptPath])
+        let output = ''
+
+        child.stdout.on('data', (data) => {
+          output += data.toString()
+        })
+
+        child.stderr.on('data', (data) => {
+          output += data.toString()
+        })
+
+        setTimeout(() => {
+          child.stdin.write('.exit\n')
+        }, 300)
+
+        child.on('close', () => {
+          // Cleanup
+          fs.rmSync(historyPath, { recursive: true, force: true })
+
+          try {
+            expect(output).toContain('Could not open history file')
+            resolve()
+          } catch (err) {
+            reject(err)
+          }
+        })
+      })
+    }, 15000)
   })
 
   describe('Console instance', () => {
@@ -118,6 +210,7 @@ describe('Console', () => {
       const mockReplServer = {
         context: {},
         on: mockOn,
+        setupHistory: vi.fn((file, cb) => cb(null)),
       } as unknown as repl.REPLServer
 
       vi.mocked(repl.start).mockReturnValue(mockReplServer)
@@ -132,6 +225,7 @@ describe('Console', () => {
         prompt: 'crowdfunding > ',
         useColors: true,
         writer: ReplHelper.consoleWriter,
+        terminal: true,
       })
 
       // Check context population
@@ -149,6 +243,22 @@ describe('Console', () => {
       expect(logSpy).toHaveBeenCalledWith('Goodbye.')
       expect(exitSpy).toHaveBeenCalledWith(0)
     })
+
+    it('should handle unreachable defensive branch when setupHistory fails', async () => {
+      const consoleApp = new Console()
+      const mockReplServer = {
+        context: {},
+        on: vi.fn(),
+        setupHistory: vi.fn((file, cb) => cb(new Error('Unreachable error'))),
+      } as unknown as repl.REPLServer
+
+      vi.mocked(repl.start).mockReturnValue(mockReplServer)
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      await consoleApp.start()
+
+      expect(errorSpy).toHaveBeenCalledWith('Failed to load console history:', expect.any(Error))
+    })
   })
 
   describe('setupRepl eval override', () => {
@@ -162,6 +272,7 @@ describe('Console', () => {
           callback(ex, null)
         }),
         on: vi.fn(),
+        setupHistory: vi.fn((file, cb) => cb(null)),
       } as any
 
       vi.mocked(repl.start).mockReturnValue(mockReplServer)
