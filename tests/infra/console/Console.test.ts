@@ -261,8 +261,77 @@ describe('Console', () => {
     })
   })
 
-  describe('setupRepl eval override', () => {
-    it('should intercept Exceptions and pass them as Result.fail to the writer', async () => {
+  describe('REPL evaluation', () => {
+    it('should catch auto-unwrapped domain exceptions and display them', () => {
+      return new Promise<void>((resolve, reject) => {
+        const scriptPath = path.resolve(__dirname, '../../../src/infra/console/index.ts')
+        const child = spawn('npx', ['tsx', scriptPath])
+        let output = ''
+        let triggered = false
+
+        child.stdout.on('data', (data) => {
+          output += data.toString()
+          if (output.includes('crowdfunding > ') && !triggered) {
+            triggered = true
+            // This will auto-unwrap a Result.fail and throw an Exception
+            child.stdin.write('Name.make("")\n')
+            setTimeout(() => {
+              child.stdin.write('.exit\n')
+            }, 300)
+          }
+        })
+
+        child.stderr.on('data', (data) => {
+          output += data.toString()
+        })
+
+        child.on('close', () => {
+          try {
+            // It should output the Exception details
+            expect(output).toContain('Validation')
+            expect(output).toContain('NAME_EMPTY')
+            resolve()
+          } catch (e) {
+            reject(e)
+          }
+        })
+      })
+    })
+
+    it('should let normal errors pass through as uncaught exceptions', () => {
+      return new Promise<void>((resolve, reject) => {
+        const scriptPath = path.resolve(__dirname, '../../../src/infra/console/index.ts')
+        const child = spawn('npx', ['tsx', scriptPath])
+        let output = ''
+        let triggered = false
+
+        child.stdout.on('data', (data) => {
+          output += data.toString()
+          if (output.includes('crowdfunding > ') && !triggered) {
+            triggered = true
+            child.stdin.write('throw new Error("Normal error")\n')
+            setTimeout(() => {
+              child.stdin.write('.exit\n')
+            }, 300)
+          }
+        })
+
+        child.stderr.on('data', (data) => {
+          output += data.toString()
+        })
+
+        child.on('close', () => {
+          try {
+            expect(output).toContain('Error: Normal error')
+            resolve()
+          } catch (e) {
+            reject(e)
+          }
+        })
+      })
+    })
+
+    it('should intercept Exceptions and pass them as Result.fail to the writer (coverage)', async () => {
       const consoleApp = new Console()
       // Setup the REPL to mock it
       const mockReplServer = {
@@ -309,8 +378,6 @@ describe('Console', () => {
       const [err2, result2] = callbackSpy2.mock.calls[0] as [any, any]
       expect(err2).toBeInstanceOf(Error)
       expect(result2).toBeNull()
-
-      vi.restoreAllMocks()
     })
   })
 })

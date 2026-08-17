@@ -37,11 +37,12 @@ It is allowed to import from the Application and Domain layers (per the Dependen
 
 ## Testing Strategy
 
-Every console feature should have tests when possible. The console is an infrastructure adapter, and its utility functions, formatting logic, and wiring must be verified to prevent regressions and ensure the REPL remains stable as the application evolves.
+The ultimate source of truth when testing the console features is the console itself! When writing tests for the console, prefer **state verification** through integration tests (e.g., spawning the console process, writing to its `stdin`, and verifying its `stdout`) following the Classical/Chicago school of TDD.
 
+- **Spawn-Based Integration Tests (Preferred):** The REPL wiring, auto-unwrap hooks, command history, and general behavior MUST be tested by actually spawning a console instance and interacting with it.
+- **Mocking (Last Resort):** Only mock things that are fundamentally impossible or very hard to test otherwise (such as forcing unreachable defensive branches to hit 100% test coverage).
 - Pure utility functions (e.g., Result unwrapping, snapshot detection) MUST be unit tested.
 - Functions with side effects (e.g., `seed()`, `clear()`) MUST be tested by asserting the state changes in the in-memory repositories.
-- The REPL wiring itself can be integration-tested by spawning a console instance, though this is optional compared to testing the isolated functions.
 
 ## Context Registration
 
