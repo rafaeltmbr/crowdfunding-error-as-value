@@ -10,6 +10,18 @@ Reference implementation: `tests/domain/values/Name.test.ts`.
 - One logical behavior per `it(...)` block. Multiple `expect()` calls are fine if they verify facets of the same behavior.
 - Tests must be deterministic and self-contained. Use `beforeEach` to reset mutable state. Never rely on execution order.
 
+## Coverage Philosophy
+
+Coverage is a **signal, not a goal**. The project does not enforce a minimum coverage threshold. A test suite that hits 100% by mocking infrastructure errors in every branch is not more valuable than one that clearly documents real business scenarios.
+
+What actually matters:
+
+- Every use case has its **happy path** tested end-to-end.
+- Every meaningful **business failure** (entity not found, duplicate, domain rule violation) is tested through the public API with real in-memory adapters.
+- Edge cases (empty collections, boundary values) are covered where they represent genuinely distinct behaviors.
+
+Do **not** write tests purely to pump coverage numbers. A test that only exists to exercise an `if (result.error) return result` guard inside a repository method (via a mocked infrastructure failure) adds noise, not signal.
+
 ## Custom Matchers
 
 Defined in `tests/setup.ts`:
@@ -90,8 +102,14 @@ Methods that mutate state or enforce invariants (`addTier`, `makeDonation`, etc.
 
 ### Use Cases (Application Layer)
 
-- Test happy path and error paths (e.g. missing entities, repository failures).
-- Checking inside repositories via snapshot to verify detailed fields is unnecessary when verifying persistence in use case tests — checking collection length or asserting repository method calls with expected parameters is sufficient. Lower-level entity and repository unit tests handle deep state verification.
+Use-case tests are **scenario tests**: they wire a use case to real in-memory adapters and run it as a user would. They do not mock repository methods to simulate infrastructure failures — that is noise. Focus on:
+
+- **Happy path**: the full success flow, assert the returned value and that state was actually persisted.
+- **Entity-not-found**: pass an ID that does not exist in the repository; assert the correct `NotFound` error code.
+- **Duplicate / uniqueness violation**: pre-seed the repository with conflicting data; assert the correct `Validation` error code.
+- **Domain rule violations**: pass inputs that violate a domain constraint the use case is responsible for enforcing (e.g., minimum name length for a specific aggregate type, non-positive donation amount).
+
+Do **not** spy on repository methods to return `Result.fail(...)`. If a path can only be reached via an infrastructure failure, it is an infrastructure concern tested at the adapter level, not here.
 
 ### `toSnapshot`
 
@@ -129,15 +147,14 @@ Always cover per type:
 - Framework behavior (vitest, expect).
 - External libraries.
 
-## Mocking and Defensive Code
+## Mocking
 
-Because the project enforces strict 100% test coverage, you must test even "unreachable" defensive branches (e.g., handling deserialization failures on perfectly valid internal data).
+**Avoid mocking where possible**. Use real instances, in-memory adapters, or child processes. Reserve mocking strictly for simulating conditions that cannot be triggered through the public API (e.g., a corruption scenario inside a serialization step).
 
-- **Avoid mocking where possible/viable**. Test without mocks whenever you can, using real instances, child processes, or in-memory adapters. Reserve mocking strictly for simulating hard-to-reach defensive branches (like I/O failures or corrupted state) that cannot be triggered naturally.
-- **Do NOT use `/* v8 ignore next */`**. Instead of ignoring defensive code, simulate the failure using test spies.
-- Use `vi.spyOn(Class, 'method').mockReturnValue(...)` to force an error state without mutating private internal collections.
-- Always use `vi.restoreAllMocks()` in an `afterEach` block if you are using spies to prevent cross-test contamination.
-- Use `toBeFailureWithCode(...)` to assert that your mocked error was correctly caught and returned by the adapter or service.
+- **Do NOT use `/* v8 ignore next */`**. Prefer to either reach the branch naturally or omit it from the test suite if it has no meaningful business scenario.
+- Use `vi.spyOn(Class, 'method').mockReturnValue(...)` to force an error state that cannot be triggered via real inputs.
+- Always add `afterEach(() => { vi.restoreAllMocks() })` whenever spies are used to prevent cross-test contamination.
+- Use `toBeFailureWithCode(...)` to assert that the mocked error is correctly handled.
 
 ## Workflow
 

@@ -5,16 +5,17 @@
   "main": "index.js",
   "scripts": {
     "console": "tsx src/infra/console/index.ts",
-    "test": "vitest",
     "dev": "tsx watch src/app/index.ts",
     "start": "node dist/app/index.js",
     "lint": "eslint src",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "validate": "npm run typecheck && npm run format:check && npm run lint && npm run coverage && echo \"Validated!\"",
+    "validate": "npm run typecheck && npm run format:check && npm run lint && npm run test:once && echo \"Validated!\"",
     "build": "npm audit && npm run validate && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json --resolve-full-paths && echo \"Done!\"",
     "typecheck": "tsc --noEmit",
-    "coverage": "vitest run --coverage"
+    "test": "vitest",
+    "test:once": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [],
   "author": "",
