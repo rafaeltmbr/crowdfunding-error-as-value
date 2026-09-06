@@ -4,6 +4,7 @@ import * as util from 'node:util'
 import { CreateCampaignUseCase } from '@app/use_cases/CreateCampaignUseCase'
 import { CreateSupporterUseCase } from '@app/use_cases/CreateSupporterUseCase'
 import { MakeDonationUseCase } from '@app/use_cases/MakeDonationUseCase'
+import { SupporterDonationStatsUseCase } from '@app/use_cases/SupporterDonationStatsUseCase'
 import { Campaign } from '@entities/Campaign'
 import { Donation } from '@entities/Donation'
 import { Supporter } from '@entities/Supporter'
@@ -106,6 +107,7 @@ export class Console {
       CreateCampaignUseCase: ReplProxy.wrap(CreateCampaignUseCase),
       CreateSupporterUseCase: ReplProxy.wrap(CreateSupporterUseCase),
       MakeDonationUseCase: ReplProxy.wrap(MakeDonationUseCase),
+      SupporterDonationStatsUseCase: ReplProxy.wrap(SupporterDonationStatsUseCase),
     })
   }
 
@@ -170,6 +172,8 @@ class ReplWriter {
 
   private static findArray(original: unknown, length: number): unknown[] | null {
     if (Array.isArray(original)) return original
+
+    if (original === null || typeof original === 'undefined') return null
 
     const match = Object.values(original as object).find(
       (v) => Array.isArray(v) && v.length === length

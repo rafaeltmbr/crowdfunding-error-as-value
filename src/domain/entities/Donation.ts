@@ -32,7 +32,12 @@ export class Donation {
   }
 
   addTierToBucket(bucket: Set<Tier>): Set<Tier> {
-    return this.tier ? new Set<Tier>([...bucket.values(), this.tier]) : bucket
+    if (!this.tier) return bucket
+
+    const exists = [...bucket.values()].some((t) => t.isEqual(this.tier!))
+    if (exists) return bucket
+
+    return new Set<Tier>([...bucket.values(), this.tier])
   }
 
   addToTotal(total: Money): Money {

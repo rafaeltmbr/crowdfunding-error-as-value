@@ -2,7 +2,7 @@ import { Donation, type DonationSnapshot } from '@entities/Donation'
 import { Tier, type TierSnapshot } from '@entities/Tier'
 import { Exception } from '@values/Exception'
 import { Id, type IdSnapshot } from '@values/Id'
-import { Money } from '@values/Money'
+import { Money, type MoneySnapshot } from '@values/Money'
 import { Name, type NameSnapshot } from '@values/Name'
 import { Result } from '@values/Result'
 
@@ -216,8 +216,15 @@ class Donations {
   }
 
   supporterStats(supporterId: Id): SupporterDonationStats {
-    const donations = this.list.filter((donation) => donation.belongsToSupporterId(supporterId))
-    return new SupporterDonationStats(donations)
+    const donations = this.filterSupporterDonations(supporterId)
+
+    return SupporterDonationStats.make(donations.list).value!
+  }
+
+  private filterSupporterDonations(supporterId: Id): Donations {
+    return Donations.make(
+      this.list.filter((donation) => donation.belongsToSupporterId(supporterId))
+    )
   }
 
   toSnapshot(): DonationSnapshot[] {
@@ -239,8 +246,8 @@ class Donations {
   }
 }
 
-class SupporterDonationStats {
-  constructor(protected donations: Donation[]) {}
+export class SupporterDonationStats {
+  protected constructor(protected donations: Donation[]) {}
 
   calculateTotal(): Money {
     return this.donations.reduce(
@@ -255,6 +262,33 @@ class SupporterDonationStats {
       new Set<Tier>()
     )
   }
+
+  toSnapshot(): SupporterDonationStatsSnapshot {
+    return {
+      total: this.calculateTotal().toSnapshot(),
+      tiers: Array.from(this.extractTiers()).map((tier) => tier.toSnapshot()),
+    }
+  }
+
+  static fromSnapshot(snapshot: SupporterDonationStatsSnapshot): Result<SupporterDonationStats> {
+    const totalResult = Money.fromSnapshot(snapshot.total)
+    if (totalResult.error) return totalResult
+
+    const tierResults = snapshot.tiers.map((t) => Tier.fromSnapshot(t))
+    const firstError = tierResults.find((r) => r.error)
+    if (firstError && firstError.error) return Result.fail(firstError.error)
+
+    return Result.succeed(new SupporterDonationStats([]))
+  }
+
+  static make(donations: Donation[] = []): Result<SupporterDonationStats> {
+    return Result.succeed(new SupporterDonationStats(donations))
+  }
+}
+
+export interface SupporterDonationStatsSnapshot {
+  total: MoneySnapshot
+  tiers: TierSnapshot[]
 }
 
 export interface CampaignFundingSnapshot {

@@ -65,6 +65,7 @@ describe('Console', () => {
       expect(output).toContain('CreateCampaignUseCase')
       expect(output).toContain('CreateSupporterUseCase')
       expect(output).toContain('MakeDonationUseCase')
+      expect(output).toContain('SupporterDonationStatsUseCase')
     })
 
     it('should persist commands across sessions via history recall', async () => {
