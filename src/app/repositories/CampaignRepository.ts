@@ -1,4 +1,4 @@
-import { Campaign } from '@entities/Campaign'
+import { Campaign } from '@entities/campaign'
 import { Id } from '@values/Id'
 import { Name } from '@values/Name'
 import { Result } from '@values/Result'

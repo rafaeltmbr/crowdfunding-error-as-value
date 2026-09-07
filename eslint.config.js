@@ -88,6 +88,7 @@ export default tseslint.config(
       'local/no-floating-result': 'error',
       'local/require-vo-overrides': 'error',
       'local/require-entity-methods': 'error',
+      'local/enforce-barrel-imports': 'error',
 
       // Forbid 'undefined'
       'no-undefined': 'error',

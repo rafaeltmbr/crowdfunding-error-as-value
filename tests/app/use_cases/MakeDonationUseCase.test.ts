@@ -1,6 +1,6 @@
 import { MakeDonationUseCase } from '@app/use_cases/MakeDonationUseCase'
-import { Campaign } from '@entities/Campaign'
-import { Supporter } from '@entities/Supporter'
+import { Campaign } from '@entities/campaign'
+import { Supporter } from '@entities/supporter'
 import { CampaignRepositoryInMemory } from '@infra/repositories/CampaignRepositoryInMemory'
 import { SupporterRepositoryInMemory } from '@infra/repositories/SupporterRepositoryInMemory'
 import { Email } from '@values/Email'

@@ -1,4 +1,4 @@
-import { Supporter } from '@entities/Supporter'
+import { Supporter } from '@entities/supporter'
 import { Email } from '@values/Email'
 import { Id } from '@values/Id'
 import { Result } from '@values/Result'

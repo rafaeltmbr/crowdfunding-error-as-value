@@ -1,5 +1,5 @@
 import { CampaignRepository } from '@app/repositories/CampaignRepository'
-import { Campaign, type CampaignSnapshot } from '@entities/Campaign'
+import { Campaign, type CampaignSnapshot } from '@entities/campaign'
 import { Exception } from '@values/Exception'
 import { Id } from '@values/Id'
 import { Name } from '@values/Name'

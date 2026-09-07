@@ -1,6 +1,6 @@
 import { CampaignRepository } from '@app/repositories/CampaignRepository'
 import { SupporterRepository } from '@app/repositories/SupporterRepository'
-import { Campaign, SupporterDonationStats } from '@entities/Campaign'
+import { Campaign, SupporterDonationStats } from '@entities/campaign'
 import { Exception } from '@values/Exception'
 import { Id } from '@values/Id'
 import { Result } from '@values/Result'

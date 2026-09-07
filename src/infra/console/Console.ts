@@ -5,10 +5,8 @@ import { CreateCampaignUseCase } from '@app/use_cases/CreateCampaignUseCase'
 import { CreateSupporterUseCase } from '@app/use_cases/CreateSupporterUseCase'
 import { MakeDonationUseCase } from '@app/use_cases/MakeDonationUseCase'
 import { SupporterDonationStatsUseCase } from '@app/use_cases/SupporterDonationStatsUseCase'
-import { Campaign } from '@entities/Campaign'
-import { Donation } from '@entities/Donation'
-import { Supporter } from '@entities/Supporter'
-import { Tier } from '@entities/Tier'
+import { Campaign } from '@entities/campaign'
+import { Supporter } from '@entities/supporter'
 import { CampaignRepositoryInMemory } from '@infra/repositories/CampaignRepositoryInMemory'
 import { SupporterRepositoryInMemory } from '@infra/repositories/SupporterRepositoryInMemory'
 import { Email } from '@values/Email'
@@ -89,9 +87,7 @@ export class Console {
   private loadEntities(): void {
     Object.assign(this.replServer.context, {
       Campaign: ReplProxy.wrap(Campaign),
-      Donation: ReplProxy.wrap(Donation),
       Supporter: ReplProxy.wrap(Supporter),
-      Tier: ReplProxy.wrap(Tier),
     })
   }
 

@@ -188,6 +188,9 @@ This preserves Aggregate boundaries: an Aggregate cannot accidentally reach into
 
 An Aggregate Root is the only entry point for modifying its child entities. External code never directly creates or modifies children.
 
+- **Rule**: Every aggregate MUST have its own dedicated folder inside the `entities` directory (e.g., `src/domain/entities/campaign/`, `src/domain/entities/supporter/`).
+- **Rule**: The aggregate's directory MUST contain an `index.ts` (barrel file).
+- **Rule**: Only the Aggregate Root entity (and explicitly required types like snapshots) should be exported from this `index.ts` file. Internal entities and value objects (like `Tier` or `Donation`) MUST NOT be exported.
 - **Rule**: Child entities MUST NOT be created or modified outside the Aggregate Root.
 - **Rule**: All invariants spanning multiple children are enforced by the Aggregate Root.
 

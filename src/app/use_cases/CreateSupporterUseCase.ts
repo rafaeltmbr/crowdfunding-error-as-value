@@ -1,5 +1,5 @@
 import { SupporterRepository } from '@app/repositories/SupporterRepository'
-import { Supporter } from '@entities/Supporter'
+import { Supporter } from '@entities/supporter'
 import { Email } from '@values/Email'
 import { Exception } from '@values/Exception'
 import { Id } from '@values/Id'

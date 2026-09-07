@@ -55,9 +55,7 @@ describe('Console', () => {
       expect(output).toContain('Result')
       // Entities
       expect(output).toContain('Campaign')
-      expect(output).toContain('Donation')
       expect(output).toContain('Supporter')
-      expect(output).toContain('Tier')
       // Repositories
       expect(output).toContain('CampaignRepositoryInMemory')
       expect(output).toContain('SupporterRepositoryInMemory')

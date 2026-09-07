@@ -1,5 +1,5 @@
 import { CreateCampaignUseCase } from '@app/use_cases/CreateCampaignUseCase'
-import { Campaign } from '@entities/Campaign'
+import { Campaign } from '@entities/campaign'
 import { CampaignRepositoryInMemory } from '@infra/repositories/CampaignRepositoryInMemory'
 import { Money } from '@values/Money'
 import { Name } from '@values/Name'

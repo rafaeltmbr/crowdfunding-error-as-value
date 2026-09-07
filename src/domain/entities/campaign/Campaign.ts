@@ -1,5 +1,5 @@
-import { Donation, type DonationSnapshot } from '@entities/Donation'
-import { Tier, type TierSnapshot } from '@entities/Tier'
+import { Donation, type DonationSnapshot } from '@entities/campaign/Donation'
+import { Tier, type TierSnapshot } from '@entities/campaign/Tier'
 import { Exception } from '@values/Exception'
 import { Id, type IdSnapshot } from '@values/Id'
 import { Money, type MoneySnapshot } from '@values/Money'

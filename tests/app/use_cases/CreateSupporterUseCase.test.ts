@@ -1,5 +1,5 @@
 import { CreateSupporterUseCase } from '@app/use_cases/CreateSupporterUseCase'
-import { Supporter } from '@entities/Supporter'
+import { Supporter } from '@entities/supporter'
 import { SupporterRepositoryInMemory } from '@infra/repositories/SupporterRepositoryInMemory'
 import { Email } from '@values/Email'
 import { Id } from '@values/Id'
