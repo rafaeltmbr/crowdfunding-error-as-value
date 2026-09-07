@@ -1,4 +1,4 @@
-import { Result } from '@values/Result'
+import { Result } from '@common_values/Result'
 import { expect } from 'vitest'
 
 expect.extend({

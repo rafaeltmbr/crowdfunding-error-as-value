@@ -1,8 +1,8 @@
-import { Exception } from '@values/Exception'
-import { Id, type IdSnapshot } from '@values/Id'
-import { Money, type MoneySnapshot } from '@values/Money'
-import { Name, type NameSnapshot } from '@values/Name'
-import { Result } from '@values/Result'
+import { Exception } from '@common_values/Exception'
+import { Id, type IdSnapshot } from '@common_values/Id'
+import { Money, type MoneySnapshot } from '@common_values/Money'
+import { Name, type NameSnapshot } from '@common_values/Name'
+import { Result } from '@common_values/Result'
 
 export class Tier {
   protected constructor(

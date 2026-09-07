@@ -1,5 +1,5 @@
-import { Exception } from '@values/Exception'
-import { Result } from '@values/Result'
+import { Exception } from '@common_values/Exception'
+import { Result } from '@common_values/Result'
 
 export class Id {
   protected static ALPHABET: Readonly<string> = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'

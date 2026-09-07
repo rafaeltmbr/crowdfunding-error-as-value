@@ -1,7 +1,7 @@
-import { Supporter } from '@entities/supporter'
-import { Email } from '@values/Email'
-import { Id } from '@values/Id'
-import { Result } from '@values/Result'
+import { Email } from '@common_values/Email'
+import { Id } from '@common_values/Id'
+import { Result } from '@common_values/Result'
+import { Supporter } from '@domain/supporter'
 
 export interface SupporterRepository {
   upsert(supporter: Supporter): Promise<Result<void>>

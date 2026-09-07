@@ -1,8 +1,8 @@
 import { CreateCampaignUseCase } from '@app/use_cases/CreateCampaignUseCase'
-import { Campaign } from '@entities/campaign'
+import { Money } from '@common_values/Money'
+import { Name } from '@common_values/Name'
+import { Campaign } from '@domain/campaign'
 import { CampaignRepositoryInMemory } from '@infra/repositories/CampaignRepositoryInMemory'
-import { Money } from '@values/Money'
-import { Name } from '@values/Name'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 describe('CreateCampaignUseCase', () => {

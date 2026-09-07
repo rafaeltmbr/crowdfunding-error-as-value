@@ -1,4 +1,4 @@
-import { Exception } from '@values/Exception'
+import { Exception } from '@common_values/Exception'
 
 class ResultBase {
   static succeed(): Success<void>

@@ -1,9 +1,9 @@
 import { SupporterRepository } from '@app/repositories/SupporterRepository'
-import { Supporter, type SupporterSnapshot } from '@entities/supporter'
-import { Email } from '@values/Email'
-import { Exception } from '@values/Exception'
-import { Id } from '@values/Id'
-import { Result } from '@values/Result'
+import { Email } from '@common_values/Email'
+import { Exception } from '@common_values/Exception'
+import { Id } from '@common_values/Id'
+import { Result } from '@common_values/Result'
+import { Supporter, type SupporterSnapshot } from '@domain/supporter'
 
 export class SupporterRepositoryInMemory implements SupporterRepository {
   private collection: SupporterSnapshot[] = []

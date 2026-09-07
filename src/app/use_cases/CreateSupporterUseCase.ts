@@ -1,10 +1,10 @@
 import { SupporterRepository } from '@app/repositories/SupporterRepository'
-import { Supporter } from '@entities/supporter'
-import { Email } from '@values/Email'
-import { Exception } from '@values/Exception'
-import { Id } from '@values/Id'
-import { Name } from '@values/Name'
-import { Result } from '@values/Result'
+import { Email } from '@common_values/Email'
+import { Exception } from '@common_values/Exception'
+import { Id } from '@common_values/Id'
+import { Name } from '@common_values/Name'
+import { Result } from '@common_values/Result'
+import { Supporter } from '@domain/supporter'
 
 export class CreateSupporterUseCase {
   constructor(private supporterRepository: SupporterRepository) {}

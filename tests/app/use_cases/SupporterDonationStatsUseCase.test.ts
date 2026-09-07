@@ -1,12 +1,12 @@
 import { SupporterDonationStatsUseCase } from '@app/use_cases/SupporterDonationStatsUseCase'
-import { Campaign } from '@entities/campaign'
-import { Supporter } from '@entities/supporter'
+import { Email } from '@common_values/Email'
+import { Id } from '@common_values/Id'
+import { Money } from '@common_values/Money'
+import { Name } from '@common_values/Name'
+import { Campaign } from '@domain/campaign'
+import { Supporter } from '@domain/supporter'
 import { CampaignRepositoryInMemory } from '@infra/repositories/CampaignRepositoryInMemory'
 import { SupporterRepositoryInMemory } from '@infra/repositories/SupporterRepositoryInMemory'
-import { Email } from '@values/Email'
-import { Id } from '@values/Id'
-import { Money } from '@values/Money'
-import { Name } from '@values/Name'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 describe('SupporterDonationStatsUseCase', () => {

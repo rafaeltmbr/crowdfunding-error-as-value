@@ -1,8 +1,8 @@
-import { Email, type EmailSnapshot } from '@values/Email'
-import { Exception } from '@values/Exception'
-import { Id, IdSnapshot } from '@values/Id'
-import { Name, type NameSnapshot } from '@values/Name'
-import { Result } from '@values/Result'
+import { Email, type EmailSnapshot } from '@common_values/Email'
+import { Exception } from '@common_values/Exception'
+import { Id, type IdSnapshot } from '@common_values/Id'
+import { Name, type NameSnapshot } from '@common_values/Name'
+import { Result } from '@common_values/Result'
 
 export class Supporter {
   protected constructor(

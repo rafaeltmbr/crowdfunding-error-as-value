@@ -1,10 +1,10 @@
 import { CampaignRepository } from '@app/repositories/CampaignRepository'
-import { Campaign } from '@entities/campaign'
-import { Exception } from '@values/Exception'
-import { Id } from '@values/Id'
-import { Money } from '@values/Money'
-import { Name } from '@values/Name'
-import { Result } from '@values/Result'
+import { Exception } from '@common_values/Exception'
+import { Id } from '@common_values/Id'
+import { Money } from '@common_values/Money'
+import { Name } from '@common_values/Name'
+import { Result } from '@common_values/Result'
+import { Campaign } from '@domain/campaign'
 
 export interface CreateCampaignTierParams {
   name: Name

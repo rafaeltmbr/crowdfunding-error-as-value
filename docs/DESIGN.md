@@ -36,7 +36,7 @@ if (!isValid) throw new Error('...')
 
 ### Error Hierarchy
 
-Errors are **domain primitives** — immutable signal objects that carry structured information about what went wrong. They live in `src/domain/values/Exception.ts` alongside `Result.ts`.
+Errors are **domain primitives** — immutable signal objects that carry structured information about what went wrong. They live in `src/domain/common_values/Exception.ts` alongside `Result.ts`.
 
 - **Rule**: All errors are represented by the single `Exception` class. Do not create custom error classes or inherit from `Error`.
 - **Rule**: The `Exception` class carries an `ExceptionGroup` enum (`Validation`, `NotFound`, `Infrastructure`, `Unexpected`) for high-level classification and discriminated union narrowing (e.g., `switch(error.group)` for HTTP status mapping).
@@ -184,15 +184,25 @@ Within an Aggregate, entities hold **direct references** (in-memory) to their ch
 
 This preserves Aggregate boundaries: an Aggregate cannot accidentally reach into another Aggregate's internals through a direct reference.
 
-## 7. Aggregate Root
+## 7. Aggregate Root & Domain Organization
 
 An Aggregate Root is the only entry point for modifying its child entities. External code never directly creates or modifies children.
 
-- **Rule**: Every aggregate MUST have its own dedicated folder inside the `entities` directory (e.g., `src/domain/entities/campaign/`, `src/domain/entities/supporter/`).
+- **Rule**: Every aggregate MUST have its own dedicated folder directly inside `src/domain/` (e.g., `src/domain/campaign/`, `src/domain/supporter/`).
+- **Rule**: Cross-cutting, shared Value Objects and domain primitives (e.g., `Result`, `Exception`, `Id`, `Money`, `Name`, `Email`) live in `src/domain/common_values/`.
 - **Rule**: The aggregate's directory MUST contain an `index.ts` (barrel file).
-- **Rule**: Only the Aggregate Root entity (and explicitly required types like snapshots) should be exported from this `index.ts` file. Internal entities and value objects (like `Tier` or `Donation`) MUST NOT be exported.
+- **Rule**: Only the Aggregate Root entity (and explicitly required types like snapshots) should be exported from this `index.ts` file. Internal entities and specialized value objects MUST NOT be exported.
 - **Rule**: Child entities MUST NOT be created or modified outside the Aggregate Root.
 - **Rule**: All invariants spanning multiple children are enforced by the Aggregate Root.
+
+### File Organization & Anti-Fragmentation
+
+To prevent unnecessary directory bloat and overfragmentation:
+
+- **Dedicated Files**: Split concepts into their own separate files within the aggregate folder **ONLY IF**:
+  1. They represent meaningful, substantive domain concepts (e.g., child entities like `Tier` or `Donation`).
+  2. They are shared across multiple files within that aggregate.
+- **Colocated Internal Classes**: Tightly coupled, single-use classes (such as specialized Value Objects like `CampaignName` or `SupporterName`, and internal collection wrappers or components) SHOULD remain internal to the module file that uses them.
 
 ## 8. Component Delegation
 

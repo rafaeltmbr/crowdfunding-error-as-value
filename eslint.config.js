@@ -48,7 +48,7 @@ export default tseslint.config(
             {
               group: ['./*', '../*'],
               message:
-                'Relative imports are not allowed. Use alias imports (e.g., @entities/) instead.',
+                'Relative imports are not allowed. Use alias imports (e.g., @domain/) instead.',
             },
           ],
         },

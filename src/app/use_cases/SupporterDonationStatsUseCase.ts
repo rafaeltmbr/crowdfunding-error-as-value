@@ -1,9 +1,9 @@
 import { CampaignRepository } from '@app/repositories/CampaignRepository'
 import { SupporterRepository } from '@app/repositories/SupporterRepository'
-import { Campaign, SupporterDonationStats } from '@entities/campaign'
-import { Exception } from '@values/Exception'
-import { Id } from '@values/Id'
-import { Result } from '@values/Result'
+import { Exception } from '@common_values/Exception'
+import { Id } from '@common_values/Id'
+import { Result } from '@common_values/Result'
+import { Campaign, SupporterDonationStats } from '@domain/campaign'
 
 export interface SupporterDonationStatsParams {
   campaignId: Id

@@ -1,8 +1,8 @@
-import { Tier, type TierSnapshot } from '@entities/campaign/Tier'
-import { Exception } from '@values/Exception'
-import { Id, type IdSnapshot } from '@values/Id'
-import { Money, type MoneySnapshot } from '@values/Money'
-import { Result } from '@values/Result'
+import { Exception } from '@common_values/Exception'
+import { Id, type IdSnapshot } from '@common_values/Id'
+import { Money, type MoneySnapshot } from '@common_values/Money'
+import { Result } from '@common_values/Result'
+import { Tier, type TierSnapshot } from '@domain/campaign/Tier'
 
 export class Donation {
   protected constructor(

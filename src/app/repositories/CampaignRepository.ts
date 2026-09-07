@@ -1,7 +1,7 @@
-import { Campaign } from '@entities/campaign'
-import { Id } from '@values/Id'
-import { Name } from '@values/Name'
-import { Result } from '@values/Result'
+import { Id } from '@common_values/Id'
+import { Name } from '@common_values/Name'
+import { Result } from '@common_values/Result'
+import { Campaign } from '@domain/campaign'
 
 export interface CampaignRepository {
   upsert(campaign: Campaign): Promise<Result<void>>
