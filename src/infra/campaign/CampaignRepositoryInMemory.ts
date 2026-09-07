@@ -1,4 +1,4 @@
-import { CampaignRepository } from '@app/repositories/CampaignRepository'
+import { CampaignRepository } from '@app/campaign/CampaignRepository'
 import { Campaign, type CampaignSnapshot } from '@domain/campaign'
 import { Exception, Id, Name, Result } from '@domain/common_values'
 

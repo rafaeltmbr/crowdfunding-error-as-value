@@ -1,20 +1,15 @@
-import { CampaignRepository } from '@app/repositories/CampaignRepository'
-import { SupporterRepository } from '@app/repositories/SupporterRepository'
-import { Campaign, SupporterDonationStats } from '@domain/campaign'
-import { Exception, Id, Result } from '@domain/common_values'
+import { CampaignRepository } from '@app/campaign/CampaignRepository'
+import { SupporterRepository } from '@app/supporter/SupporterRepository'
+import { Campaign } from '@domain/campaign'
+import { Exception, Id, Money, Result } from '@domain/common_values'
 
-export interface SupporterDonationStatsParams {
-  campaignId: Id
-  supporterId: Id
-}
-
-export class SupporterDonationStatsUseCase {
+export class MakeDonationUseCase {
   constructor(
     private campaignRepository: CampaignRepository,
     private supporterRepository: SupporterRepository
   ) {}
 
-  async execute(params: SupporterDonationStatsParams): Promise<Result<SupporterDonationStats>> {
+  async execute(params: MakeDonationParams): Promise<Result<void>> {
     const supporterValidation = await this.validateSupporter(params.supporterId)
     if (supporterValidation.error) return supporterValidation
 
@@ -23,7 +18,10 @@ export class SupporterDonationStatsUseCase {
 
     const campaign = campaignResult.value
 
-    return Result.succeed(campaign.supporterDonationStats(params.supporterId))
+    const makeDonationResult = campaign.makeDonation(params.amount, params.supporterId)
+    if (makeDonationResult.error) return makeDonationResult
+
+    return await this.campaignRepository.upsert(campaign)
   }
 
   private async validateSupporter(supporterId: Id): Promise<Result<void>> {
@@ -43,10 +41,14 @@ export class SupporterDonationStatsUseCase {
     if (campaignResult.error) return campaignResult
 
     const campaign = campaignResult.value
-    if (!campaign) {
-      return Result.fail(Exception.notFound('CAMPAIGN_NOT_FOUND', [campaignId]))
-    }
+    if (!campaign) return Result.fail(Exception.notFound('CAMPAIGN_NOT_FOUND', [campaignId]))
 
     return Result.succeed(campaign)
   }
+}
+
+export interface MakeDonationParams {
+  campaignId: Id
+  supporterId: Id
+  amount: Money
 }

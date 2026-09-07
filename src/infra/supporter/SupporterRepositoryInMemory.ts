@@ -1,4 +1,4 @@
-import { SupporterRepository } from '@app/repositories/SupporterRepository'
+import { SupporterRepository } from '@app/supporter/SupporterRepository'
 import { Email, Exception, Id, Result } from '@domain/common_values'
 import { Supporter, type SupporterSnapshot } from '@domain/supporter'
 

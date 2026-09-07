@@ -1,15 +1,15 @@
 import * as repl from 'node:repl'
 import * as util from 'node:util'
 
-import { CreateCampaignUseCase } from '@app/use_cases/CreateCampaignUseCase'
-import { CreateSupporterUseCase } from '@app/use_cases/CreateSupporterUseCase'
-import { MakeDonationUseCase } from '@app/use_cases/MakeDonationUseCase'
-import { SupporterDonationStatsUseCase } from '@app/use_cases/SupporterDonationStatsUseCase'
+import { CreateCampaignUseCase } from '@app/campaign/CreateCampaignUseCase'
+import { MakeDonationUseCase } from '@app/campaign/MakeDonationUseCase'
+import { SupporterDonationStatsUseCase } from '@app/campaign/SupporterDonationStatsUseCase'
+import { CreateSupporterUseCase } from '@app/supporter/CreateSupporterUseCase'
 import { Campaign } from '@domain/campaign'
 import { Email, Exception, ExceptionGroup, Id, Money, Name, Result } from '@domain/common_values'
 import { Supporter } from '@domain/supporter'
-import { CampaignRepositoryInMemory } from '@infra/repositories/CampaignRepositoryInMemory'
-import { SupporterRepositoryInMemory } from '@infra/repositories/SupporterRepositoryInMemory'
+import { CampaignRepositoryInMemory } from '@infra/campaign/CampaignRepositoryInMemory'
+import { SupporterRepositoryInMemory } from '@infra/supporter/SupporterRepositoryInMemory'
 
 export class Console {
   private replServer!: repl.REPLServer

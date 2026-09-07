@@ -1,7 +1,7 @@
-import { CreateSupporterUseCase } from '@app/use_cases/CreateSupporterUseCase'
+import { CreateSupporterUseCase } from '@app/supporter/CreateSupporterUseCase'
 import { Email, Id, Name } from '@domain/common_values'
 import { Supporter } from '@domain/supporter'
-import { SupporterRepositoryInMemory } from '@infra/repositories/SupporterRepositoryInMemory'
+import { SupporterRepositoryInMemory } from '@infra/supporter/SupporterRepositoryInMemory'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 describe('CreateSupporterUseCase', () => {
