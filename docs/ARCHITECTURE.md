@@ -11,8 +11,8 @@ The system follows **Ports and Adapters**. The domain is at the center, fully is
 The system is organized in three layers:
 
 - **Domain**: Pure TypeScript. Zero external dependencies. Structured around top-level Aggregates (e.g., `src/domain/campaign/`, `src/domain/supporter/`) and shared domain primitives (`src/domain/common_values/`). Contains Entities, Value Objects, Aggregates, and domain logic.
-- **Application**: Orchestration. Contains Use Cases and Port definitions (Repository interfaces). The Application layer ONLY communicates using Domain Objects (Entities and Value Objects). It does not deal with raw primitives for domain concepts.
-- **Infrastructure**: Adapters that implement Ports. Contains database clients, external API integrations, framework glue. This layer is responsible for parsing raw primitives (e.g., from HTTP requests or databases) into proper Domain Objects before passing them inward.
+- **Application**: Orchestration. Structured around aggregates (e.g., `src/app/campaign/`, `src/app/supporter/`). Contains Use Cases and Port definitions (Repository interfaces). The Application layer ONLY communicates using Domain Objects (Entities and Value Objects). It does not deal with raw primitives for domain concepts.
+- **Infrastructure**: Adapters that implement Ports, structured around aggregates (e.g., `src/infra/campaign/`, `src/infra/supporter/`), plus delivery mechanisms (`src/infra/console/`). Contains database clients, external API integrations, framework glue. This layer is responsible for parsing raw primitives (e.g., from HTTP requests or databases) into proper Domain Objects before passing them inward.
 
 ## 2. The Dependency Rule
 
