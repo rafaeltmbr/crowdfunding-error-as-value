@@ -11,7 +11,7 @@ This project enforces strict OO principles to produce **rich, behavioral domain 
 ### Validation Responsibilities
 
 - **Rule**: Domain validations are performed exclusively by the objects themselves (Value Objects or Entities) that contain the data.
-- **Rule**: The only exception is validation logic that spans across multiple aggregates or across the entire application (e.g., verifying that a Supporter email or Campaign name is unique across the application). Because a single entity instance does not and should not know or care about other aggregate instances, cross-aggregate validation is delegated to the Application Layer through Use Cases or Application Services.
+- **Rule**: The only exception is validation logic that spans across multiple aggregates or across the entire application (e.g., verifying that a Supporter email or Campaign name is unique across the application). Because a single entity instance does not and should not know or care about other aggregate instances, cross-aggregate validation is delegated to the Application Layer through Use Cases.
 
 ## 2. Error-as-Value: The Result Pattern
 

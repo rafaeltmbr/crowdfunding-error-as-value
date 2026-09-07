@@ -1,7 +1,5 @@
 import { CreateSupporterUseCase } from '@app/use_cases/CreateSupporterUseCase'
-import { Email } from '@common_values/Email'
-import { Id } from '@common_values/Id'
-import { Name } from '@common_values/Name'
+import { Email, Id, Name } from '@domain/common_values'
 import { Supporter } from '@domain/supporter'
 import { SupporterRepositoryInMemory } from '@infra/repositories/SupporterRepositoryInMemory'
 import { beforeEach, describe, expect, it } from 'vitest'

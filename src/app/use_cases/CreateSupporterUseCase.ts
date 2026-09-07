@@ -1,9 +1,5 @@
 import { SupporterRepository } from '@app/repositories/SupporterRepository'
-import { Email } from '@common_values/Email'
-import { Exception } from '@common_values/Exception'
-import { Id } from '@common_values/Id'
-import { Name } from '@common_values/Name'
-import { Result } from '@common_values/Result'
+import { Email, Exception, Id, Name, Result } from '@domain/common_values'
 import { Supporter } from '@domain/supporter'
 
 export class CreateSupporterUseCase {

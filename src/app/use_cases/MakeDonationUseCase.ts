@@ -1,10 +1,7 @@
 import { CampaignRepository } from '@app/repositories/CampaignRepository'
 import { SupporterRepository } from '@app/repositories/SupporterRepository'
-import { Exception } from '@common_values/Exception'
-import { Id } from '@common_values/Id'
-import { Money } from '@common_values/Money'
-import { Result } from '@common_values/Result'
 import { Campaign } from '@domain/campaign'
+import { Exception, Id, Money, Result } from '@domain/common_values'
 
 export class MakeDonationUseCase {
   constructor(

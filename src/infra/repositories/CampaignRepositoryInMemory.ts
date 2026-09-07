@@ -1,9 +1,6 @@
 import { CampaignRepository } from '@app/repositories/CampaignRepository'
-import { Exception } from '@common_values/Exception'
-import { Id } from '@common_values/Id'
-import { Name } from '@common_values/Name'
-import { Result } from '@common_values/Result'
 import { Campaign, type CampaignSnapshot } from '@domain/campaign'
+import { Exception, Id, Name, Result } from '@domain/common_values'
 
 export class CampaignRepositoryInMemory implements CampaignRepository {
   private collection: CampaignSnapshot[] = []

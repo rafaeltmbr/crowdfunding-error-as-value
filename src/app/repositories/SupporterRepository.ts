@@ -1,6 +1,4 @@
-import { Email } from '@common_values/Email'
-import { Id } from '@common_values/Id'
-import { Result } from '@common_values/Result'
+import { Email, Id, Result } from '@domain/common_values'
 import { Supporter } from '@domain/supporter'
 
 export interface SupporterRepository {

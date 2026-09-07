@@ -1,8 +1,5 @@
 import { SupporterRepository } from '@app/repositories/SupporterRepository'
-import { Email } from '@common_values/Email'
-import { Exception } from '@common_values/Exception'
-import { Id } from '@common_values/Id'
-import { Result } from '@common_values/Result'
+import { Email, Exception, Id, Result } from '@domain/common_values'
 import { Supporter, type SupporterSnapshot } from '@domain/supporter'
 
 export class SupporterRepositoryInMemory implements SupporterRepository {

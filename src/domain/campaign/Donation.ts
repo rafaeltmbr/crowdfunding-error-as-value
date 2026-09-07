@@ -1,8 +1,12 @@
-import { Exception } from '@common_values/Exception'
-import { Id, type IdSnapshot } from '@common_values/Id'
-import { Money, type MoneySnapshot } from '@common_values/Money'
-import { Result } from '@common_values/Result'
 import { Tier, type TierSnapshot } from '@domain/campaign/Tier'
+import {
+  Exception,
+  Id,
+  type IdSnapshot,
+  Money,
+  type MoneySnapshot,
+  Result,
+} from '@domain/common_values'
 
 export class Donation {
   protected constructor(

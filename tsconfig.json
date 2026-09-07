@@ -3,10 +3,8 @@
   "compilerOptions": {
     "paths": {
       "@app/*": ["./src/app/*"],
-      "@common_values/*": ["./src/domain/common_values/*"],
       "@domain/*": ["./src/domain/*"],
-      "@infra/*": ["./src/infra/*"],
-      "@services/*": ["./src/app/services/*"]
+      "@infra/*": ["./src/infra/*"]
     },
     // File Layout
     "rootDir": ".",

@@ -1,0 +1,6 @@
+export * from '@domain/common_values/Email'
+export * from '@domain/common_values/Exception'
+export * from '@domain/common_values/Id'
+export * from '@domain/common_values/Money'
+export * from '@domain/common_values/Name'
+export * from '@domain/common_values/Result'

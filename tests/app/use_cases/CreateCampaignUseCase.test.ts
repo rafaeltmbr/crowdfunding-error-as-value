@@ -1,6 +1,5 @@
 import { CreateCampaignUseCase } from '@app/use_cases/CreateCampaignUseCase'
-import { Money } from '@common_values/Money'
-import { Name } from '@common_values/Name'
+import { Money, Name } from '@domain/common_values'
 import { Campaign } from '@domain/campaign'
 import { CampaignRepositoryInMemory } from '@infra/repositories/CampaignRepositoryInMemory'
 import { beforeEach, describe, expect, it } from 'vitest'

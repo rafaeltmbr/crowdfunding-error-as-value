@@ -3,10 +3,8 @@ import path from 'node:path'
 
 const ALIASES = {
   '@app': 'src/app',
-  '@common_values': 'src/domain/common_values',
   '@domain': 'src/domain',
   '@infra': 'src/infra',
-  '@services': 'src/app/services',
 }
 
 function resolveImportPath(importSource, currentFilePath, cwd) {

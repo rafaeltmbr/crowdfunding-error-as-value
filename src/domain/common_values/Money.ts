@@ -1,5 +1,5 @@
-import { Exception } from '@common_values/Exception'
-import { Result } from '@common_values/Result'
+import { Exception } from '@domain/common_values/Exception'
+import { Result } from '@domain/common_values/Result'
 
 export class Money {
   protected constructor(protected value: number) {}

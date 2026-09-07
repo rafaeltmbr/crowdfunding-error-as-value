@@ -9,7 +9,7 @@ src/
 ├── domain/          # Entities and Value Objects (no external dependencies)
 │   ├── entities/    # Campaign, Donation, Supporter, Tier
 │   └── values/      # Email, Id, Money, Name, Result
-└── app/             # Application layer (repositories, services)
+└── app/             # Application layer (repositories, use_cases)
 ```
 
 The domain layer has zero dependencies on the application or infrastructure layers. This is enforced by ESLint rules.

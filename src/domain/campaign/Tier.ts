@@ -1,8 +1,13 @@
-import { Exception } from '@common_values/Exception'
-import { Id, type IdSnapshot } from '@common_values/Id'
-import { Money, type MoneySnapshot } from '@common_values/Money'
-import { Name, type NameSnapshot } from '@common_values/Name'
-import { Result } from '@common_values/Result'
+import {
+  Exception,
+  Id,
+  type IdSnapshot,
+  Money,
+  type MoneySnapshot,
+  Name,
+  type NameSnapshot,
+  Result,
+} from '@domain/common_values'
 
 export class Tier {
   protected constructor(
